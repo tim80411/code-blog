@@ -3,9 +3,9 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Timothy Noting Ground
-subtitle: 不寫怕忘記
-description: 動手紀錄下來的內容才會內化到心裡
+title: Timothy Coding Ground
+subtitle: 沒貓在手, 寫code會抖<br>有貓可吸, 全家開心
+description: Coding Learning Writing
 keywords: Backend, web dev, nodeJs, JavaScript
 author: Timothy Liao
 language: en
@@ -55,6 +55,16 @@ prismjs:
   preprocess: true
   line_number: true
   tab_replace: ''
+
+symbols_count_time:
+  symbols: false
+
+#search
+search:
+  path: search.xml
+  field: post
+  content: true
+  format: html
 
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
