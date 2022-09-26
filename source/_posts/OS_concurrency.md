@@ -1,12 +1,15 @@
 ---
 title: 行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)
 tags: ['鐵人賽', 'OS', 'Concurrency', 'Thread', 'Process']
+date: 2022-09-25 00:40:37
 ---
 
 ## 前言
 並發Concurrency也是一個常在開發中聽到的名詞，他跟並行Parallel有什麼差別呢?他能夠給系統帶來什麼好處?又有什麼風險需要注意?我們常聽到js是個單執行緒的語言，這又是什麼意思?node.js是單執行緒嗎?
 
 這就是今天會希望解答的問題，那就開始吧~
+
+<!-- more -->
 
 ## Concurrency vs Parallel
 雖然我們今天的主題談的是Concurrency(並發)，但通常會與Parallel(並行)作個比較。

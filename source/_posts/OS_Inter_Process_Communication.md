@@ -1,9 +1,12 @@
 ---
 title: 行程間通訊(Inter Process Communication)
 tags: ['鐵人賽', 'IPC', 'OS']
+date: 2022-09-26 14:55:37
 ---
 ## 前言
 在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組...等等，這些就被稱為行程間通訊。
+
+<!-- more -->
 
 ## 定義
 多個 process/thread 內部要去溝通，都統稱叫做 IPC。
