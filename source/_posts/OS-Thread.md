@@ -1,7 +1,7 @@
 ---
-title: OS_Thread
-date: 2022-09-24 00:40:37
-tags: ['鐵人賽', 'OS', 'Concurrency', 'Thread', 'Process']
+title: 行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理
+date: 2022-09-24 00:40:37+08:00
+tags: ['鐵人賽', 'OS', 'Thread', 'Process']
 ---
 
 ## 前言
