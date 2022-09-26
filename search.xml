@@ -1,3 +1,327 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
+  <entry>
+    <title>OS_Thread</title>
+    <url>/code-blog/2022/09/24/OS-Thread/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>行程是CPU分配資源的最小單位，以後還會聊到，甚至就連docker的container在run的時候就是一個process，很有趣吧，就來稍微認識一下~</p>
+<span id="more"></span>
+
+<h2 id="行程架構"><a href="#行程架構" class="headerlink" title="行程架構"></a>行程架構</h2><p><img src="https://i.imgur.com/DlIreU0.png"></p>
+<blockquote>
+<p>引用自 <a href="https://www.guru99.com/process-management-pcb.html">https://www.guru99.com/process-management-pcb.html</a></p>
+</blockquote>
+<p>此圖大致代表Process在記憶體裡的結構，</p>
+<ul>
+<li>Stack: 暫時性資料，例如Function Parameters、Local variables</li>
+<li>Heap: 執行程式碼所需要的動態工作區</li>
+<li>Data: 儲存全域變數等</li>
+<li>Text: 程式碼所在</li>
+</ul>
+<h2 id="行程生命週期"><a href="#行程生命週期" class="headerlink" title="行程生命週期"></a>行程生命週期</h2><p><img src="https://i.imgur.com/KgOOxn6.png"></p>
+<blockquote>
+<p>引用自 <a href="https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60">https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60</a></p>
+</blockquote>
+<p>共有五種狀態</p>
+<table>
+<thead>
+<tr>
+<th>狀態</th>
+<th align="left">說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>new創建</td>
+<td align="left">初始狀態，分配及建立PCB以及其他資源，在完成上述工作後進入ready</td>
+</tr>
+<tr>
+<td>ready就緒</td>
+<td align="left">在隊列按照CPU Scheduling的演算法等待搶奪CPU以完成工作</td>
+</tr>
+<tr>
+<td>running工作</td>
+<td align="left">一旦搶奪到CPU，此狀態會被設置為工作中，並執行應用程式中的指令。在與ready狀態切換時，會作Context Switch</td>
+</tr>
+<tr>
+<td>waiting等待</td>
+<td align="left">如果因為事件或是IO速度的差異導致等待，就會停在此</td>
+</tr>
+<tr>
+<td>terminated終止</td>
+<td align="left">完成執行、被迫結束(比如在硬性即時系統)或者遇到錯誤時就會進入此狀態</td>
+</tr>
+</tbody></table>
+<h2 id="Process-Control-Block-PCB"><a href="#Process-Control-Block-PCB" class="headerlink" title="Process Control Block, PCB"></a>Process Control Block, PCB</h2><p>記錄行程相關狀態資訊的資料區，每個行程都有自己的一個，並在Process創建時被建立。<br>其內容包含:</p>
+<table>
+<thead>
+<tr>
+<th align="left">項目</th>
+<th align="left">內容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">行程狀態process state</td>
+<td align="left">流程生命週期的狀態</td>
+</tr>
+<tr>
+<td align="left">程式計數器process counter</td>
+<td align="left">紀錄下一個要執行的指令的位址</td>
+</tr>
+<tr>
+<td align="left">CPU暫存器保存區</td>
+<td align="left">不在running state時，CPU暫存器內容會被保存在此</td>
+</tr>
+<tr>
+<td align="left">排班資訊</td>
+<td align="left">例如行程優先等級(priority)等排班時所需要的參數</td>
+</tr>
+<tr>
+<td align="left">記憶體資訊</td>
+<td align="left">其內容根據記憶體系統的種類而定</td>
+</tr>
+<tr>
+<td align="left">帳號資訊Accounting Information</td>
+<td align="left">process所屬的使用者帳號(user id)、行程代號(process identification)、時間限制、已經使用掉的處理機時間、進入系統之實際時間</td>
+</tr>
+<tr>
+<td align="left">IO狀態資訊</td>
+<td align="left">如所配置之輸出入裝置串列、開啟(Opened)之檔案串列等資訊</td>
+</tr>
+</tbody></table>
+<p>大部分資訊由參考資料2來的，並統整了其他資料的內容，所以更詳細可以看參考資料2。</p>
+<h2 id="Process-Create"><a href="#Process-Create" class="headerlink" title="Process Create"></a>Process Create</h2><p>在OS內，Process可以建立child process，因此所有的排程可以組成一個樹狀結構。</p>
+<p>如果你手邊有linux系統的話，可以使用 <code>pstree -aup</code> 看到在你的電腦裡的process的樹狀圖。</p>
+<p><img src="https://i.imgur.com/Mjv8Wl7.png"></p>
+<p>如上圖，甚至可以知道我是在zsh之下執行的這個指令XD</p>
+<p>大部分的OS會支援兩種Process Create的方式</p>
+<ul>
+<li>Fork: 複製父行程的PCB到子PCB</li>
+<li>Exec: 替換子行程的資料，初始化新的PCB資料</li>
+</ul>
+<p>所以建立新的Process就是兩者混用，先Fork一個子行程後，再Exec初始化子行程。</p>
+<p>文章同步更新在<a href="https://tim80411.github.io/code-blog/2022/09/24/OS-Thread/">個人部落格</a>歡迎逛逛~</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60">Operating System: Process and Process Management</a><br><a href="https://chenhh.gitbooks.io/parallel_processing/content/process.html">PCB</a><br><a href="https://ithelp.ithome.com.tw/articles/10202866">程序(process)概念–上</a><br><a href="https://www.tutorialspoint.com/inter_process_communication/inter_process_communication_process_creation_termination.htm">Process Creation</a><br><a href="https://ithelp.ithome.com.tw/articles/10276152?sc=rss.iron">Process</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>OS</tag>
+        <tag>Concurrency</tag>
+        <tag>Thread</tag>
+        <tag>Process</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>行程間通訊(Inter Process Communication)</title>
+    <url>/code-blog/2022/09/26/OS_Inter_Process_Communication/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。</p>
+<span id="more"></span>
+
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>多個 process&#x2F;thread 內部要去溝通，都統稱叫做 IPC。</p>
+<p>關於這點我曾經有點困惑，為什麼Thread之間的溝通也被稱為行程間通訊，我個人給他的解釋是，因為Thread本身也可以算是一個Process，只是跟其他同Process的Thread共享了部分記憶體空間。</p>
+<p><del>不過說不定只是那時候的人取錯名字了?</del></p>
+<h2 id="情境需要"><a href="#情境需要" class="headerlink" title="情境需要"></a>情境需要</h2><ul>
+<li>資訊分享: node.js經過cluster產生的child process和main process需要溝通。</li>
+<li>加速運算: Parallel</li>
+<li>模組化</li>
+<li>方便</li>
+</ul>
+<h2 id="類別"><a href="#類別" class="headerlink" title="類別"></a>類別</h2><ul>
+<li>Shared Memory</li>
+<li>Message Passing</li>
+</ul>
+<h2 id="Shared-Memory"><a href="#Shared-Memory" class="headerlink" title="Shared Memory"></a>Shared Memory</h2><p>共享記憶體以進行通訊，使用時不需要kernel。<br>不過若是兩個Process之間想要使用這個方式進行通訊會因為需要額外建立共享的memeory區塊而發出system call了。</p>
+<h2 id="Message-Passing"><a href="#Message-Passing" class="headerlink" title="Message Passing"></a>Message Passing</h2><p>要實現這個通訊方式，必須包含</p>
+<ul>
+<li>溝通方法: send &amp; receive</li>
+<li>溝通管道</li>
+</ul>
+<p>在有些資料中，雖然會將IPC分為更多類，不過我最後根據<a href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ipc</a>這份資料，認為理解他們的方式應視為在討論Message Passing實踐時的相異之處。</p>
+<p>其中包括討論:</p>
+<ul>
+<li>溝通管道如何被建立?<br>通常會討論是直接通訊Direct Communication或是間接通訊Indirect Communication。</li>
+<li>一個管道是否可以與兩個以上的Process有關?</li>
+<li>Process與Process之間可以有多少管道?</li>
+<li>管道的容量有多少?可容納的訊息是固定還是可變的</li>
+<li>管道是雙向還是單向的</li>
+</ul>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>看了資料後才發現其實IPC蠻靠近我們的<br>包括我們在shell裡面常用的pipe</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find a | xargs grep &#x27;something&#x27;</span><br></pre></td></tr></table></figure>
+<p>因為每個指令是一個process，前指令在將結果傳給後指令接收時使用的就是IPC。</p>
+<p>另外瀏覽器請求server的通信也是。<br>不過IPC的細節實在太燒腦了，差點寫不完只好先停在這裡，若之後真的有機會再回頭來更新吧。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><!-- Tanenbaum & Bos 的Modern Operating Systems -->
+<p><a href="https://hackmd.io/@YiZjennnnn/OS_Note/https%3A%2F%2Fhackmd.io%2F%40YiZjennnnn%2Fipc_interprocess_communication?type=book">IPC (Interprocess Communication)</a><br><a href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ip</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>OS</tag>
+        <tag>IPC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)</title>
+    <url>/code-blog/2022/09/25/OS_concurrency/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>並發Concurrency也是一個常在開發中聽到的名詞，他跟並行Parallel有什麼差別呢?他能夠給系統帶來什麼好處?又有什麼風險需要注意?我們常聽到js是個單執行緒的語言，這又是什麼意思?node.js是單執行緒嗎?</p>
+<p>這就是今天會希望解答的問題，那就開始吧~</p>
+<span id="more"></span>
+
+<h2 id="Concurrency-vs-Parallel"><a href="#Concurrency-vs-Parallel" class="headerlink" title="Concurrency vs Parallel"></a>Concurrency vs Parallel</h2><p>雖然我們今天的主題談的是Concurrency(並發)，但通常會與Parallel(並行)作個比較。</p>
+<p><img src="https://i.imgur.com/kPV2fk8.png"></p>
+<p>這是我在找資料學習時最喜歡的一張圖，我覺得他比較正確的視覺化Concurrency及Parallel的定義及關係。<br>邊對照圖片，我們邊看這兩者的定義</p>
+<ul>
+<li>Concurrency: 多件事可以在一段時間內同時進行</li>
+<li>Parallel: 有多件事可以在一個時間點同時進行</li>
+</ul>
+<p>看起來很像對吧，雖然兩邊都是講同時，但他們對於時間的粒度不太相同，我覺得用排除法去想這件事情比較容易:</p>
+<blockquote>
+<p>當我們在判斷現在是什麼狀況時，先看<strong>某一個瞬間</strong>可不可以有多個任務同時進行，有的話那就是Parallel；若否，再看<strong>一段時間軸</strong>內可不可以有多件事情同時進行，那就是Concurrency。</p>
+</blockquote>
+<p>這也是圖片說的，如果一個系統內可以作到Parallel，那他必定也是Concurrency。<br>另外從圖裡面的CPU的表示也能看到，一般而言(註1)一個CPU同時只能被分配給一個thread，在這個狀況下，只有多CPU的狀況才能出現Parallel，這也是為什麼今天我們只先討論Concurrency。</p>
+<p>註1: 除非今天CPU支援Hyper-threading(超執行緒)。</p>
+<h2 id="Multi-process-Multi-thread-都擠"><a href="#Multi-process-Multi-thread-都擠" class="headerlink" title="Multi process, Multi thread 都擠?"></a>Multi process, Multi thread 都擠?</h2><p>根據Concurrency的定義其實我們可以有兩種Concurrency的方法，一個是多執行緒，一個是多行程，他們都會有多個執行緒讓CPU得以分配時間在他們身上。<br>不過如果你有從昨天一路看下來，就會發現，多行程是一個非常大的成本花費，我們也可以有一個結論，基本上除非你希望資源被隔離得很徹底，不然在Concurrency上，我們應該盡可能使用多執行緒去作Concurrency。</p>
+<p>這邊就有一個例子，大部分的web server在接受到新的request時，是不用等待前面的請求結束對吧?一般而言，都是建立thread去處理請求而非process，然後結束時就立刻把thread terminate。</p>
+<p>再來我們試著用反例想想，如果我們是以建立process的方式來處理多請求同時出現會發生什麼狀況?<br>第一可能會在建立process就花一點時間，當處理完請求後，又會遇到一個難題是要不要把Process砍掉，如果砍掉下次建立又要花時間，但是不砍掉，他會霸佔部分記憶體資源無法使用，如果有某個請求需要超過原本的記憶體大小，就可能造成memory leak。</p>
+<p>當然也有使用多Process的例子，根據這篇資料:</p>
+<blockquote>
+<p>Google had to decide how to handle that separation of tasks. They chose to run each browser window in Chrome as a separate process rather than a thread or many threads, as is common with other browsers.<br>– <a href="https://www.backblaze.com/blog/whats-the-diff-programs-processes-and-threads/">What’s the Diff: Programs, Processes, and Threads</a></p>
+</blockquote>
+<p>Google決定選擇使用多進程的原因可以在內文詳看，但他們認為這可以減少最終對於記憶體的使用。</p>
+<h2 id="並發的好處"><a href="#並發的好處" class="headerlink" title="並發的好處"></a>並發的好處</h2><p>於是我們可以來整理一下，使用並發的好處包括有什麼呢?(無論Process或是Thread)</p>
+<ul>
+<li>性能提升: 能夠做到並發的系統，多個Process在運行時的總時間 &lt;&#x3D;(註1) 順序運行Process的總時間。</li>
+<li>多程式應付可能: 透過CPU scheduling可以讓系統體感像是多個程式在同時進行一樣。</li>
+<li>資源利用: 減少CPU閒置。</li>
+</ul>
+<p>額外補充，若使用多Thread相對多Process處理並發的好處有什麼呢: </p>
+<ul>
+<li>Parallel的可能性: 我們前面談的是單核心處理多Thread的狀況，但如果假使是在一個多Processor(多核心、單核心超執行緒…等等)的架構中，經過規劃的多執行緒程式可以在一個時間點同時進行多個Thread的工作，讓並行得以發生。</li>
+<li>專業化: 我們可以把工作分門別類產生多個Thread去處理特定工作，甚至可以管理Thread，像是可以去管理Thread的優先層級。</li>
+<li>高效: 前面也提到過，Thread相對Process，建立成本低、資料分享容易、資源利用度高，這都是相對多Process高效的原因。</li>
+</ul>
+<p>註1: 假如這邊範例中的多個process都僅需要CPU運算，因為沒有速率差異導致的閒置問題，那執行併發跟順序執行，總時間都會相同。</p>
+<h2 id="並發的風險"><a href="#並發的風險" class="headerlink" title="並發的風險"></a>並發的風險</h2><p>除了好處，事實上多執行緒有許多因為共用資源等特性產生的風險需要在開發時顧慮:</p>
+<ul>
+<li><p>競爭race condition:<br>正因為共用資料，當出現I&#x2F;O或其他不可控的時間或順序事情時，有可能導致順序依賴的錯誤。<br>例如: 有個變數x &#x3D; 3，兩個共用資源的程式可能有兩個操作 x &#x3D; x + 2, x &#x3D; x + 3，結果意外出現5或6，但原本預期最後結果要是8，想像這如果是你的存款XD<br>而且這樣的錯誤又相當難以追蹤，因為並沒有相關錯誤訊息~</p>
+</li>
+<li><p>死鎖dead lock:<br>當一個Process在等待其他Process釋放手上的資源時。<br>比如P1需要P0手上的disk資源，但此時P0因為讓出CPU給P1，以至於兩者都無法完成工作。</p>
+</li>
+<li><p>飢餓starvation:<br>當一個Process因為一直被剝奪完成工作需要的資源。<br>比如因為優先權演算法，P0因為其他優先權更高的Process不斷出現而遲遲拿不到CPU運算。</p>
+</li>
+</ul>
+<p>他們最大的差異，死鎖是除非有額外的機制處理，不然兩者是永遠無法完成工作的；而飢餓則是有機會完成工作，只是不知道什麼時候才會完成。</p>
+<h2 id="User-Thread-vs-Kernel-Thread"><a href="#User-Thread-vs-Kernel-Thread" class="headerlink" title="User Thread vs Kernel Thread"></a>User Thread vs Kernel Thread</h2><p>並發的內容看起來結束了，但看到這邊還有一長段你就會知道還沒有XD<br>事實上，大部分的操作系統為了介入一般應用程式及管理他們，他們會使用一個叫做Kernel的程式。<br>而這個Kernel也影響了多執行緒行程如何與操作系統工作，由此出現了user thread及kernel thread這兩個概念。<br>我覺得有個更好稱呼他們的方式是user-level thread及kernel-level thread。</p>
+<p>於是在比較他們之前我們需要先了解什麼是Kernel及mode。</p>
+<h3 id="Kernel-是什麼"><a href="#Kernel-是什麼" class="headerlink" title="Kernel 是什麼?"></a>Kernel 是什麼?</h3><p>所以究竟Kernel是什麼，他產生thread的原因是什麼呢?</p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/8/8f/Kernel_Layout.svg"><br>他其實也是一個系統中的一個具有足夠優先權限的Process，負責處理其他Process與硬體之間的溝通。<br>需要他的原因在於與硬體溝通是相當複雜的，他提供了介面讓硬體操作被抽象化。</p>
+<blockquote>
+<p>嚴格地說，核心並不是電腦系統中必要的組成部分。有些程式可以直接地被調入電腦中執行；這樣的設計，說明了設計者不希望提供任何硬體抽象和作業系統的支援<br>– <a href="https://zh.wikipedia.org/zh-tw/%E5%86%85%E6%A0%B8">維基百科</a></p>
+</blockquote>
+<p>Kernel會在其他任何Process被載入，讓操作系統得以介入每個Process，這個介入就是讓User-level Thread與Kernel-level Thread綁定在一起。<br>而當User-level Thread需要與硬體溝通，他就會先與Kernel-level Thread溝通，</p>
+<h3 id="Kernel-Mode-vs-User-Mode"><a href="#Kernel-Mode-vs-User-Mode" class="headerlink" title="Kernel Mode vs User Mode"></a>Kernel Mode vs User Mode</h3><p>我把他理解成是兩種不同的權限，為什麼需要兩種特權呢?</p>
+<blockquote>
+<p>為了避免一個使用者的程式修改其他使用者的程式甚至是系統核心， 並且更進一步，讓作業系統可以壟斷所有的硬體資源，大部分的機器(或者 CPU)至少會有二個執行特權(privilege)：Kernel mode (又稱 System mode) 與 User mode。<br>– <a href="https://medicineyeh.wordpress.com/2015/02/10/kernel-mode-%E8%88%87-user-mode-%E7%9A%84%E6%A6%82%E5%BF%B5/">Kernel Mode 與 User Mode 的概念</a></p>
+</blockquote>
+<p>既然知道這兩者模式的差異，那又跟Kernel有什麼關係呢?</p>
+<blockquote>
+<p>Kernel mode is the CPU’s “natural” mode, with no restrictions (on x86 CPUS - “ring 0”). User mode (on x86 CPUs - “ring 3”) is when the CPU is instructed to trigger an interrupt whenever certain instructions are used or whenever some memory locations are accessed. This allows the kernel to have the CPU execute specific kernel code when the user tries to access kernel memory or memory representing I&#x2F;O ports or hardware memory such as the GPU’s frame buffer.<br>– <a href="https://stackoverflow.com/questions/57160637/difference-between-kernel-kernel-thread-and-user-thread">Difference between Kernel, Kernel-Thread and User-Thread</a></p>
+</blockquote>
+<p>大概意思是，在程式要求執行一些動作時，若他不具有特定權限，Kernel也能夠去要求CPU執行一些相對的Kernel code去中斷目前的Process。<br>這樣讓開發者少掉維護或檢查影響到其他的程式的壓力跟錯誤。</p>
+<p>如果是web後端，用最優先的middleware來理解Kernel是不是會容易些?</p>
+<h3 id="User-Thread-x2F-User-level-Thread"><a href="#User-Thread-x2F-User-level-Thread" class="headerlink" title="User Thread &#x2F; User-level Thread"></a>User Thread &#x2F; User-level Thread</h3><p>擁有user mode權限的thread，透過特定介面的library建立的，OS並不知道他們的存在，但在要工作時，會mapping到Kernel thread上。<br>特性: </p>
+<ul>
+<li>產生、管理的成本低</li>
+<li>舉例像是: POSIX Pthreads, Win32 threads, Java threads</li>
+</ul>
+<h3 id="Kernel-Thread-x2F-Kernel-level-Thread"><a href="#Kernel-Thread-x2F-Kernel-level-Thread" class="headerlink" title="Kernel Thread &#x2F; Kernel-level Thread"></a>Kernel Thread &#x2F; Kernel-level Thread</h3><p>僅運行kernel code且與user space(memory) process毫無關聯的Thread。<br>並且我們知道thread一定在process之中，而Kernel thread就是Kernel這個Process產生出來的thread</p>
+<ul>
+<li>CPU能查覺到存在的其實是Kernel-level Thread，而非mapping於他的User-level Thread。</li>
+<li>舉例像是: Windows 2000(NT), Solaris, Linux</li>
+</ul>
+<h2 id="多執行緒模式"><a href="#多執行緒模式" class="headerlink" title="多執行緒模式"></a>多執行緒模式</h2><p>由上，我們會知道，所以在user mode的Process要操作到硬體的部分是需要經過kernel thread。<br>而這個對映的方式稱為mapping，mapping的方式共有三種:</p>
+<ul>
+<li>多對一</li>
+<li>一對一</li>
+<li>多對多</li>
+</ul>
+<h3 id="多對一"><a href="#多對一" class="headerlink" title="多對一"></a>多對一</h3><p><img src="https://i.imgur.com/Sd5bMmQ.png"></p>
+<ul>
+<li>定義: 多個User-level Thread mapping到一個Kernel-level Thread</li>
+<li>優點:<ul>
+<li>Thread管理在user space(memory)完成，效率高</li>
+</ul>
+</li>
+<li>缺點:<ul>
+<li>整個process可能會因為其中一個user thread發出的指令而導致block。</li>
+<li>因為OS僅察覺到一個kernel thread，如果在一個以thread數量平分cpu使用使間的系統中，他的單位仍是一。</li>
+<li>只有一個thread可以訪問kernel，就算是多processor的環境也無法平行。</li>
+</ul>
+</li>
+</ul>
+<h3 id="一對一"><a href="#一對一" class="headerlink" title="一對一"></a>一對一</h3><p><img src="https://i.imgur.com/IxbwdDb.png"></p>
+<ul>
+<li>定義: 一個User-level Thread mapping到一個Kernel-level Thread</li>
+<li>例子: Linux, Windows XP&#x2F;NT&#x2F;2000</li>
+<li>優點:<ul>
+<li>所有多對一的缺點的相反。</li>
+</ul>
+</li>
+<li>缺點:<ul>
+<li>產生一個thread時就同時產生kernel thread，負擔較高</li>
+<li>所有的操作都會進行system call，要進行前者的動作，需要將權限改為kernel mode，而這是一個昂貴的操作</li>
+</ul>
+</li>
+</ul>
+<h3 id="一對多"><a href="#一對多" class="headerlink" title="一對多"></a>一對多</h3><p><img src="https://i.imgur.com/SHSoik1.png"></p>
+<ul>
+<li>定義: 多個User-level Thread mapping到多個Kernel-level Thread</li>
+<li>優點:<ul>
+<li>可在多Processor系統中平行執行。</li>
+<li>某個thread被block後可安排其他kernel thread執行</li>
+</ul>
+</li>
+<li>缺點:<ul>
+<li>需要user thread 管理器與 kernel thread 管理器支援這種協調。</li>
+</ul>
+</li>
+</ul>
+<h2 id="node-js的有趣事實"><a href="#node-js的有趣事實" class="headerlink" title="node.js的有趣事實"></a>node.js的有趣事實</h2><p>關於node.js，他究竟是不是單執行緒的runtime呢?<br>他像是，但其實並不是的。<br>他一共有7個執行緒，包括1個執行JS的主執行緒、4個node.js執行緒、2個V8執行緒。</p>
+<h3 id="調查多執行緒的事實"><a href="#調查多執行緒的事實" class="headerlink" title="調查多執行緒的事實"></a>調查多執行緒的事實</h3><p>要證明這件事情其實意外的容易:</p>
+<ol>
+<li>先做一個可以永久執行的node.js，例如web server或是無限while迴圈之類的</li>
+<li>取得PID<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ps | grep node</span><br></pre></td></tr></table></figure></li>
+<li>查看執行緒<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">top -H -p &lt;PID&gt;</span><br><span class="line"># -H可以顯示行程中的執行緒</span><br><span class="line"># -P指定特定PID</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>你就可以看到7個執行緒了<br>不過4個node.js的執行緒其實只會做I&#x2F;O相關的工作，如果遇到CPU密集的工作，其實還是會發生JS主執行緒阻塞而導致整個Process阻塞的狀況。</p>
+<h3 id="worker-threads-module"><a href="#worker-threads-module" class="headerlink" title="worker-threads module"></a>worker-threads module</h3><p>node.js v12開始支援worker-threads，於是剛剛提到的CPU密集型的工作就可以透過模組建立新的thread去承接這個工作。<br>詳細有興趣的人可以去<a href="https://www.digitalocean.com/community/tutorials/how-to-use-multithreading-in-node-js"></a>跟著教學一起玩一下，蠻有意思的喔!</p>
+<h3 id="cluster-module"><a href="#cluster-module" class="headerlink" title="cluster module"></a>cluster module</h3><p>cluster則是支援建立主Process的child processes，而官方的資料也確實提到，若沒有隔離行程的必要，就使用worker-threads代替。</p>
+<blockquote>
+<p>Clusters of Node.js processes can be used to run multiple instances of Node.js that can distribute workloads among their application threads. When process isolation is not needed, use the worker_threads module instead, which allows running multiple application threads within a single Node.js instance.<br><a href="https://nodejs.org/api/cluster.html">node.js</a></p>
+</blockquote>
+<p>不過根據官方文件以及在實務上看到cluster的用法，cluster更像是一種負載平衡的機制，worker-threads則可以用來應付CPU密集的工作，所以我覺得完全有可能混用他們!</p>
+<p>也確實有stackoverflow的回答這樣認為~</p>
+<blockquote>
+<p>Which is better? It depends on the problem you’re solving. Worker threads are for long-running functions. Clustering makes a server able to handle more requests, by handling them in parallel. You can use both if you need to: have each nodejs cluster process use a worker thread for long-running functions.<br><a href="https://stackoverflow.com/questions/61328960/when-is-better-using-clustering-or-worker-threads">When is better using clustering or worker_threads?</a></p>
+</blockquote>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>雖然寫的辛苦，但總算對於Program、Process、Thread有了更進一步的了解。<br>而且回過頭來，我覺得這樣我在使用一些與Thread以及Process相關的功能時也能更有把握些。<br>想起第一次面試時，當時考官就問我node.js是否是單執行緒這個問題，結果直到今天我才有辦法稍稍好一點的回答這個問題XD</p>
+<h2 id="後話"><a href="#後話" class="headerlink" title="後話"></a>後話</h2><p>發現我用了一些中文單字其實是有中、台兩種說法的，參照<a href="https://oldmo860617.medium.com/%E9%80%B2%E7%A8%8B-%E7%B7%9A%E7%A8%8B-%E5%8D%94%E7%A8%8B-%E5%82%BB%E5%82%BB%E5%88%86%E5%BE%97%E6%B8%85%E6%A5%9A-a09b95bd68dd">此篇</a>特意列出，避免混淆。</p>
+<ul>
+<li>concurrent:<ul>
+<li>台灣：並行</li>
+<li>大陸：並發</li>
+</ul>
+</li>
+<li>parallel:<ul>
+<li>台灣：平行</li>
+<li>大陸：並行</li>
+</ul>
+</li>
+</ul>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://ithelp.ithome.com.tw/articles/10280394">PPT in Operating system</a><br><a href="https://www.kshuang.xyz/doku.php/operating_system:course_concept:thread">Thread</a><br><a href="https://hackmd.io/@Chang-Chia-Chi/OS-CH4">作業系統 CH4 Multithreaded Programming</a><br><a href="https://stackoverflow.com/questions/15983872/difference-between-user-level-and-kernel-supported-threads">Difference between user-level and kernel-supported threads?</a><br><a href="https://stackoverflow.com/questions/57160637/difference-between-kernel-kernel-thread-and-user-thread">Difference between Kernel, Kernel-Thread and User-Thread</a><br><a href="https://zh.wikipedia.org/zh-tw/%E5%86%85%E6%A0%B8">核心</a><br><a href="https://medicineyeh.wordpress.com/2015/02/10/kernel-mode-%E8%88%87-user-mode-%E7%9A%84%E6%A6%82%E5%BF%B5/">Kernel Mode 與 User Mode 的概念</a><br><a href="https://medium.com/@akhandmishra/operating-system-threads-and-concurrency-aec2036b90f8">Operating System: Threads and Concurrency</a><br><a href="https://www.digitalocean.com/community/tutorials/how-to-use-multithreading-in-node-js">https://www.digitalocean.com/community/tutorials/how-to-use-multithreading-in-node-js</a><br><a href="https://blog.appsignal.com/2021/02/03/improving-node-application-performance-with-clustering.html">Improving Node.js Application Performance With Clustering</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>OS</tag>
+        <tag>Concurrency</tag>
+        <tag>Thread</tag>
+        <tag>Process</tag>
+      </tags>
+  </entry>
 </search>
