@@ -1,78 +1,120 @@
 ---
 title: 行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理
-date: 2022-09-24 00:40:37+08:00
+date: 2022-09-24 00:40:37
 tags: ['鐵人賽', 'OS', 'Thread', 'Process']
 ---
 
 ## 前言
-行程是CPU分配資源的最小單位，以後還會聊到，甚至就連docker的container在run的時候就是一個process，很有趣吧，就來稍微認識一下~
+今天會討論執行緒Thread，是一個我覺得很容易跟行程Process混淆的概念，為了學習跟整理這個概念，我們可以踩在前人的肩膀上前進XD
+
+透過一張別人整理出來的Process、Thread比較圖，我們來問問一些「為什麼?」。
+而透過回答經過整理的問題，可以看到兩者的差別及是什麼造成這些差別。
+
+而最後我相信通過探究這些差異的過程，不只可以幫助理解Thread，也同時可以回頭幫助了解Process~
 
 <!-- more -->
 
-## 行程架構
+## 執行緒Thread
 
-![](https://i.imgur.com/DlIreU0.png)
-> 引用自 https://www.guru99.com/process-management-pcb.html
-
-此圖大致代表Process在記憶體裡的結構，
-
-- Stack: 暫時性資料，例如Function Parameters、Local variables
-- Heap: 執行程式碼所需要的動態工作區
-- Data: 儲存全域變數等
-- Text: 程式碼所在
-
-## 行程生命週期
-![](https://i.imgur.com/KgOOxn6.png "")
-> 引用自 https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60
-
-共有五種狀態
-
-| 狀態           | 說明                                                                                                   |
-| -------------- | :----------------------------------------------------------------------------------------------------- |
-| new創建        | 初始狀態，分配及建立PCB以及其他資源，在完成上述工作後進入ready                                         |
-| ready就緒      | 在隊列按照CPU Scheduling的演算法等待搶奪CPU以完成工作                                                  |
-| running工作    | 一旦搶奪到CPU，此狀態會被設置為工作中，並執行應用程式中的指令。在與ready狀態切換時，會作Context Switch |
-| waiting等待    | 如果因為事件或是IO速度的差異導致等待，就會停在此                                                       |
-| terminated終止 | 完成執行、被迫結束(比如在硬性即時系統)或者遇到錯誤時就會進入此狀態                                     |
+| Item           | Process                                | Thread             |
+| :------------- | :------------------------------------- | :----------------- |
+| 定義           | 在執行中的程式                         | 行程的一部分       |
+| 輕量           | 不輕量                                 | 輕量               |
+| 終止時間       | 較長                                   | 較短               |
+| 建立時間       | 較長                                   | 較短               |
+| 溝通           | 行程間的溝通較費力且相對Thread來說更久 | 溝通容易且相對較短 |
+| 上下文交換     | 較長                                   | 較短               |
+| 資源 (CPU時間) | 消耗較多資源                           | 較少               |
+| 記憶體         | 幾乎隔離                               | 有共享的記憶體位置 |
+| 資料共用       | 不共用資料                             | 共享資料           |
+from [Process vs Thread – Difference Between Them](https://www.guru99.com/difference-between-process-and-thread.html)
 
 
-## Process Control Block, PCB
-記錄行程相關狀態資訊的資料區，每個行程都有自己的一個，並在Process創建時被建立。
-其內容包含:
+### 為什麼說Thread是Process的一部分?
+我們可以用三種角度來看這個定義，看能不能釐清他們!
 
-| 項目                           | 內容                                                                                                                     |
-| :----------------------------- | :----------------------------------------------------------------------------------------------------------------------- |
-| 行程狀態process state          | 流程生命週期的狀態                                                                                                       |
-| 程式計數器process counter      | 紀錄下一個要執行的指令的位址                                                                                             |
-| CPU暫存器保存區                | 不在running state時，CPU暫存器內容會被保存在此                                                                           |
-| 排班資訊                       | 例如行程優先等級(priority)等排班時所需要的參數                                                                           |
-| 記憶體資訊                     | 其內容根據記憶體系統的種類而定                                                                                           |
-| 帳號資訊Accounting Information | process所屬的使用者帳號(user id)、行程代號(process identification)、時間限制、已經使用掉的處理機時間、進入系統之實際時間 |
-| IO狀態資訊                     | 如所配置之輸出入裝置串列、開啟(Opened)之檔案串列等資訊                                                                   |
+#### 角度1: 工廠藍圖想像
+我們先用比較淺顯的想像開頭:
+> 想像我們按照「藍圖」建立「工廠」，「工廠」裡面會聘請「工人」來完成工作。
 
-大部分資訊由參考資料2來的，並統整了其他資料的內容，所以更詳細可以看參考資料2。
+上面提到的藍圖、工廠、工人分別就是Program、Process、Thread。
+所以實際上完成功作的是作為工人的Thread。
 
-## Process Create
-在OS內，Process可以建立child process，因此所有的排程可以組成一個樹狀結構。
+但這邊我在看的時候產生一個困惑，我們在操作系統簡介不是曾說: 
+> Process會根據CPU scheduling機制搶占CPU資源
 
-如果你手邊有linux系統的話，可以使用 `pstree -aup` 看到在你的電腦裡的process的樹狀圖。
+這樣到底是Process還是Thread完成工作呢?
 
-![](https://i.imgur.com/Mjv8Wl7.png)
+其實這句話依舊是正確的，只是說的還不夠多，要了解這點，我們需要先知到Thread到底是什麼又存在哪裡。
 
-如上圖，甚至可以知道我是在zsh之下執行的這個指令XD
+透過一張圖的幫忙會更容易理解了。
 
-大部分的OS會支援兩種Process Create的方式
-- Fork: 複製父行程的PCB到子PCB
-- Exec: 替換子行程的資料，初始化新的PCB資料
+#### 角度2: 單執行緒行程 vs 多執行緒行程
+![](https://i.imgur.com/Np4e2XK.png)
+> from [程序、行程(process)](https://chenhh.gitbooks.io/parallel_processing/content/process.html#%E8%A1%8C%E7%A8%8B%E7%8B%80%E6%85%8Bprocess-state)
 
-所以建立新的Process就是兩者混用，先Fork一個子行程後，再Exec初始化子行程。
+這是一張單執行緒Process與多執行緒Process的比較圖。
+我們回到表格中的定義:
+> 執行緒是行程的一部分
 
-文章同步更新在[個人部落格](https://tim80411.github.io/code-blog/2022/09/24/OS-Thread/)歡迎逛逛~
+這樣是不是就很明顯地看到這個定義了呢?
+執行緒確實是行程的一部分，於是昨天提到的行程結構，其實就是一個單執行緒行程。
+
+確切來說，執行緒的結構包含獨立的: stack、register、counter
+並且與其他Thread共用code, date(共用變數區), files。
+
+正因為每個Thread有自己的Register、Counter、Stack，所以他們可以自己決定執行哪段程式，也就是說:
+> 每段執行緒可以執行各自片段的程式碼以完成Process需要完成的工作
+
+#### 角度3: 概念總結
+最後來整理一下，並帶到最後一個對Thread及Process之間差異的描述:
+> Process是OS分配資源之對象單位，而Thread才是OS分配CPU時間之對象單位
+>   -- [作業系統筆記(二)：利用處理程序、執行緒來多工處理](https://noob.tw/operating-system-multitasking/)
+
+
+### 為什麼Thread相對輕量?建立及終止時間相對短?資源消耗較少?
+<!-- 建立Thread就像在固定好，且較小的範圍建立資料 -->
+Process建立流程包括:
+1. 向系統註冊，讓系統紀錄執行清單，並標上PID。
+2. 分配適當的資源，包含CPU使用權及獨立的資料儲存空間。
+
+這個過程會申請空白PCB並初始化資料並填入PCB。
+
+而因為Thread共用了大部分Process的狀態(這邊幫助你回憶一下，Thread是Process的一部分XD)，所以可以減少建立及管理的開銷。
+另外一部分牽涉到Context Switch的成本，因為行程在進行Context Switch時，需要保存整個Process的狀態資訊，包括Counter、CPU registers、PCB，在處理這個過程花費的CPU相對Thread較多，因為Thread僅需要保存他自己的CPU register而已。
+
+用工廠的說法來描述這些成本的差異好了。
+建一個工廠需要選地址、找監督特別記錄所有工廠的資料、建立所有流程；而多請一個員工，因為原本的工廠裡面的流程都還在，所以大部分要做的事情都可以被省略。
+
+
+### 為什麼Thread溝通容易?為什麼Thread可以共享資料?又為什麼Process不行?
+一個相同行程裡面多個Thread在被建立時，都可以共用同一個Process裡面的區塊的資料，這個區塊就是Heap，可以把這個區塊理解成像是全域變數的存在。
+
+而不同Process在被建立時，他們彼此之間就會被分配不同的記憶體位置，因為沒有共用記憶體，所以Process之間如果需要溝通就要靠其他方法，一般統稱這些方法為Inter-process communication(IPC)，而這個過程相對不易，但也確保了行程內的資料不易被汙染。
+
+盡可能保持Process之間的獨立性是有它的意義的，就好像我們現在可以毫無猶豫的ctrl + alt + delete直接強制關閉行程卻不用擔心造成其他行程的影響，因為他們之間互不依賴。
+
+
+## 小結
+透過了解Thread，我們進一步釐清了Thread這個概念被建立想要去處理的問題是快速的多工，並提高了資源(CPU、Memory...)的使用率。
+於是接下來會進到下集，我們要談的Concurrency，可以說Thread幾乎是為此而生XD至於為什麼這麼說，下一篇也會試圖解釋這件事情!
+那就明天見囉~
+
+本文章同步分享於[部落格]()，歡迎來逛逛~
+
+## 後話
+其實原本是要將內容分成上下兩個部分，但Process、Thread、Concurrency這三個主題實在太息息相關，可以講的東西又太多了。
+不知不覺，篇幅就大到一天要讀完太過難受，為了閱讀體驗~~以及我的鐵人賽挑戰~~，所以最終才分成三篇。
+另外，若有人看不懂本篇的內容的話，可以回頭從[OS overview](https://ithelp.ithome.com.tw/articles/10295580)開始看起喔。
 
 
 ## 參考資料
-[Operating System: Process and Process Management](https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60)
-[PCB](https://chenhh.gitbooks.io/parallel_processing/content/process.html)
-[程序(process)概念--上](https://ithelp.ithome.com.tw/articles/10202866)
-[Process Creation](https://www.tutorialspoint.com/inter_process_communication/inter_process_communication_process_creation_termination.htm)
-[Process](https://ithelp.ithome.com.tw/articles/10276152?sc=rss.iron)
+[行程及執行緒](https://chenhh.gitbooks.io/parallel_processing/content/process.html#%E8%A1%8C%E7%A8%8B%E7%8B%80%E6%85%8Bprocess-state)
+[Why Thread Considered Cheap](https://www.quora.com/Why-are-threads-considered-cheap)
+[What is the difference between concurrent programming and parallel programming?](https://stackoverflow.com/questions/1897993/what-is-the-difference-between-concurrent-programming-and-parallel-programming)
+[程序(進程)、執行緒(線程)、協程，傻傻分得清楚！](https://oldmo860617.medium.com/%E9%80%B2%E7%A8%8B-%E7%B7%9A%E7%A8%8B-%E5%8D%94%E7%A8%8B-%E5%82%BB%E5%82%BB%E5%88%86%E5%BE%97%E6%B8%85%E6%A5%9A-a09b95bd68dd)
+[作業系統筆記(二)：利用處理程序、執行緒來多工處理](https://noob.tw/operating-system-multitasking/)
+[Linux 核心設計: 不僅是個執行單元的 Process](https://hackmd.io/@sysprog/linux-process)
+[PPT in Operating system](https://ithelp.ithome.com.tw/articles/10280394)
+[Threads and its types in Operating System](https://www.geeksforgeeks.org/threads-and-its-types-in-operating-system/)
+[OS Process & Thread (user/kernel) 筆記](https://medium.com/@yovan/os-process-thread-user-kernel-%E7%AD%86%E8%A8%98-aa6e04d35002)
