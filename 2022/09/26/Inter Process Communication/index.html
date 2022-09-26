@@ -20,29 +20,30 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.10.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
-    <meta name="description" content="Coding Learning Writing">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Categories">
-<meta property="og:url" content="https://username.github.io/code-blog/categories/index.html">
+    <meta name="description" content="前言在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。 定義多個 process&#x2F;thread 內部要去溝通，都統稱叫做 IPC。 關於這點我曾經有點困惑，為什麼Thread之間的溝通也被稱為行程間通訊，我個人給他的解釋是，因為Thread本身也可以算是一個Process，只是跟其他同Proce">
+<meta property="og:type" content="article">
+<meta property="og:title" content="行程間通訊(Inter Process Communication)">
+<meta property="og:url" content="https://username.github.io/code-blog/2022/09/26/Inter%20Process%20Communication/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
-<meta property="og:description" content="Coding Learning Writing">
+<meta property="og:description" content="前言在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。 定義多個 process&#x2F;thread 內部要去溝通，都統稱叫做 IPC。 關於這點我曾經有點困惑，為什麼Thread之間的溝通也被稱為行程間通訊，我個人給他的解釋是，因為Thread本身也可以算是一個Process，只是跟其他同Proce">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-03-12T23:44:13.000Z">
+<meta property="article:published_time" content="2022-09-26T16:06:41.207Z">
 <meta property="article:modified_time" content="2022-09-26T16:06:41.207Z">
 <meta property="article:author" content="Timothy Liao">
-<meta property="article:tag" content="Backend, web dev, nodeJs, JavaScript">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="IPC">
+<meta property="article:tag" content="OS">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://username.github.io/code-blog/categories/">
+<link rel="canonical" href="https://username.github.io/code-blog/2022/09/26/Inter%20Process%20Communication/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/categories/index.html","path":"categories/index.html","title":"Categories"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/26/Inter%20Process%20Communication/","path":"2022/09/26/Inter Process Communication/","title":"行程間通訊(Inter Process Communication)"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Categories | Timothy Coding Ground
-</title>
+<title>行程間通訊(Inter Process Communication) | Timothy Coding Ground</title>
   
 
 
@@ -136,7 +137,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -149,6 +150,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%A2%83%E9%9C%80%E8%A6%81"><span class="nav-number">3.</span> <span class="nav-text">情境需要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%9E%E5%88%A5"><span class="nav-number">4.</span> <span class="nav-text">類別</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shared-Memory"><span class="nav-number">5.</span> <span class="nav-text">Shared Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Message-Passing"><span class="nav-number">6.</span> <span class="nav-text">Message Passing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">7.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">8.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -213,43 +215,138 @@
 </noscript>
 
 
-    <div class="main-inner page posts-expand">
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
   
   
 
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/26/Inter%20Process%20Communication/">
 
-    
-    
-    
-    <div class="post-block" lang="en"><header class="post-header">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
 
-<h1 class="post-title" itemprop="name headline">Categories
-</h1>
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+    
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="行程間通訊(Inter Process Communication) | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          行程間通訊(Inter Process Communication)
+        </h1>
 
-<div class="post-meta-container">
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-09-26 16:06:41" itemprop="dateCreated datePublished" datetime="2022-09-26T16:06:41+00:00">2022-09-26</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/09/26/Inter%20Process%20Communication/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/26/Inter Process Communication/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>1 mins.</span>
+    </span>
 </div>
 
-</header>
+        </div>
+      </header>
 
-      
-      
-      <div class="post-body"><div class="category-all-page">
-  <div class="category-all-title">
-    No categories
-  </div>
-  <div class="category-all">
     
-  </div>
-</div>
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。</p>
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>多個 process&#x2F;thread 內部要去溝通，都統稱叫做 IPC。</p>
+<p>關於這點我曾經有點困惑，為什麼Thread之間的溝通也被稱為行程間通訊，我個人給他的解釋是，因為Thread本身也可以算是一個Process，只是跟其他同Process的Thread共享了部分記憶體空間。</p>
+<p><del>不過說不定只是那時候的人取錯名字了?</del></p>
+<h2 id="情境需要"><a href="#情境需要" class="headerlink" title="情境需要"></a>情境需要</h2><ul>
+<li>資訊分享: node.js經過cluster產生的child process和main process需要溝通。</li>
+<li>加速運算: Parallel</li>
+<li>模組化</li>
+<li>方便</li>
+</ul>
+<h2 id="類別"><a href="#類別" class="headerlink" title="類別"></a>類別</h2><ul>
+<li>Shared Memory</li>
+<li>Message Passing</li>
+</ul>
+<h2 id="Shared-Memory"><a href="#Shared-Memory" class="headerlink" title="Shared Memory"></a>Shared Memory</h2><p>共享記憶體以進行通訊，使用時不需要kernel。<br>不過若是兩個Process之間想要使用這個方式進行通訊會因為需要額外建立共享的memeory區塊而發出system call了。</p>
+<h2 id="Message-Passing"><a href="#Message-Passing" class="headerlink" title="Message Passing"></a>Message Passing</h2><p>要實現這個通訊方式，必須包含</p>
+<ul>
+<li>溝通方法: send &amp; receive</li>
+<li>溝通管道</li>
+</ul>
+<p>在有些資料中，雖然會將IPC分為更多類，不過我最後根據<a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ipc</a>這份資料，認為理解他們的方式應視為在討論Message Passing實踐時的相異之處。</p>
+<p>其中包括討論:</p>
+<ul>
+<li>溝通管道如何被建立?<br>通常會討論是直接通訊Direct Communication或是間接通訊Indirect Communication。</li>
+<li>一個管道是否可以與兩個以上的Process有關?</li>
+<li>Process與Process之間可以有多少管道?</li>
+<li>管道的容量有多少?可容納的訊息是固定還是可變的</li>
+<li>管道是雙向還是單向的</li>
+</ul>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>看了資料後才發現其實IPC蠻靠近我們的<br>包括我們在shell裡面常用的pipe</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find a | xargs grep &#x27;something&#x27;</span><br></pre></td></tr></table></figure>
+<p>因為每個指令是一個process，前指令在將結果傳給後指令接收時使用的就是IPC。</p>
+<p>另外瀏覽器請求server的通信也是。<br>不過IPC的細節實在太燒腦了，差點寫不完只好先停在這裡，若之後真的有機會再回頭來更新吧。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><!-- Tanenbaum & Bos 的Modern Operating Systems -->
+<p><a target="_blank" rel="noopener" href="https://hackmd.io/@YiZjennnnn/OS_Note/https%3A%2F%2Fhackmd.io%2F%40YiZjennnnn%2Fipc_interprocess_communication?type=book">IPC (Interprocess Communication)</a><br><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ip</a></p>
 
-      </div>
-      
-      
-      
     </div>
 
     
     
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/IPC/" rel="tag"># IPC</a>
+              <a href="/code-blog/tags/OS/" rel="tag"># OS</a>
+          </div>
+
+        
+
+    </footer>
+  </article>
+</div>
+
+
+
+
 
 
     

@@ -1,28 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Hello World</title>
-    <url>/code-blog/2022/03/12/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<span id="more"></span>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> a = <span class="string">&#x27;&#x27;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-<video src="https://example.com/sample.mp4" preload="metadata" controlslist="nodownload" controls playsinline poster=""></video>
-<mark class="label warning">evaluate</mark>]]></content>
+    <title>行程間通訊(Inter Process Communication)</title>
+    <url>/code-blog/2022/09/26/Inter%20Process%20Communication/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。</p>
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>多個 process&#x2F;thread 內部要去溝通，都統稱叫做 IPC。</p>
+<p>關於這點我曾經有點困惑，為什麼Thread之間的溝通也被稱為行程間通訊，我個人給他的解釋是，因為Thread本身也可以算是一個Process，只是跟其他同Process的Thread共享了部分記憶體空間。</p>
+<p><del>不過說不定只是那時候的人取錯名字了?</del></p>
+<h2 id="情境需要"><a href="#情境需要" class="headerlink" title="情境需要"></a>情境需要</h2><ul>
+<li>資訊分享: node.js經過cluster產生的child process和main process需要溝通。</li>
+<li>加速運算: Parallel</li>
+<li>模組化</li>
+<li>方便</li>
+</ul>
+<h2 id="類別"><a href="#類別" class="headerlink" title="類別"></a>類別</h2><ul>
+<li>Shared Memory</li>
+<li>Message Passing</li>
+</ul>
+<h2 id="Shared-Memory"><a href="#Shared-Memory" class="headerlink" title="Shared Memory"></a>Shared Memory</h2><p>共享記憶體以進行通訊，使用時不需要kernel。<br>不過若是兩個Process之間想要使用這個方式進行通訊會因為需要額外建立共享的memeory區塊而發出system call了。</p>
+<h2 id="Message-Passing"><a href="#Message-Passing" class="headerlink" title="Message Passing"></a>Message Passing</h2><p>要實現這個通訊方式，必須包含</p>
+<ul>
+<li>溝通方法: send &amp; receive</li>
+<li>溝通管道</li>
+</ul>
+<p>在有些資料中，雖然會將IPC分為更多類，不過我最後根據<a href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ipc</a>這份資料，認為理解他們的方式應視為在討論Message Passing實踐時的相異之處。</p>
+<p>其中包括討論:</p>
+<ul>
+<li>溝通管道如何被建立?<br>通常會討論是直接通訊Direct Communication或是間接通訊Indirect Communication。</li>
+<li>一個管道是否可以與兩個以上的Process有關?</li>
+<li>Process與Process之間可以有多少管道?</li>
+<li>管道的容量有多少?可容納的訊息是固定還是可變的</li>
+<li>管道是雙向還是單向的</li>
+</ul>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>看了資料後才發現其實IPC蠻靠近我們的<br>包括我們在shell裡面常用的pipe</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find a | xargs grep &#x27;something&#x27;</span><br></pre></td></tr></table></figure>
+<p>因為每個指令是一個process，前指令在將結果傳給後指令接收時使用的就是IPC。</p>
+<p>另外瀏覽器請求server的通信也是。<br>不過IPC的細節實在太燒腦了，差點寫不完只好先停在這裡，若之後真的有機會再回頭來更新吧。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><!-- Tanenbaum & Bos 的Modern Operating Systems -->
+<p><a href="https://hackmd.io/@YiZjennnnn/OS_Note/https%3A%2F%2Fhackmd.io%2F%40YiZjennnnn%2Fipc_interprocess_communication?type=book">IPC (Interprocess Communication)</a><br><a href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ip</a></p>
+]]></content>
       <tags>
-        <tag>start</tag>
+        <tag>鐵人賽</tag>
+        <tag>IPC</tag>
+        <tag>OS</tag>
       </tags>
   </entry>
 </search>
