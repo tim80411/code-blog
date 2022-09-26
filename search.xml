@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>OS_Thread</title>
+    <title>行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理</title>
     <url>/code-blog/2022/09/23/OS-Thread/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>行程是CPU分配資源的最小單位，以後還會聊到，甚至就連docker的container在run的時候就是一個process，很有趣吧，就來稍微認識一下~</p>
 <span id="more"></span>
@@ -104,14 +104,13 @@
       <tags>
         <tag>鐵人賽</tag>
         <tag>OS</tag>
-        <tag>Concurrency</tag>
         <tag>Thread</tag>
         <tag>Process</tag>
       </tags>
   </entry>
   <entry>
     <title>行程間通訊(Inter Process Communication)</title>
-    <url>/code-blog/2022/09/26/OS_Inter_Process_Communication/</url>
+    <url>/code-blog/2022/09/25/OS_Inter_Process_Communication/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。</p>
 <span id="more"></span>
 
@@ -319,9 +318,9 @@
       <tags>
         <tag>鐵人賽</tag>
         <tag>OS</tag>
-        <tag>Concurrency</tag>
         <tag>Thread</tag>
         <tag>Process</tag>
+        <tag>Concurrency</tag>
       </tags>
   </entry>
 </search>
