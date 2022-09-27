@@ -1,6 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>電腦與外界的通訊方式-輸入/輸出(I/O)管理</title>
+    <url>/code-blog/2022/09/27/OS-IO/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>許多Process的執行除了依賴CPU的運算及Memory的儲存，也依賴於其他設備，其中一部分專門用於接受使用者輸入及引導輸出的設備，被稱為I&#x2F;O設備，I&#x2F;O就是input及output的簡稱。</p>
+<p>透過今天的內容，會稍微了解IO管理的設計，以及是透過什麼方式整合IO設備與CPU的溝通。</p>
+<span id="more"></span>
+
+<h2 id="IO管理的目標"><a href="#IO管理的目標" class="headerlink" title="IO管理的目標"></a>IO管理的目標</h2><ul>
+<li>易用: 方便用戶使用</li>
+<li>效率: 提高系統的併發工作能力</li>
+<li>防錯: 增加設備的可靠及安全性</li>
+</ul>
+<h2 id="IO流程"><a href="#IO流程" class="headerlink" title="IO流程"></a>IO流程</h2><p>當系統發出指令需要執行IO功能時的流程是什麼呢?<br>我後來發現先大概看一下流程有個全觀的認識，後面了解起來會比較清楚。</p>
+<p>以下資料來自<a href="https://ithelp.ithome.com.tw/articles/10274340?sc=iThelpR">Day-17 I&#x2F;O運作</a></p>
+<table>
+<thead>
+<tr>
+<th align="left">流程</th>
+<th align="left">動作</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">1</td>
+<td align="left">User process發出I&#x2F;O request給OS</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td align="left">OS收到請求，可能暫停此process執行，並執行相對應的system calls。</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td align="left">kernel的I&#x2F;O-subsystem會pass此請求給<strong>Device driver</strong>。</td>
+</tr>
+<tr>
+<td align="left">4</td>
+<td align="left">Device driver依此請求設定對應的I&#x2F;O commands參數給<strong>Device Controller</strong>。</td>
+</tr>
+<tr>
+<td align="left">5</td>
+<td align="left">Device Controller啟動，監督I&#x2F;O-Device之I&#x2F;O運作進行。</td>
+</tr>
+<tr>
+<td align="left">6</td>
+<td align="left">在此時，OS可能將CPU切給另外一個process執行。</td>
+</tr>
+<tr>
+<td align="left">7</td>
+<td align="left">後續步驟根據<strong>IO控制方式</strong>。</td>
+</tr>
+</tbody></table>
+<p>後面在介紹各個粗體的字詞後，我覺得對IO就會有個基本的認識了</p>
+<h2 id="控制器Registers"><a href="#控制器Registers" class="headerlink" title="控制器Registers"></a>控制器Registers</h2><p>為了達到模組化及通用，一般會將IO區分為機械、電子兩個部分，機械通常是IO設備功能本體，而電子的部分會是用來連接系統的一塊主機板，稱作。</p>
+<p><img src="https://i.imgur.com/UJtbyjM.png"><br>控制器包含三個重要的部分:</p>
+<ul>
+<li>Command Register: 存放CPU所呼叫的命令，讓CPU控制裝置。</li>
+<li>Status Register: 存放CPU傳來的狀態資訊，讓CPU了解裝置狀態。</li>
+<li>Data Register: 存放預備輸入或輸出的資料</li>
+</ul>
+<p>透過這三個控制器，操作系統簡化了開發不同設備的介面，有點像是操作系統預先設定好幾個標準介面要求IO設備去符合他們，好處是操作系統開發起來省力，並且可以提高設備的擴充性。</p>
+<p>換個角度想就是，如果各家IO設備都有自己的API要求系統去處理，一是會累死系統開發人員，二是這樣就要等到系統支援才有辦法讓IO設備被系統使用。</p>
+<h2 id="IO控制"><a href="#IO控制" class="headerlink" title="IO控制"></a>IO控制</h2><p>我自己是根據CPU介入的程度來分為以下4種:</p>
+<ol>
+<li>Process直接控制</li>
+<li>Polling I&#x2F;O</li>
+<li>Interrputed I&#x2F;O</li>
+<li>DMA I&#x2F;O</li>
+</ol>
+<h3 id="Process直接控制"><a href="#Process直接控制" class="headerlink" title="Process直接控制"></a>Process直接控制</h3><p>直接由Process控制IO，優點是簡單易實現，缺點就是在IO傳輸時，CPU也被迫閒置等待。</p>
+<h3 id="Polling-I-x2F-O"><a href="#Polling-I-x2F-O" class="headerlink" title="Polling I&#x2F;O"></a>Polling I&#x2F;O</h3><p>CPU 發出命令去執行IO功能後，在執行其他Process時會在完成指令週期時去輪詢polling裝置控制器確認是否完成。</p>
+<p>因為CPU會有polling的成本，等於擠壓到執行Process的時間，適合Device執行速度的狀況，不然每次執行週期可能會需要輪詢過多device。</p>
+<h3 id="Interrputed-I-x2F-O"><a href="#Interrputed-I-x2F-O" class="headerlink" title="Interrputed I&#x2F;O"></a>Interrputed I&#x2F;O</h3><p>CPU 發出命令去執行IO功能後，IO會在執行完畢後發出中斷指令，系統一樣在完成指令週期時做檢查，不管變成僅檢查中斷指令。</p>
+<p>和Polling的差異在IO是否會發出中斷指令，CPU是否能夠處理，若支援這樣的機制，好處是CPU可以減少輪詢時間。</p>
+<h3 id="DMA-I-x2F-O"><a href="#DMA-I-x2F-O" class="headerlink" title="DMA I&#x2F;O"></a>DMA I&#x2F;O</h3><p>透過建立一個直接的數據通路，以及授權讓一個DMA控制器對數據通路有存取的權力，使得CPU自由~~~</p>
+<p>控制方式是，CPU在需要IO功能時授權DMA控制器，DMA會自行與IO溝通，並將所有工作完成，並且因為有一個直接的數據通道，DMA連數據傳輸也會處理，否則像Interrputed I&#x2F;O仍需要由CPU處理數據，並發出中斷命令給CPU，CPU需要參與的部分僅在IO功能的開始及結束。</p>
+<p>優點是因為解放CPU，CPU的使用率大幅提升，但因為數據通道直接放在Memory，DMA會跟CPU搶Memory的使用權。</p>
+<h2 id="硬體驅動程式"><a href="#硬體驅動程式" class="headerlink" title="硬體驅動程式"></a>硬體驅動程式</h2><p>除了controller，IO中另外一環重要的部分為device driver。</p>
+<p>驅動程式負責理解系統對IO設備發出的指令，並轉化成IO硬體能理解的內容以執行工作。</p>
+<p>根據以下這張圖，應該可以更清楚device driver跟device controller之間的關係。</p>
+<p><img src="https://i.imgur.com/9kvjQpK.png"></p>
+<p>剛好回頭對照前面IO功能在執行時的流程圖<br>system call被呼叫時，指令會透過kernel傳給device driver，在透過device driver將指令轉化成IO controller能理解的形式並傳送過去。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>今天就這樣啦~<br>明天會來看看關於Unix的標準-POSIX。</p>
+<p>此文章同步發布於<a href="https://tim80411.github.io/code-blog/2022/09/27/OS_IO/">部落格</a>，歡迎來逛逛喔~</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://wizardforcel.gitbooks.io/wangdaokaoyan-os/content/23.html">IO核心子系統</a><br><a href="https://www.omscs-notes.com/operating-systems/io-management/">IO Management</a><br><a href="https://ithelp.ithome.com.tw/articles/10274340?sc=iThelpR">IO運作</a><br><a href="https://www.quora.com/What-is-the-difference-between-device-driver-and-device-controllers">What-is-the-difference-between-device-driver-and-device-controllers</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>OS</tag>
+        <tag>I/O</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理</title>
     <url>/code-blog/2022/09/23/OS-Thread/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天會討論執行緒Thread，是一個我覺得很容易跟行程Process混淆的概念，為了學習跟整理這個概念，我們可以踩在前人的肩膀上前進XD</p>
