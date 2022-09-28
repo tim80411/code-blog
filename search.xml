@@ -1,6 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>欸黑，我的主機不在我家-託管(hosting)</title>
+    <url>/code-blog/2022/09/19/Network_hosting/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前幾天的主題大概已經描述一個輪廓Web: 一般而言我們使用瀏覽器作為client，透過HTTP，去與一台一個具有特定ip位置的server用GET方法取得網頁內容，並透過瀏覽器引擎渲染出網頁的畫面。</p>
+<p>這邊我們用一個問題代入今天的主題: server都被放在哪裡?</p>
+<p>事實上具有運算、儲存的設備都可以作為主機使用，但管理一台主機的成本還蠻高的，包括能源、維護甚至是因為流量變大而有的擴充需求。</p>
+<p>所以出現了Hosting服務，也就是今天的主題，通常具有較大型的主機，也有專門的人進行維護，一般來說成本相對個人管理來的低，而這些託管商則透過規模化來減少成本獲取利潤。</p>
+<p>今天會大概介紹託管的分類並舉一些對應的例子。</p>
+<span id="more"></span>
+
+<h2 id="分類"><a href="#分類" class="headerlink" title="分類"></a>分類</h2><p>常見的Hosting分類包括有:</p>
+<ol>
+<li>共享主機 shared hosting</li>
+<li>虛擬專用伺服器 VPS hosting</li>
+<li>專用主機 dedicated hosting</li>
+<li>雲託管 cloud hosting</li>
+</ol>
+<p>前三者大部分的Hosting服務商都有提供，僅最後一個服務，受限於規模及技術，僅少數服務像是AWS, GCP, Azure</p>
+<p>若讓我將Hosting各個類別做成雷達圖，它包含的取向包括: 資源隔離度、維運成本、單位費用。</p>
+<p><img src="https://i.imgur.com/PkuEsMS.png"></p>
+<p>那接下來我們就透過雷達圖一一來看一下不同的hosting模式及特性。<br>打個預防針，這裡的數字只是比較性的，有利用我們理解各個服務的差異而已XD</p>
+<h2 id="共享主機-shared-hosting"><a href="#共享主機-shared-hosting" class="headerlink" title="共享主機 shared hosting"></a>共享主機 shared hosting</h2><ul>
+<li>資源隔離度: 1</li>
+<li>維運成本: 1</li>
+<li>租借費用: 1</li>
+<li>風險: 5</li>
+<li>擴充性: 1</li>
+</ul>
+<p>共享主機指的是共享一台物理主機的所有資源，此處的資源包括網路、CPU、記憶體，雖然大部分會設定資源使用的最高限制，但不包括最低限制，常會發生「超賣」的狀況，意思是指，我們如果將該台物理主機上所有的網站的最高限制加起來會超過該台機器所能承擔的物理上限。</p>
+<h3 id="好處"><a href="#好處" class="headerlink" title="好處"></a>好處</h3><p>這也是為什麼他那麼便宜，因為他的訂價本身就鎖定了一些資源消耗極低的網站的客戶，並且使用一些平衡資源使用的機制確保這樣的狀況不常發生。</p>
+<p>二來通常這樣的服務提供全託管，除了上傳你的網站文件外不用再做額外的維運。</p>
+<h3 id="壞處"><a href="#壞處" class="headerlink" title="壞處"></a>壞處</h3><p>但會產生的風險也顯而易見，當遇到小概率事件，比如網站的總資源占用已經達到了上限時，我們架設在上面的網站也會被影響。</p>
+<p>另外他的擴充性幾乎可以無視，因為你的擴充還是受限於該物理主機的整體用量，若遇到大流量時還是會受到其他人的影響</p>
+<h2 id="虛擬專用伺服器-VPS"><a href="#虛擬專用伺服器-VPS" class="headerlink" title="虛擬專用伺服器 VPS"></a>虛擬專用伺服器 VPS</h2><ul>
+<li>資源隔離度: 3</li>
+<li>維運成本: 2</li>
+<li>租借費用: 3</li>
+<li>風險: 4</li>
+<li>擴充性: 3</li>
+</ul>
+<p>虛擬專用主機和Shared Hosting一樣共享一台主機的資源，但差別在於，你對於你所能用的資源掌握的是下限，代表你能夠擁有保證不會被奪走的資源。</p>
+<h2 id="好處-1"><a href="#好處-1" class="headerlink" title="好處"></a>好處</h2><p>透過確保資源的獨佔，你可以避免前面提到的相關問題: 共同資源被占用導致的限制。</p>
+<p>另外你的技術彈性又更高了一些，可以多做一些客制化的設定。</p>
+<h2 id="壞處-1"><a href="#壞處-1" class="headerlink" title="壞處"></a>壞處</h2><p>前面提到的客制化設定見仁見智，因為通常這也代表需要維運的部分變多了。<br>於是也出現了一些服務是讓你去購買VPS，而他負責為你維運，像是cloudway。</p>
+<p>另外因為還是共享著同一台物理主機，如果有其他在同一物理主機的網站遭到攻擊，導致你所在的主機遭受到系統級的損害，一樣會對你的網站造成傷害。</p>
+<h2 id="專用主機-dedicated"><a href="#專用主機-dedicated" class="headerlink" title="專用主機 dedicated"></a>專用主機 dedicated</h2><ul>
+<li>資源隔離度: 5</li>
+<li>維運成本: 4</li>
+<li>租借費用: 5</li>
+<li>風險: 3</li>
+<li>擴充性: 2</li>
+</ul>
+<p>顧名思義，你擁有一台物理主機的全部資源，基本上可以視為一台請服務商幫你維運硬體層面的主機了。</p>
+<h3 id="好處-2"><a href="#好處-2" class="headerlink" title="好處"></a>好處</h3><p>前面提到的系統級風險再次降低。<br>通常可以取得root access，等同你擁有一台雲端主機，高客製化。</p>
+<h3 id="壞處-2"><a href="#壞處-2" class="headerlink" title="壞處"></a>壞處</h3><p>很貴，且軟體維運幾乎也都仰賴用戶自行處理，維運成本也高，除非是公司有資安需要硬體級別的隔離，不然很難找到理由需要使用這樣子的服務。</p>
+<p>另外擴充上也會在物理主機達到極限時出現明顯的瓶頸，需要進行硬體擴充，但因為相較於VPS，通常這也同樣是VPS的極限，所以我姑且給了他擴充性2的評分，比VPS略低，但也不是說他的上限就比VPS多多少就是了。</p>
+<h2 id="雲-cloud"><a href="#雲-cloud" class="headerlink" title="雲 cloud"></a>雲 cloud</h2><ul>
+<li>資源隔離度: 4</li>
+<li>維運成本: 5</li>
+<li>租借費用: 4</li>
+<li>風險: 2</li>
+<li>擴充性: 5</li>
+</ul>
+<p>Cloud hosting與前面的服務最大的差別在於你所購買的主機的部署方式並非在單個物理主機上，而是多個物理主機組成的虛擬化大型主機之上。</p>
+<h3 id="好處-3"><a href="#好處-3" class="headerlink" title="好處"></a>好處</h3><p>可以想像你的服務器架設在超大型主機之上，於是你的服務所需資源的擴充性是相當大的，另外，租借成本通常來說，是根據你的用量來決定你的費用，這句話有時候很含糊，需要根據不同雲服務的服務商來計算費用。</p>
+<p>另外關於風險，以AWS為例，資源分成由大至小分為Zone、AZ(Available Zone)，最佳實踐提到你可以至少在AZ部署多個server避免AZ級的損失，或甚至在不同Zone部署server避免Zone級的損失，當然費用也會往上，端看對於server停止服務的重要性來做判斷。</p>
+<h3 id="壞處-3"><a href="#壞處-3" class="headerlink" title="壞處"></a>壞處</h3><p>相對於專用伺服器來說，資源隔離度下降，可以說是對安全的部分妥協。<br>另外的，與專用伺服器相同的是維運成本及server設置也都是相對高的。</p>
+<p>另外他的費用來說其實也是不低的，若需要大量的資源，也會是每個月的巨額開支。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>了解Hosting的需求對於營運及提供技術建議帶來幫助，不過對於開發本身的幫助似乎就不是特別大了XD</p>
+<p>以目前的經驗來看，若是商業需要，通常會至少選擇VPS作為託管，不過目前最流行應該是雲服務吧，不只提供了託管服務，還能夠透過他本身提供的其他雲服務做串接，像是靜態儲存、MQ、LB等，也減少了公司成長前期在維運上所需要花費的成本。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://www.youtube.com/watch?v=AXVZYzw8geg&ab_channel=CraylorMade">Different between hosting</a><br><a href="https://www.top10.com/hosting/comparison?utm_source=google&kw=hosting&c=543733688286&t=search&p=&m=e&adpos=&dev=c&devmod=&mobval=0&network=g&campaignid=87845628&groupid=130392847161&targetid=kwd-10071570&interest=&physical=9040379&feedid=&a=2707&ts=hi&topic=&test=&clicktype=&gclid=CjwKCAjwpqCZBhAbEiwAa7pXebgXp-HemoHQ4DCEsFYZDSxx-9AdOYSja23VAuluwYXuaYmxh2dI8xoCKV0QAvD_BwE">Top 10 Hosting Service</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>Hosting</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>電腦與外界的通訊方式-輸入/輸出(I/O)管理</title>
     <url>/code-blog/2022/09/27/OS_IO/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>許多Process的執行除了依賴CPU的運算及Memory的儲存，也依賴於其他設備，其中一部分專門用於接受使用者輸入及引導輸出的設備，被稱為I&#x2F;O設備，I&#x2F;O就是input及output的簡稱。</p>
@@ -288,7 +366,43 @@
       </tags>
   </entry>
   <entry>
-    <title>OS_system_classification_overview</title>
+    <title>作業系統(Operating System/OS) Overview(上)</title>
+    <url>/code-blog/2022/09/21/OS_System-Concept_Overview/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。</p>
+<p>稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫他們做點事情幫忙，但最終還是你一個人處理所有的電話…情何以堪XD</p>
+<p>為了解決這個問題，因此有了pm2套件、原生的cluster及worker threads，他們各自有不同的問題解決邏輯，或許通過這段時間的鑽研我們可以稍微探討這些差異。</p>
+<p>我個人是蠻期待這部分的學習，那，就開始今天的OS overview吧。</p>
+<span id="more"></span>
+
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><blockquote>
+<p>一組主管並控制電腦操作、運用和執行硬體、軟體資源和提供公共服務來組織使用者互動的相互關聯的系統軟體程式。 – <a href="https://zh.wikipedia.org/zh-tw/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">維基百科</a></p>
+</blockquote>
+<p>這邊我用我的方式來理解作業系統是: 提供易於操作的介面，讓程式開發者&#x2F;使用者可以用更簡單直覺的方式操作硬體。</p>
+<h2 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h2><p>於是，作業系統的用途包含但可能不限於以下:</p>
+<ol>
+<li>控制及管理硬體資源</li>
+<li>提供使用者介面</li>
+<li>程式的錯誤預防</li>
+</ol>
+<p>根據需求情境及使用者對象，其考量而產生的作業系統型態可能會完全不一樣，比如說，家用個人電腦的目標是讓使用者更方便的使用系統，所以可能會更在意GUI(圖形化介面)的方便性；而伺服器的目標是資源的隔離性及使用率最佳化，可能面向的對象多是開發者，其介面可能僅會使用CLI(文字命令介面)。</p>
+<h2 id="作業系統與硬體的互動"><a href="#作業系統與硬體的互動" class="headerlink" title="作業系統與硬體的互動"></a>作業系統與硬體的互動</h2><p>一般來說會分成使用者(User)及應用程式(Program)透過OS與硬體互動，使用者通過OS的命令直譯器(Command Interpreter)與硬體互動，而當使用者在操作應用程式時，應用程式會對OS做系統呼叫(System Call)，進而與硬體層溝通，完成使用者指定的操作。</p>
+<h2 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h2><p>在進入後面一般系統種類介紹前，也想先對幾個名詞作概要的解釋，會對於後面的內容有比較好的理解。</p>
+<h3 id="CPU-Scheduling-Short-term-Scheduling"><a href="#CPU-Scheduling-Short-term-Scheduling" class="headerlink" title="CPU Scheduling(Short-term Scheduling)"></a>CPU Scheduling(Short-term Scheduling)</h3><p>最早期的系統其實是單純的順序，意思是指，CPU會按照程式的執行順序，依序把工作完成，其中常有造成CPU珍貴的運算資源被閒置的狀況，像是程式設計錯誤，或是因為硬體的速度不一，導致CPU等待其他工作完成…等等。</p>
+<p>因此為了得到最大的CPU使用率，會藉由適當的排班演算法，先CPU處理該process(CPU Burst)，接著做I&#x2F;O資料的傳送(I&#x2F;O Burst)，process會在這兩個狀態一直循環，最後在工作完成後呼叫一個終止Process的System Call作為結束。</p>
+<p>這可以說是後面的系統類別在設計時的核心之一，目標式在確保CPU使用率的狀況下，作出最符合當前系統情境的需求的決策。</p>
+<h3 id="Context-Switching"><a href="#Context-Switching" class="headerlink" title="Context Switching"></a>Context Switching</h3><p>CPU使用權轉移時，需要儲存舊的Process資訊，載入新Process資訊，這個工作就稱之為Context Switching。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>內容遠比我想得來的多了，不得已之好分成兩天完成來完成了XD<br>明天會開始介紹作業系統的種類。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://ithelp.ithome.com.tw/articles/10232695">Node Cluster 讓你的 Thread 不再孤軍奮戰</a><br><a href="https://stackoverflow.com/questions/56656498/how-do-cluster-and-worker-threads-work-in-node-js">Different between cluster and worker thread</a><br><a href="https://www.youtube.com/watch?v=Cl0uql06KK0&ab_channel=%E3%80%90%E6%9D%B0%E5%93%A5%E6%95%B8%E4%BD%8D%E6%95%99%E5%AE%A4%E3%80%91">作業系統簡介</a><br><a href="https://ithelp.ithome.com.tw/articles/10203990">CPU Scheduling</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>OS</tag>
+        <tag>CPU Scheduling</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>作業系統(Operating System/OS) Overview(下)</title>
     <url>/code-blog/2022/09/22/OS_System_Classification_Overview/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天要介紹各個系統作業類別，透過了解系解的分類及概要的內容，會對於作業系統有更進一步的認識的~<br>那就開始吧!</p>
 <span id="more"></span>
@@ -409,6 +523,7 @@
       <tags>
         <tag>鐵人賽</tag>
         <tag>Backend</tag>
+        <tag>OS</tag>
       </tags>
   </entry>
   <entry>

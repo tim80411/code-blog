@@ -20,34 +20,31 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
-    <meta name="description" content="前言行程是CPU分配資源的最小單位，以後還會聊到，甚至就連docker的container在run的時候就是一個process，很有趣吧，就來稍微認識一下~">
+    <meta name="description" content="前言從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。 稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫">
 <meta property="og:type" content="article">
-<meta property="og:title" content="行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理">
-<meta property="og:url" content="https://username.github.io/code-blog/2022/09/23/OS_Process/index.html">
+<meta property="og:title" content="作業系統(Operating System&#x2F;OS) Overview(上)">
+<meta property="og:url" content="https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
-<meta property="og:description" content="前言行程是CPU分配資源的最小單位，以後還會聊到，甚至就連docker的container在run的時候就是一個process，很有趣吧，就來稍微認識一下~">
+<meta property="og:description" content="前言從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。 稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://i.imgur.com/DlIreU0.png">
-<meta property="og:image" content="https://i.imgur.com/KgOOxn6.png">
-<meta property="og:image" content="https://i.imgur.com/Mjv8Wl7.png">
-<meta property="article:published_time" content="2022-09-23T11:54:00.000Z">
+<meta property="article:published_time" content="2022-09-21T04:08:02.000Z">
 <meta property="article:modified_time" content="2022-09-28T17:11:45.922Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
 <meta property="article:tag" content="OS">
-<meta property="article:tag" content="Process">
+<meta property="article:tag" content="CPU Scheduling">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://i.imgur.com/DlIreU0.png">
 
 
-<link rel="canonical" href="https://username.github.io/code-blog/2022/09/23/OS_Process/">
+<link rel="canonical" href="https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/23/OS_Process/","path":"2022/09/23/OS_Process/","title":"行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/","path":"2022/09/21/OS_System-Concept_Overview/","title":"作業系統(Operating System/OS) Overview(上)"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理 | Timothy Coding Ground</title>
+<title>作業系統(Operating System/OS) Overview(上) | Timothy Coding Ground</title>
   
 
 
@@ -151,7 +148,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%8C%E7%A8%8B%E6%9E%B6%E6%A7%8B"><span class="nav-number">3.</span> <span class="nav-text">行程架構</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%8C%E7%A8%8B%E7%94%9F%E5%91%BD%E9%80%B1%E6%9C%9F"><span class="nav-number">4.</span> <span class="nav-text">行程生命週期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Process-Control-Block-PCB"><span class="nav-number">5.</span> <span class="nav-text">Process Control Block, PCB</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Process-Create"><span class="nav-number">6.</span> <span class="nav-text">Process Create</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E9%80%94"><span class="nav-number">3.</span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1%E8%88%87%E7%A1%AC%E9%AB%94%E7%9A%84%E4%BA%92%E5%8B%95"><span class="nav-number">4.</span> <span class="nav-text">作業系統與硬體的互動</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8D%E8%A9%9E%E8%A7%A3%E9%87%8B"><span class="nav-number">5.</span> <span class="nav-text">名詞解釋</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU-Scheduling-Short-term-Scheduling"><span class="nav-number">5.1.</span> <span class="nav-text">CPU Scheduling(Short-term Scheduling)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Context-Switching"><span class="nav-number">5.2.</span> <span class="nav-text">Context Switching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">6.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -227,7 +224,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/23/OS_Process/">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -240,12 +237,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理 | Timothy Coding Ground">
+      <meta itemprop="name" content="作業系統(Operating System/OS) Overview(上) | Timothy Coding Ground">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理
+          作業系統(Operating System/OS) Overview(上)
         </h1>
 
         <div class="post-meta-container">
@@ -256,7 +253,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2022-09-23 19:54:00" itemprop="dateCreated datePublished" datetime="2022-09-23T19:54:00+08:00">2022-09-23</time>
+      <time title="Created: 2022-09-21 12:08:02" itemprop="dateCreated datePublished" datetime="2022-09-21T12:08:02+08:00">2022-09-21</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -275,8 +272,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/code-blog/2022/09/23/OS_Process/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/23/OS_Process/" itemprop="commentCount"></span>
+    <a title="disqus" href="/code-blog/2022/09/21/OS_System-Concept_Overview/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/21/OS_System-Concept_Overview/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -297,104 +294,31 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>行程是CPU分配資源的最小單位，以後還會聊到，甚至就連docker的container在run的時候就是一個process，很有趣吧，就來稍微認識一下~</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。</p>
+<p>稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫他們做點事情幫忙，但最終還是你一個人處理所有的電話…情何以堪XD</p>
+<p>為了解決這個問題，因此有了pm2套件、原生的cluster及worker threads，他們各自有不同的問題解決邏輯，或許通過這段時間的鑽研我們可以稍微探討這些差異。</p>
+<p>我個人是蠻期待這部分的學習，那，就開始今天的OS overview吧。</p>
 <span id="more"></span>
 
-<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>一個較好記憶的說法會將行程解釋成運行中的應用程式(Application)，但有個比較貼切的說法是: 行程是一個正在運行中的應用程式實例。</p>
-<p>實例隱含的意思是，由一個應用程式而建立的行程可以有多個，且雖然他們皆由同一個應用程式而來，他們可以具備不同狀態。</p>
-<h2 id="行程架構"><a href="#行程架構" class="headerlink" title="行程架構"></a>行程架構</h2><p><img src="https://i.imgur.com/DlIreU0.png"></p>
-<blockquote>
-<p>引用自 <a target="_blank" rel="noopener" href="https://www.guru99.com/process-management-pcb.html">https://www.guru99.com/process-management-pcb.html</a></p>
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><blockquote>
+<p>一組主管並控制電腦操作、運用和執行硬體、軟體資源和提供公共服務來組織使用者互動的相互關聯的系統軟體程式。 – <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">維基百科</a></p>
 </blockquote>
-<p>此圖大致代表Process在記憶體裡的結構，</p>
-<ul>
-<li>Stack: 暫時性資料，例如Function Parameters、Local variables</li>
-<li>Heap: 執行程式碼所需要的動態工作區</li>
-<li>Data: 儲存全域變數等</li>
-<li>Text: 程式碼所在</li>
-</ul>
-<h2 id="行程生命週期"><a href="#行程生命週期" class="headerlink" title="行程生命週期"></a>行程生命週期</h2><p><img src="https://i.imgur.com/KgOOxn6.png"></p>
-<blockquote>
-<p>引用自 <a target="_blank" rel="noopener" href="https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60">https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60</a></p>
-</blockquote>
-<p>共有五種狀態</p>
-<table>
-<thead>
-<tr>
-<th>狀態</th>
-<th align="left">說明</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>new創建</td>
-<td align="left">初始狀態，分配及建立PCB以及其他資源，在完成上述工作後進入ready</td>
-</tr>
-<tr>
-<td>ready就緒</td>
-<td align="left">在隊列按照CPU Scheduling的演算法等待搶奪CPU以完成工作</td>
-</tr>
-<tr>
-<td>running工作</td>
-<td align="left">一旦搶奪到CPU，此狀態會被設置為工作中，並執行應用程式中的指令。在與ready狀態切換時，會作Context Switch</td>
-</tr>
-<tr>
-<td>waiting等待</td>
-<td align="left">如果因為事件或是IO速度的差異導致等待，就會停在此</td>
-</tr>
-<tr>
-<td>terminated終止</td>
-<td align="left">完成執行、被迫結束(比如在硬性即時系統)或者遇到錯誤時就會進入此狀態</td>
-</tr>
-</tbody></table>
-<h2 id="Process-Control-Block-PCB"><a href="#Process-Control-Block-PCB" class="headerlink" title="Process Control Block, PCB"></a>Process Control Block, PCB</h2><p>記錄行程相關狀態資訊的資料區，每個行程都有自己的一個，並在Process創建時被建立。<br>其內容包含:</p>
-<table>
-<thead>
-<tr>
-<th align="left">項目</th>
-<th align="left">內容</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left">行程狀態process state</td>
-<td align="left">流程生命週期的狀態</td>
-</tr>
-<tr>
-<td align="left">程式計數器process counter</td>
-<td align="left">紀錄下一個要執行的指令的位址</td>
-</tr>
-<tr>
-<td align="left">CPU暫存器保存區</td>
-<td align="left">不在running state時，CPU暫存器內容會被保存在此</td>
-</tr>
-<tr>
-<td align="left">排班資訊</td>
-<td align="left">例如行程優先等級(priority)等排班時所需要的參數</td>
-</tr>
-<tr>
-<td align="left">記憶體資訊</td>
-<td align="left">其內容根據記憶體系統的種類而定</td>
-</tr>
-<tr>
-<td align="left">帳號資訊Accounting Information</td>
-<td align="left">process所屬的使用者帳號(user id)、行程代號(process identification)、時間限制、已經使用掉的處理機時間、進入系統之實際時間</td>
-</tr>
-<tr>
-<td align="left">IO狀態資訊</td>
-<td align="left">如所配置之輸出入裝置串列、開啟(Opened)之檔案串列等資訊</td>
-</tr>
-</tbody></table>
-<p>大部分資訊由參考資料2來的，並統整了其他資料的內容，所以更詳細可以看參考資料2。</p>
-<h2 id="Process-Create"><a href="#Process-Create" class="headerlink" title="Process Create"></a>Process Create</h2><p>在OS內，Process可以建立child process，因此所有的排程可以組成一個樹狀結構。</p>
-<p>如果你手邊有linux系統的話，可以使用 <code>pstree -aup</code> 看到在你的電腦裡的process的樹狀圖。</p>
-<p><img src="https://i.imgur.com/Mjv8Wl7.png"></p>
-<p>如上圖，甚至可以知道我是在zsh之下執行的這個指令XD</p>
-<p>大部分的OS會支援兩種Process Create的方式</p>
-<ul>
-<li>Fork: 複製父行程的PCB到子PCB</li>
-<li>Exec: 替換子行程的資料，初始化新的PCB資料</li>
-</ul>
-<p>所以建立新的Process就是兩者混用，先Fork一個子行程後，再Exec初始化子行程。</p>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60">Operating System: Process and Process Management</a><br><a target="_blank" rel="noopener" href="https://chenhh.gitbooks.io/parallel_processing/content/process.html">PCB</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10202866">程序(process)概念–上</a><br><a target="_blank" rel="noopener" href="https://www.tutorialspoint.com/inter_process_communication/inter_process_communication_process_creation_termination.htm">Process Creation</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10276152?sc=rss.iron">Process</a></p>
+<p>這邊我用我的方式來理解作業系統是: 提供易於操作的介面，讓程式開發者&#x2F;使用者可以用更簡單直覺的方式操作硬體。</p>
+<h2 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h2><p>於是，作業系統的用途包含但可能不限於以下:</p>
+<ol>
+<li>控制及管理硬體資源</li>
+<li>提供使用者介面</li>
+<li>程式的錯誤預防</li>
+</ol>
+<p>根據需求情境及使用者對象，其考量而產生的作業系統型態可能會完全不一樣，比如說，家用個人電腦的目標是讓使用者更方便的使用系統，所以可能會更在意GUI(圖形化介面)的方便性；而伺服器的目標是資源的隔離性及使用率最佳化，可能面向的對象多是開發者，其介面可能僅會使用CLI(文字命令介面)。</p>
+<h2 id="作業系統與硬體的互動"><a href="#作業系統與硬體的互動" class="headerlink" title="作業系統與硬體的互動"></a>作業系統與硬體的互動</h2><p>一般來說會分成使用者(User)及應用程式(Program)透過OS與硬體互動，使用者通過OS的命令直譯器(Command Interpreter)與硬體互動，而當使用者在操作應用程式時，應用程式會對OS做系統呼叫(System Call)，進而與硬體層溝通，完成使用者指定的操作。</p>
+<h2 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h2><p>在進入後面一般系統種類介紹前，也想先對幾個名詞作概要的解釋，會對於後面的內容有比較好的理解。</p>
+<h3 id="CPU-Scheduling-Short-term-Scheduling"><a href="#CPU-Scheduling-Short-term-Scheduling" class="headerlink" title="CPU Scheduling(Short-term Scheduling)"></a>CPU Scheduling(Short-term Scheduling)</h3><p>最早期的系統其實是單純的順序，意思是指，CPU會按照程式的執行順序，依序把工作完成，其中常有造成CPU珍貴的運算資源被閒置的狀況，像是程式設計錯誤，或是因為硬體的速度不一，導致CPU等待其他工作完成…等等。</p>
+<p>因此為了得到最大的CPU使用率，會藉由適當的排班演算法，先CPU處理該process(CPU Burst)，接著做I&#x2F;O資料的傳送(I&#x2F;O Burst)，process會在這兩個狀態一直循環，最後在工作完成後呼叫一個終止Process的System Call作為結束。</p>
+<p>這可以說是後面的系統類別在設計時的核心之一，目標式在確保CPU使用率的狀況下，作出最符合當前系統情境的需求的決策。</p>
+<h3 id="Context-Switching"><a href="#Context-Switching" class="headerlink" title="Context Switching"></a>Context Switching</h3><p>CPU使用權轉移時，需要儲存舊的Process資訊，載入新Process資訊，這個工作就稱之為Context Switching。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>內容遠比我想得來的多了，不得已之好分成兩天完成來完成了XD<br>明天會開始介紹作業系統的種類。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10232695">Node Cluster 讓你的 Thread 不再孤軍奮戰</a><br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/56656498/how-do-cluster-and-worker-threads-work-in-node-js">Different between cluster and worker thread</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=Cl0uql06KK0&ab_channel=%E3%80%90%E6%9D%B0%E5%93%A5%E6%95%B8%E4%BD%8D%E6%95%99%E5%AE%A4%E3%80%91">作業系統簡介</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10203990">CPU Scheduling</a></p>
 
     </div>
 
@@ -405,21 +329,22 @@
     <footer class="post-footer">
           <div class="post-tags">
               <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
               <a href="/code-blog/tags/OS/" rel="tag"># OS</a>
-              <a href="/code-blog/tags/Process/" rel="tag"># Process</a>
+              <a href="/code-blog/tags/CPU-Scheduling/" rel="tag"># CPU Scheduling</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/22/OS_System_Classification_Overview/" rel="prev" title="作業系統(Operating System/OS) Overview(下)">
-                  <i class="fa fa-chevron-left"></i> 作業系統(Operating System/OS) Overview(下)
+                <a href="/code-blog/2022/09/19/Network_hosting/" rel="prev" title="欸黑，我的主機不在我家-託管(hosting)">
+                  <i class="fa fa-chevron-left"></i> 欸黑，我的主機不在我家-託管(hosting)
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/23/OS_Thread/" rel="next" title="行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理">
-                  行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理 <i class="fa fa-chevron-right"></i>
+                <a href="/code-blog/2022/09/22/OS_System_Classification_Overview/" rel="next" title="作業系統(Operating System/OS) Overview(下)">
+                  作業系統(Operating System/OS) Overview(下) <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>

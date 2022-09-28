@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言前幾天的主題大概已經描述一個輪廓Web: 一般而言我們使用瀏覽器作為client，透過HTTP，去與一台一個具有特定ip位置的server用GET方法取得網頁內容，並透過瀏覽器引擎渲染出網頁的畫面。 這邊我們用一個問題代入今天的主題: server都被放在哪裡? 事實上具有運算、儲存的設備都可以作為主機使用，但管理一台主機的成本還蠻高的，包括能源、維護甚至是因為流量變大而有的擴充需求。 所以出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="欸黑，我的主機不在我家-託管(hosting)">
+<meta property="og:url" content="https://username.github.io/code-blog/2022/09/19/Network_hosting/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言前幾天的主題大概已經描述一個輪廓Web: 一般而言我們使用瀏覽器作為client，透過HTTP，去與一台一個具有特定ip位置的server用GET方法取得網頁內容，並透過瀏覽器引擎渲染出網頁的畫面。 這邊我們用一個問題代入今天的主題: server都被放在哪裡? 事實上具有運算、儲存的設備都可以作為主機使用，但管理一台主機的成本還蠻高的，包括能源、維護甚至是因為流量變大而有的擴充需求。 所以出">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.imgur.com/PkuEsMS.png">
+<meta property="article:published_time" content="2022-09-19T16:15:37.000Z">
+<meta property="article:modified_time" content="2022-09-28T17:11:45.922Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="Hosting">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/PkuEsMS.png">
+
+
+<link rel="canonical" href="https://username.github.io/code-blog/2022/09/19/Network_hosting/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/19/Network_hosting/","path":"2022/09/19/Network_hosting/","title":"欸黑，我的主機不在我家-託管(hosting)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>欸黑，我的主機不在我家-託管(hosting) | Timothy Coding Ground</title>
+  
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">12</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">9</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E9%A1%9E"><span class="nav-number">2.</span> <span class="nav-text">分類</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B1%E4%BA%AB%E4%B8%BB%E6%A9%9F-shared-hosting"><span class="nav-number">3.</span> <span class="nav-text">共享主機 shared hosting</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A5%BD%E8%99%95"><span class="nav-number">3.1.</span> <span class="nav-text">好處</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%9E%E8%99%95"><span class="nav-number">3.2.</span> <span class="nav-text">壞處</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9B%E6%93%AC%E5%B0%88%E7%94%A8%E4%BC%BA%E6%9C%8D%E5%99%A8-VPS"><span class="nav-number">4.</span> <span class="nav-text">虛擬專用伺服器 VPS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A5%BD%E8%99%95-1"><span class="nav-number">5.</span> <span class="nav-text">好處</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A3%9E%E8%99%95-1"><span class="nav-number">6.</span> <span class="nav-text">壞處</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%88%E7%94%A8%E4%B8%BB%E6%A9%9F-dedicated"><span class="nav-number">7.</span> <span class="nav-text">專用主機 dedicated</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A5%BD%E8%99%95-2"><span class="nav-number">7.1.</span> <span class="nav-text">好處</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%9E%E8%99%95-2"><span class="nav-number">7.2.</span> <span class="nav-text">壞處</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%B2-cloud"><span class="nav-number">8.</span> <span class="nav-text">雲 cloud</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A5%BD%E8%99%95-3"><span class="nav-number">8.1.</span> <span class="nav-text">好處</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%9E%E8%99%95-3"><span class="nav-number">8.2.</span> <span class="nav-text">壞處</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">9.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">10.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/19/Network_hosting/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="欸黑，我的主機不在我家-託管(hosting) | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          欸黑，我的主機不在我家-託管(hosting)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-09-20 00:15:37" itemprop="dateCreated datePublished" datetime="2022-09-20T00:15:37+08:00">2022-09-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-09-29 01:11:45" itemprop="dateModified" datetime="2022-09-29T01:11:45+08:00">2022-09-29</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/09/19/Network_hosting/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/19/Network_hosting/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前幾天的主題大概已經描述一個輪廓Web: 一般而言我們使用瀏覽器作為client，透過HTTP，去與一台一個具有特定ip位置的server用GET方法取得網頁內容，並透過瀏覽器引擎渲染出網頁的畫面。</p>
+<p>這邊我們用一個問題代入今天的主題: server都被放在哪裡?</p>
+<p>事實上具有運算、儲存的設備都可以作為主機使用，但管理一台主機的成本還蠻高的，包括能源、維護甚至是因為流量變大而有的擴充需求。</p>
+<p>所以出現了Hosting服務，也就是今天的主題，通常具有較大型的主機，也有專門的人進行維護，一般來說成本相對個人管理來的低，而這些託管商則透過規模化來減少成本獲取利潤。</p>
+<p>今天會大概介紹託管的分類並舉一些對應的例子。</p>
+<span id="more"></span>
+
+<h2 id="分類"><a href="#分類" class="headerlink" title="分類"></a>分類</h2><p>常見的Hosting分類包括有:</p>
+<ol>
+<li>共享主機 shared hosting</li>
+<li>虛擬專用伺服器 VPS hosting</li>
+<li>專用主機 dedicated hosting</li>
+<li>雲託管 cloud hosting</li>
+</ol>
+<p>前三者大部分的Hosting服務商都有提供，僅最後一個服務，受限於規模及技術，僅少數服務像是AWS, GCP, Azure</p>
+<p>若讓我將Hosting各個類別做成雷達圖，它包含的取向包括: 資源隔離度、維運成本、單位費用。</p>
+<p><img src="https://i.imgur.com/PkuEsMS.png"></p>
+<p>那接下來我們就透過雷達圖一一來看一下不同的hosting模式及特性。<br>打個預防針，這裡的數字只是比較性的，有利用我們理解各個服務的差異而已XD</p>
+<h2 id="共享主機-shared-hosting"><a href="#共享主機-shared-hosting" class="headerlink" title="共享主機 shared hosting"></a>共享主機 shared hosting</h2><ul>
+<li>資源隔離度: 1</li>
+<li>維運成本: 1</li>
+<li>租借費用: 1</li>
+<li>風險: 5</li>
+<li>擴充性: 1</li>
+</ul>
+<p>共享主機指的是共享一台物理主機的所有資源，此處的資源包括網路、CPU、記憶體，雖然大部分會設定資源使用的最高限制，但不包括最低限制，常會發生「超賣」的狀況，意思是指，我們如果將該台物理主機上所有的網站的最高限制加起來會超過該台機器所能承擔的物理上限。</p>
+<h3 id="好處"><a href="#好處" class="headerlink" title="好處"></a>好處</h3><p>這也是為什麼他那麼便宜，因為他的訂價本身就鎖定了一些資源消耗極低的網站的客戶，並且使用一些平衡資源使用的機制確保這樣的狀況不常發生。</p>
+<p>二來通常這樣的服務提供全託管，除了上傳你的網站文件外不用再做額外的維運。</p>
+<h3 id="壞處"><a href="#壞處" class="headerlink" title="壞處"></a>壞處</h3><p>但會產生的風險也顯而易見，當遇到小概率事件，比如網站的總資源占用已經達到了上限時，我們架設在上面的網站也會被影響。</p>
+<p>另外他的擴充性幾乎可以無視，因為你的擴充還是受限於該物理主機的整體用量，若遇到大流量時還是會受到其他人的影響</p>
+<h2 id="虛擬專用伺服器-VPS"><a href="#虛擬專用伺服器-VPS" class="headerlink" title="虛擬專用伺服器 VPS"></a>虛擬專用伺服器 VPS</h2><ul>
+<li>資源隔離度: 3</li>
+<li>維運成本: 2</li>
+<li>租借費用: 3</li>
+<li>風險: 4</li>
+<li>擴充性: 3</li>
+</ul>
+<p>虛擬專用主機和Shared Hosting一樣共享一台主機的資源，但差別在於，你對於你所能用的資源掌握的是下限，代表你能夠擁有保證不會被奪走的資源。</p>
+<h2 id="好處-1"><a href="#好處-1" class="headerlink" title="好處"></a>好處</h2><p>透過確保資源的獨佔，你可以避免前面提到的相關問題: 共同資源被占用導致的限制。</p>
+<p>另外你的技術彈性又更高了一些，可以多做一些客制化的設定。</p>
+<h2 id="壞處-1"><a href="#壞處-1" class="headerlink" title="壞處"></a>壞處</h2><p>前面提到的客制化設定見仁見智，因為通常這也代表需要維運的部分變多了。<br>於是也出現了一些服務是讓你去購買VPS，而他負責為你維運，像是cloudway。</p>
+<p>另外因為還是共享著同一台物理主機，如果有其他在同一物理主機的網站遭到攻擊，導致你所在的主機遭受到系統級的損害，一樣會對你的網站造成傷害。</p>
+<h2 id="專用主機-dedicated"><a href="#專用主機-dedicated" class="headerlink" title="專用主機 dedicated"></a>專用主機 dedicated</h2><ul>
+<li>資源隔離度: 5</li>
+<li>維運成本: 4</li>
+<li>租借費用: 5</li>
+<li>風險: 3</li>
+<li>擴充性: 2</li>
+</ul>
+<p>顧名思義，你擁有一台物理主機的全部資源，基本上可以視為一台請服務商幫你維運硬體層面的主機了。</p>
+<h3 id="好處-2"><a href="#好處-2" class="headerlink" title="好處"></a>好處</h3><p>前面提到的系統級風險再次降低。<br>通常可以取得root access，等同你擁有一台雲端主機，高客製化。</p>
+<h3 id="壞處-2"><a href="#壞處-2" class="headerlink" title="壞處"></a>壞處</h3><p>很貴，且軟體維運幾乎也都仰賴用戶自行處理，維運成本也高，除非是公司有資安需要硬體級別的隔離，不然很難找到理由需要使用這樣子的服務。</p>
+<p>另外擴充上也會在物理主機達到極限時出現明顯的瓶頸，需要進行硬體擴充，但因為相較於VPS，通常這也同樣是VPS的極限，所以我姑且給了他擴充性2的評分，比VPS略低，但也不是說他的上限就比VPS多多少就是了。</p>
+<h2 id="雲-cloud"><a href="#雲-cloud" class="headerlink" title="雲 cloud"></a>雲 cloud</h2><ul>
+<li>資源隔離度: 4</li>
+<li>維運成本: 5</li>
+<li>租借費用: 4</li>
+<li>風險: 2</li>
+<li>擴充性: 5</li>
+</ul>
+<p>Cloud hosting與前面的服務最大的差別在於你所購買的主機的部署方式並非在單個物理主機上，而是多個物理主機組成的虛擬化大型主機之上。</p>
+<h3 id="好處-3"><a href="#好處-3" class="headerlink" title="好處"></a>好處</h3><p>可以想像你的服務器架設在超大型主機之上，於是你的服務所需資源的擴充性是相當大的，另外，租借成本通常來說，是根據你的用量來決定你的費用，這句話有時候很含糊，需要根據不同雲服務的服務商來計算費用。</p>
+<p>另外關於風險，以AWS為例，資源分成由大至小分為Zone、AZ(Available Zone)，最佳實踐提到你可以至少在AZ部署多個server避免AZ級的損失，或甚至在不同Zone部署server避免Zone級的損失，當然費用也會往上，端看對於server停止服務的重要性來做判斷。</p>
+<h3 id="壞處-3"><a href="#壞處-3" class="headerlink" title="壞處"></a>壞處</h3><p>相對於專用伺服器來說，資源隔離度下降，可以說是對安全的部分妥協。<br>另外的，與專用伺服器相同的是維運成本及server設置也都是相對高的。</p>
+<p>另外他的費用來說其實也是不低的，若需要大量的資源，也會是每個月的巨額開支。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>了解Hosting的需求對於營運及提供技術建議帶來幫助，不過對於開發本身的幫助似乎就不是特別大了XD</p>
+<p>以目前的經驗來看，若是商業需要，通常會至少選擇VPS作為託管，不過目前最流行應該是雲服務吧，不只提供了託管服務，還能夠透過他本身提供的其他雲服務做串接，像是靜態儲存、MQ、LB等，也減少了公司成長前期在維運上所需要花費的成本。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=AXVZYzw8geg&ab_channel=CraylorMade">Different between hosting</a><br><a target="_blank" rel="noopener" href="https://www.top10.com/hosting/comparison?utm_source=google&kw=hosting&c=543733688286&t=search&p=&m=e&adpos=&dev=c&devmod=&mobval=0&network=g&campaignid=87845628&groupid=130392847161&targetid=kwd-10071570&interest=&physical=9040379&feedid=&a=2707&ts=hi&topic=&test=&clicktype=&gclid=CjwKCAjwpqCZBhAbEiwAa7pXebgXp-HemoHQ4DCEsFYZDSxx-9AdOYSja23VAuluwYXuaYmxh2dI8xoCKV0QAvD_BwE">Top 10 Hosting Service</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/Hosting/" rel="tag"># Hosting</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/09/21/OS_System-Concept_Overview/" rel="next" title="作業系統(Operating System/OS) Overview(上)">
+                  作業系統(Operating System/OS) Overview(上) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">22k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">20 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/motion.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
