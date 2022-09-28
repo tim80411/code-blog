@@ -180,6 +180,238 @@
       </tags>
   </entry>
   <entry>
+    <title>行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理</title>
+    <url>/code-blog/2022/09/23/OS_Process/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>行程是CPU分配資源的最小單位，以後還會聊到，甚至就連docker的container在run的時候就是一個process，很有趣吧，就來稍微認識一下~</p>
+<span id="more"></span>
+
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>一個較好記憶的說法會將行程解釋成運行中的應用程式(Application)，但有個比較貼切的說法是: 行程是一個正在運行中的應用程式實例。</p>
+<p>實例隱含的意思是，由一個應用程式而建立的行程可以有多個，且雖然他們皆由同一個應用程式而來，他們可以具備不同狀態。</p>
+<h2 id="行程架構"><a href="#行程架構" class="headerlink" title="行程架構"></a>行程架構</h2><p><img src="https://i.imgur.com/DlIreU0.png"></p>
+<blockquote>
+<p>引用自 <a href="https://www.guru99.com/process-management-pcb.html">https://www.guru99.com/process-management-pcb.html</a></p>
+</blockquote>
+<p>此圖大致代表Process在記憶體裡的結構，</p>
+<ul>
+<li>Stack: 暫時性資料，例如Function Parameters、Local variables</li>
+<li>Heap: 執行程式碼所需要的動態工作區</li>
+<li>Data: 儲存全域變數等</li>
+<li>Text: 程式碼所在</li>
+</ul>
+<h2 id="行程生命週期"><a href="#行程生命週期" class="headerlink" title="行程生命週期"></a>行程生命週期</h2><p><img src="https://i.imgur.com/KgOOxn6.png"></p>
+<blockquote>
+<p>引用自 <a href="https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60">https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60</a></p>
+</blockquote>
+<p>共有五種狀態</p>
+<table>
+<thead>
+<tr>
+<th>狀態</th>
+<th align="left">說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>new創建</td>
+<td align="left">初始狀態，分配及建立PCB以及其他資源，在完成上述工作後進入ready</td>
+</tr>
+<tr>
+<td>ready就緒</td>
+<td align="left">在隊列按照CPU Scheduling的演算法等待搶奪CPU以完成工作</td>
+</tr>
+<tr>
+<td>running工作</td>
+<td align="left">一旦搶奪到CPU，此狀態會被設置為工作中，並執行應用程式中的指令。在與ready狀態切換時，會作Context Switch</td>
+</tr>
+<tr>
+<td>waiting等待</td>
+<td align="left">如果因為事件或是IO速度的差異導致等待，就會停在此</td>
+</tr>
+<tr>
+<td>terminated終止</td>
+<td align="left">完成執行、被迫結束(比如在硬性即時系統)或者遇到錯誤時就會進入此狀態</td>
+</tr>
+</tbody></table>
+<h2 id="Process-Control-Block-PCB"><a href="#Process-Control-Block-PCB" class="headerlink" title="Process Control Block, PCB"></a>Process Control Block, PCB</h2><p>記錄行程相關狀態資訊的資料區，每個行程都有自己的一個，並在Process創建時被建立。<br>其內容包含:</p>
+<table>
+<thead>
+<tr>
+<th align="left">項目</th>
+<th align="left">內容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">行程狀態process state</td>
+<td align="left">流程生命週期的狀態</td>
+</tr>
+<tr>
+<td align="left">程式計數器process counter</td>
+<td align="left">紀錄下一個要執行的指令的位址</td>
+</tr>
+<tr>
+<td align="left">CPU暫存器保存區</td>
+<td align="left">不在running state時，CPU暫存器內容會被保存在此</td>
+</tr>
+<tr>
+<td align="left">排班資訊</td>
+<td align="left">例如行程優先等級(priority)等排班時所需要的參數</td>
+</tr>
+<tr>
+<td align="left">記憶體資訊</td>
+<td align="left">其內容根據記憶體系統的種類而定</td>
+</tr>
+<tr>
+<td align="left">帳號資訊Accounting Information</td>
+<td align="left">process所屬的使用者帳號(user id)、行程代號(process identification)、時間限制、已經使用掉的處理機時間、進入系統之實際時間</td>
+</tr>
+<tr>
+<td align="left">IO狀態資訊</td>
+<td align="left">如所配置之輸出入裝置串列、開啟(Opened)之檔案串列等資訊</td>
+</tr>
+</tbody></table>
+<p>大部分資訊由參考資料2來的，並統整了其他資料的內容，所以更詳細可以看參考資料2。</p>
+<h2 id="Process-Create"><a href="#Process-Create" class="headerlink" title="Process Create"></a>Process Create</h2><p>在OS內，Process可以建立child process，因此所有的排程可以組成一個樹狀結構。</p>
+<p>如果你手邊有linux系統的話，可以使用 <code>pstree -aup</code> 看到在你的電腦裡的process的樹狀圖。</p>
+<p><img src="https://i.imgur.com/Mjv8Wl7.png"></p>
+<p>如上圖，甚至可以知道我是在zsh之下執行的這個指令XD</p>
+<p>大部分的OS會支援兩種Process Create的方式</p>
+<ul>
+<li>Fork: 複製父行程的PCB到子PCB</li>
+<li>Exec: 替換子行程的資料，初始化新的PCB資料</li>
+</ul>
+<p>所以建立新的Process就是兩者混用，先Fork一個子行程後，再Exec初始化子行程。</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://medium.com/@akhandmishra/operating-system-process-and-process-management-108d83e8ce60">Operating System: Process and Process Management</a><br><a href="https://chenhh.gitbooks.io/parallel_processing/content/process.html">PCB</a><br><a href="https://ithelp.ithome.com.tw/articles/10202866">程序(process)概念–上</a><br><a href="https://www.tutorialspoint.com/inter_process_communication/inter_process_communication_process_creation_termination.htm">Process Creation</a><br><a href="https://ithelp.ithome.com.tw/articles/10276152?sc=rss.iron">Process</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>OS</tag>
+        <tag>Process</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OS_system_classification_overview</title>
+    <url>/code-blog/2022/09/22/OS_System_Classification_Overview/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天要介紹各個系統作業類別，透過了解系解的分類及概要的內容，會對於作業系統有更進一步的認識的~<br>那就開始吧!</p>
+<span id="more"></span>
+
+<h2 id="作業系統類別"><a href="#作業系統類別" class="headerlink" title="作業系統類別"></a>作業系統類別</h2><ol>
+<li>多元程式規劃 Multiprogramming System</li>
+<li>分時系統 Time Sharing System</li>
+<li>分散式系統 Distributed System</li>
+<li>即時系統 Real Time System</li>
+<li>集成&#x2F;叢集式系統 Clustered System</li>
+</ol>
+<h3 id="多元程式規劃Multiprogramming-System"><a href="#多元程式規劃Multiprogramming-System" class="headerlink" title="多元程式規劃Multiprogramming System"></a>多元程式規劃Multiprogramming System</h3><ul>
+<li>定義: 存在多組Process同一段時間內同時執行</li>
+<li>目的: 避免CPU閒置，提升使用率</li>
+</ul>
+<p>系統內存在許多等待執行的Process，而透過CPU Scheduling讓CPU可以在不同Process中切換(Context Switch)，讓CPU保持忙碌減少閒置。</p>
+<p>為什麼需要切換，因為為了完成軟體需執行的動作，可能需要依賴除了CPU以外的硬體，若CPU的運算過程出現需等待其他硬體先完成後才能繼續執行的事件，就會造成閒置(idle)。</p>
+<p>一般而言，Multiprogramming degree(註1)越高，CPU使用率越高，意思是指說越不會出現因為等待其他軟體操做其他硬體工作而造成閒置，除非遇到輾轉現象(Thrashing(註2))。</p>
+<h3 id="分時系統-Time-Sharing-System"><a href="#分時系統-Time-Sharing-System" class="headerlink" title="分時系統 Time Sharing System"></a>分時系統 Time Sharing System</h3><ul>
+<li>定義: 屬於Multiprogramming System其中之一，透過資源共享技術，使User認為有各自專屬的系統存在。</li>
+<li>技術:<ul>
+<li>CPU: CPU Scheduling，採用Round-Robin(註3)</li>
+<li>Memory: 共享Memory Space</li>
+<li>I&#x2F;O device: Spooling(註4)</li>
+</ul>
+</li>
+</ul>
+<p>此系統容許多人同時使用，並對個別的請求盡可能快的產生反應，如果這個輪流使用資源的速度夠快，會看起來像是每個人都在同時與該系統互動，故也會被稱為交談式系統，像是遊戲。</p>
+<h3 id="分散式系統-Distributed-System"><a href="#分散式系統-Distributed-System" class="headerlink" title="分散式系統 Distributed System"></a>分散式系統 Distributed System</h3><p>可分成兩類: </p>
+<ol>
+<li>緊密耦合Tightly Coupled: Multiprocessor, Parallel</li>
+<li>鬆散耦合Loosely Coupled: Distributed</li>
+</ol>
+<h4 id="緊密耦合-Multiprocessor-x2F-Parallel"><a href="#緊密耦合-Multiprocessor-x2F-Parallel" class="headerlink" title="緊密耦合 Multiprocessor&#x2F;Parallel"></a>緊密耦合 Multiprocessor&#x2F;Parallel</h4><ul>
+<li>定義: 同一機器具有2顆以上的CPU或Processor存在，且同時符合以下特性<ul>
+<li>共享記憶體、I&#x2F;O設備、Bus(註5)</li>
+<li>受同一個Clock及OS的控制</li>
+<li>CPUs之間的資料交換，採Share Memory(註6)</li>
+</ul>
+</li>
+</ul>
+<p>支援Parallel Computing，可將Processes或單一Process上subtasks指派到不同CPU，平行直行。</p>
+<ul>
+<li><p>優點:</p>
+<ul>
+<li>產能: 可同時執行多工作，或單一工作拆分部分。</li>
+<li>符合效益: 共用記憶體、I&#x2F;O、BUS，在完成MultiProcessor的演算法之後，就不用用多台電腦叢集，但閒置了必配置的上述資源。</li>
+<li>可靠度: 單一Processor掛掉之後可以保證工作繼續維持。</li>
+</ul>
+</li>
+<li><p>問題:<br>n個CPU不等同於n倍效能，會因為前者提到在多工的通訊或共用的資源的競爭導致效能的消耗。</p>
+</li>
+</ul>
+<p>可以想像看看，公司的團隊人數增加兩倍時，就會有兩倍的產能出現嗎…</p>
+<ul>
+<li>類型細分:<ul>
+<li>對稱式多元處理Symmetric Multiprocessing, SMP:<br>每一個Processor功能相同，可靠度較高，單一Processor壞掉會將未完成工作轉移到其他Processor身上，強調負載平衡，想像起來有點像並聯的感覺。</li>
+<li>非對稱式多元處理Asymmetric Multiprocessing, ASMP:<br>又稱做Master&#x2F;Slave架構，通常有一個單位(個&#x2F;群)的Master Processor，負責控制、分配Process到其他Processor去運作，效能相對SMP好，但可靠度較差。</li>
+</ul>
+</li>
+</ul>
+<h4 id="鬆散耦合-Distributed"><a href="#鬆散耦合-Distributed" class="headerlink" title="鬆散耦合 Distributed"></a>鬆散耦合 Distributed</h4><ul>
+<li>定義: 相對於緊密耦合，可以視為多台電腦的叢集。</li>
+</ul>
+<p>現代網路的運作模式可以視為是這樣的鬆散耦合，通過一些經過標準化的協定傳遞訊息做溝通。</p>
+<ul>
+<li>類型細分:<ul>
+<li>網路作業系統(NOS):<br>在知道其他端點的資訊下，透過網路協定進行訊息溝通。</li>
+<li>分散式作業系統(DOS):<br>讓使用者已像是在存取自己資源的方式使用遠方端點資源，資料以及運算全在OS控制之下，使用者無法得知是在遠端或是本端得到資源。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/zProh6x.png"></p>
+<blockquote>
+<p>圖片來自碁峯-作業系統理論與實務–第二版(雙色印刷)15-3</p>
+</blockquote>
+<h3 id="即時系統-Real-Time-System"><a href="#即時系統-Real-Time-System" class="headerlink" title="即時系統 Real Time System"></a>即時系統 Real Time System</h3><ul>
+<li>定義: 嚴謹的定義的時間限制，Processor在處理工作時必須在時間內完成，若否即失效。</li>
+</ul>
+<p>可分成兩類</p>
+<ol>
+<li>硬性即時系統</li>
+<li>軟性即時系統</li>
+</ol>
+<h4 id="硬性即時系統"><a href="#硬性即時系統" class="headerlink" title="硬性即時系統"></a>硬性即時系統</h4><p>狹義化的即時系統定義，並相對於柔性即時系統。</p>
+<ul>
+<li>注意限制: 除了OS運作的時間以外，也要考慮系統內的delay(如傳輸、硬體運算等)必須須小於情境所需要的Time Constraint。</li>
+<li>OS特性: OS的功能少甚至沒有，以減少干預，強調即時，限制延遲。</li>
+<li>使用需求可以想像這個系統是需要在特定時間限制需求的環境下使用的。</li>
+</ul>
+<h4 id="軟性即時系統"><a href="#軟性即時系統" class="headerlink" title="軟性即時系統"></a>軟性即時系統</h4><p>確保高優先權Process會先於低優先權被完成，且高優先權Process的優先權要維持到工作完成，對比硬性即時系統來看，此系統僅能保證高優先權最先，但不會限定什麼時間完成。</p>
+<ul>
+<li>注意限制: OS造成的延遲要盡可能縮短，避免優先權反轉(註7)問題。</li>
+<li>OS特性: 支援Priority優先權演算法，且優先權不能被Aging(註8)。</li>
+</ul>
+<h3 id="集成-x2F-叢集式系統-Clustered-System"><a href="#集成-x2F-叢集式系統-Clustered-System" class="headerlink" title="集成&#x2F;叢集式系統 Clustered System"></a>集成&#x2F;叢集式系統 Clustered System</h3><ul>
+<li>定義: 其定義有點類似分散式系統: 集合多個CPU完成工作並共享儲存裝置稱為一個clustered，且又透過連線緊密連結。</li>
+</ul>
+<p>差異的話，相對於Tightly coupled，他不是多個CPU共用相同資源；而相對於loosely coupled，他也不是多個<strong>單獨系統</strong>作訊息溝通。</p>
+<p>硬要想像跟理解的話，有點像是多個Tightly coupled系統作loosely coupled，不過每個Tightly coupled系統僅共享儲存裝置這樣。</p>
+<p>不過回頭來看，我們要說Tightly coupled系統也是一種Clustered System，應該也是符合定義的吧。</p>
+<h2 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h2><h3 id="註1-Multiprogramming-degree"><a href="#註1-Multiprogramming-degree" class="headerlink" title="註1- Multiprogramming degree"></a>註1- Multiprogramming degree</h3><p>系統內等待執行的Process數量</p>
+<h3 id="註2-Thrashing"><a href="#註2-Thrashing" class="headerlink" title="註2- Thrashing"></a>註2- Thrashing</h3><p>因為Context switch需要記憶體或虛擬記憶體作為資訊存放的地方，於是，當Multingprogramming degreee超過一定程度時，會讓所有Process忙於資訊在記憶體及虛擬記憶體(disk)轉換之中，CPU為了等待完成反而造成閒置。</p>
+<h3 id="註3-Round-Robin"><a href="#註3-Round-Robin" class="headerlink" title="註3- Round-Robin"></a>註3- Round-Robin</h3><p>每個Process有固定的配額時間，配額的時間沒完成目前的工作，Process會被迫放棄並讓出CPU的使用。</p>
+<h3 id="註4-Spooling"><a href="#註4-Spooling" class="headerlink" title="註4- Spooling"></a>註4- Spooling</h3><p>為了因應速度不相同的裝置，在兩者之間設置緩衝區(Buffering)，以減少兩者速度傳輸造成的閒置或是順序錯誤。</p>
+<p>常見的舉例像是: 印表機處理多個裝置的影印工作不會錯置順序。</p>
+<h3 id="註5-匯流排Bus"><a href="#註5-匯流排Bus" class="headerlink" title="註5- 匯流排Bus"></a>註5- 匯流排Bus</h3><p>指的是電腦組件之間交換資料的方式，我的理解就是主機板上連接著組件間的線路。</p>
+<h3 id="註6-Share-Memory"><a href="#註6-Share-Memory" class="headerlink" title="註6- Share Memory"></a>註6- Share Memory</h3><p>允許兩個不相關的Process進入讀取、寫入的邏輯記憶體。</p>
+<h3 id="註7-Priority-Inversion優先權反轉"><a href="#註7-Priority-Inversion優先權反轉" class="headerlink" title="註7- Priority Inversion優先權反轉"></a>註7- Priority Inversion優先權反轉</h3><p>高優先權Process在特定情況下，遭到低優先權阻擋而無法完成工作。</p>
+<p>特定情況像是，雖然高優先權拿到了CPU的使用權，但低優先權霸佔了高優先權完成工作時需要的資源，造成CPU idle。</p>
+<h3 id="註8-aging"><a href="#註8-aging" class="headerlink" title="註8-aging"></a>註8-aging</h3><p>系統根據特定規則，將系統內很長時間未完成工作的process逐步提高其 Priority的技術。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>在了解了這些不同的作業系統類別之後，我發現這些作業系統的設計其實都是跟著實務上使用的需求而專門誕生的，只是後續才被整理出這些類別才是。</p>
+<p>在大概了解完OS之後，其實還是有很多大大小小的內容可以在深入了解一些，那接著就是在介紹時常常提到的行程Process囉!</p>
+<p>此篇文章同步發表於<a href="https://medium.com/on-my-way-coding/%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1-operating-system-os-overview-%E4%B8%8B-37670e4c368a">部落格</a>，歡迎逛逛~</p>
+<p>如果沒有前面那是正常的，因為我從今天才決定要放部落格的XD</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://www.youtube.com/watch?v=tA4KiYrFdAM&ab_channel=%E3%80%90%E6%9D%B0%E5%93%A5%E6%95%B8%E4%BD%8D%E6%95%99%E5%AE%A4%E3%80%91">作業系統簡介</a><br><a href="https://ithelp.ithome.com.tw/articles/10203950">即時作業系統</a><br><a href="https://zh.wikipedia.org/zh-tw/%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98">Shared Memory</a><br><a href="https://zh.m.wikipedia.org/zh-tw/%E6%80%BB%E7%BA%BF">匯流排</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理</title>
     <url>/code-blog/2022/09/23/OS_Thread/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天會討論執行緒Thread，是一個我覺得很容易跟行程Process混淆的概念，為了學習跟整理這個概念，我們可以踩在前人的肩膀上前進XD</p>
@@ -297,8 +529,8 @@
       <tags>
         <tag>鐵人賽</tag>
         <tag>OS</tag>
-        <tag>Thread</tag>
         <tag>Process</tag>
+        <tag>Thread</tag>
       </tags>
   </entry>
   <entry>
@@ -464,8 +696,8 @@
       <tags>
         <tag>鐵人賽</tag>
         <tag>OS</tag>
-        <tag>Thread</tag>
         <tag>Process</tag>
+        <tag>Thread</tag>
         <tag>Concurrency</tag>
       </tags>
   </entry>

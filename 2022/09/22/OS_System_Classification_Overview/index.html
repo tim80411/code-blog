@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言今天要介紹各個系統作業類別，透過了解系解的分類及概要的內容，會對於作業系統有更進一步的認識的~那就開始吧!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OS_system_classification_overview">
+<meta property="og:url" content="https://username.github.io/code-blog/2022/09/22/OS_System_Classification_Overview/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言今天要介紹各個系統作業類別，透過了解系解的分類及概要的內容，會對於作業系統有更進一步的認識的~那就開始吧!">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.imgur.com/zProh6x.png">
+<meta property="article:published_time" content="2022-09-22T04:58:23.000Z">
+<meta property="article:modified_time" content="2022-09-28T16:06:30.784Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/zProh6x.png">
+
+
+<link rel="canonical" href="https://username.github.io/code-blog/2022/09/22/OS_System_Classification_Overview/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/22/OS_System_Classification_Overview/","path":"2022/09/22/OS_System_Classification_Overview/","title":"OS_system_classification_overview"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>OS_system_classification_overview | Timothy Coding Ground</title>
+  
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">10</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">7</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1%E9%A1%9E%E5%88%A5"><span class="nav-number">2.</span> <span class="nav-text">作業系統類別</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E5%85%83%E7%A8%8B%E5%BC%8F%E8%A6%8F%E5%8A%83Multiprogramming-System"><span class="nav-number">2.1.</span> <span class="nav-text">多元程式規劃Multiprogramming System</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%99%82%E7%B3%BB%E7%B5%B1-Time-Sharing-System"><span class="nav-number">2.2.</span> <span class="nav-text">分時系統 Time Sharing System</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%95%A3%E5%BC%8F%E7%B3%BB%E7%B5%B1-Distributed-System"><span class="nav-number">2.3.</span> <span class="nav-text">分散式系統 Distributed System</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B7%8A%E5%AF%86%E8%80%A6%E5%90%88-Multiprocessor-x2F-Parallel"><span class="nav-number">2.3.1.</span> <span class="nav-text">緊密耦合 Multiprocessor&#x2F;Parallel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%AC%86%E6%95%A3%E8%80%A6%E5%90%88-Distributed"><span class="nav-number">2.3.2.</span> <span class="nav-text">鬆散耦合 Distributed</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%B3%E6%99%82%E7%B3%BB%E7%B5%B1-Real-Time-System"><span class="nav-number">2.4.</span> <span class="nav-text">即時系統 Real Time System</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AC%E6%80%A7%E5%8D%B3%E6%99%82%E7%B3%BB%E7%B5%B1"><span class="nav-number">2.4.1.</span> <span class="nav-text">硬性即時系統</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BB%9F%E6%80%A7%E5%8D%B3%E6%99%82%E7%B3%BB%E7%B5%B1"><span class="nav-number">2.4.2.</span> <span class="nav-text">軟性即時系統</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E6%88%90-x2F-%E5%8F%A2%E9%9B%86%E5%BC%8F%E7%B3%BB%E7%B5%B1-Clustered-System"><span class="nav-number">2.5.</span> <span class="nav-text">集成&#x2F;叢集式系統 Clustered System</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8D%E8%A9%9E%E8%A7%A3%E9%87%8B"><span class="nav-number">3.</span> <span class="nav-text">名詞解釋</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB1-Multiprogramming-degree"><span class="nav-number">3.1.</span> <span class="nav-text">註1- Multiprogramming degree</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB2-Thrashing"><span class="nav-number">3.2.</span> <span class="nav-text">註2- Thrashing</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB3-Round-Robin"><span class="nav-number">3.3.</span> <span class="nav-text">註3- Round-Robin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB4-Spooling"><span class="nav-number">3.4.</span> <span class="nav-text">註4- Spooling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB5-%E5%8C%AF%E6%B5%81%E6%8E%92Bus"><span class="nav-number">3.5.</span> <span class="nav-text">註5- 匯流排Bus</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB6-Share-Memory"><span class="nav-number">3.6.</span> <span class="nav-text">註6- Share Memory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB7-Priority-Inversion%E5%84%AA%E5%85%88%E6%AC%8A%E5%8F%8D%E8%BD%89"><span class="nav-number">3.7.</span> <span class="nav-text">註7- Priority Inversion優先權反轉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB8-aging"><span class="nav-number">3.8.</span> <span class="nav-text">註8-aging</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">4.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/22/OS_System_Classification_Overview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="OS_system_classification_overview | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OS_system_classification_overview
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-09-22 12:58:23" itemprop="dateCreated datePublished" datetime="2022-09-22T12:58:23+08:00">2022-09-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-09-29 00:06:30" itemprop="dateModified" datetime="2022-09-29T00:06:30+08:00">2022-09-29</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/09/22/OS_System_Classification_Overview/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/22/OS_System_Classification_Overview/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天要介紹各個系統作業類別，透過了解系解的分類及概要的內容，會對於作業系統有更進一步的認識的~<br>那就開始吧!</p>
+<span id="more"></span>
+
+<h2 id="作業系統類別"><a href="#作業系統類別" class="headerlink" title="作業系統類別"></a>作業系統類別</h2><ol>
+<li>多元程式規劃 Multiprogramming System</li>
+<li>分時系統 Time Sharing System</li>
+<li>分散式系統 Distributed System</li>
+<li>即時系統 Real Time System</li>
+<li>集成&#x2F;叢集式系統 Clustered System</li>
+</ol>
+<h3 id="多元程式規劃Multiprogramming-System"><a href="#多元程式規劃Multiprogramming-System" class="headerlink" title="多元程式規劃Multiprogramming System"></a>多元程式規劃Multiprogramming System</h3><ul>
+<li>定義: 存在多組Process同一段時間內同時執行</li>
+<li>目的: 避免CPU閒置，提升使用率</li>
+</ul>
+<p>系統內存在許多等待執行的Process，而透過CPU Scheduling讓CPU可以在不同Process中切換(Context Switch)，讓CPU保持忙碌減少閒置。</p>
+<p>為什麼需要切換，因為為了完成軟體需執行的動作，可能需要依賴除了CPU以外的硬體，若CPU的運算過程出現需等待其他硬體先完成後才能繼續執行的事件，就會造成閒置(idle)。</p>
+<p>一般而言，Multiprogramming degree(註1)越高，CPU使用率越高，意思是指說越不會出現因為等待其他軟體操做其他硬體工作而造成閒置，除非遇到輾轉現象(Thrashing(註2))。</p>
+<h3 id="分時系統-Time-Sharing-System"><a href="#分時系統-Time-Sharing-System" class="headerlink" title="分時系統 Time Sharing System"></a>分時系統 Time Sharing System</h3><ul>
+<li>定義: 屬於Multiprogramming System其中之一，透過資源共享技術，使User認為有各自專屬的系統存在。</li>
+<li>技術:<ul>
+<li>CPU: CPU Scheduling，採用Round-Robin(註3)</li>
+<li>Memory: 共享Memory Space</li>
+<li>I&#x2F;O device: Spooling(註4)</li>
+</ul>
+</li>
+</ul>
+<p>此系統容許多人同時使用，並對個別的請求盡可能快的產生反應，如果這個輪流使用資源的速度夠快，會看起來像是每個人都在同時與該系統互動，故也會被稱為交談式系統，像是遊戲。</p>
+<h3 id="分散式系統-Distributed-System"><a href="#分散式系統-Distributed-System" class="headerlink" title="分散式系統 Distributed System"></a>分散式系統 Distributed System</h3><p>可分成兩類: </p>
+<ol>
+<li>緊密耦合Tightly Coupled: Multiprocessor, Parallel</li>
+<li>鬆散耦合Loosely Coupled: Distributed</li>
+</ol>
+<h4 id="緊密耦合-Multiprocessor-x2F-Parallel"><a href="#緊密耦合-Multiprocessor-x2F-Parallel" class="headerlink" title="緊密耦合 Multiprocessor&#x2F;Parallel"></a>緊密耦合 Multiprocessor&#x2F;Parallel</h4><ul>
+<li>定義: 同一機器具有2顆以上的CPU或Processor存在，且同時符合以下特性<ul>
+<li>共享記憶體、I&#x2F;O設備、Bus(註5)</li>
+<li>受同一個Clock及OS的控制</li>
+<li>CPUs之間的資料交換，採Share Memory(註6)</li>
+</ul>
+</li>
+</ul>
+<p>支援Parallel Computing，可將Processes或單一Process上subtasks指派到不同CPU，平行直行。</p>
+<ul>
+<li><p>優點:</p>
+<ul>
+<li>產能: 可同時執行多工作，或單一工作拆分部分。</li>
+<li>符合效益: 共用記憶體、I&#x2F;O、BUS，在完成MultiProcessor的演算法之後，就不用用多台電腦叢集，但閒置了必配置的上述資源。</li>
+<li>可靠度: 單一Processor掛掉之後可以保證工作繼續維持。</li>
+</ul>
+</li>
+<li><p>問題:<br>n個CPU不等同於n倍效能，會因為前者提到在多工的通訊或共用的資源的競爭導致效能的消耗。</p>
+</li>
+</ul>
+<p>可以想像看看，公司的團隊人數增加兩倍時，就會有兩倍的產能出現嗎…</p>
+<ul>
+<li>類型細分:<ul>
+<li>對稱式多元處理Symmetric Multiprocessing, SMP:<br>每一個Processor功能相同，可靠度較高，單一Processor壞掉會將未完成工作轉移到其他Processor身上，強調負載平衡，想像起來有點像並聯的感覺。</li>
+<li>非對稱式多元處理Asymmetric Multiprocessing, ASMP:<br>又稱做Master&#x2F;Slave架構，通常有一個單位(個&#x2F;群)的Master Processor，負責控制、分配Process到其他Processor去運作，效能相對SMP好，但可靠度較差。</li>
+</ul>
+</li>
+</ul>
+<h4 id="鬆散耦合-Distributed"><a href="#鬆散耦合-Distributed" class="headerlink" title="鬆散耦合 Distributed"></a>鬆散耦合 Distributed</h4><ul>
+<li>定義: 相對於緊密耦合，可以視為多台電腦的叢集。</li>
+</ul>
+<p>現代網路的運作模式可以視為是這樣的鬆散耦合，通過一些經過標準化的協定傳遞訊息做溝通。</p>
+<ul>
+<li>類型細分:<ul>
+<li>網路作業系統(NOS):<br>在知道其他端點的資訊下，透過網路協定進行訊息溝通。</li>
+<li>分散式作業系統(DOS):<br>讓使用者已像是在存取自己資源的方式使用遠方端點資源，資料以及運算全在OS控制之下，使用者無法得知是在遠端或是本端得到資源。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/zProh6x.png"></p>
+<blockquote>
+<p>圖片來自碁峯-作業系統理論與實務–第二版(雙色印刷)15-3</p>
+</blockquote>
+<h3 id="即時系統-Real-Time-System"><a href="#即時系統-Real-Time-System" class="headerlink" title="即時系統 Real Time System"></a>即時系統 Real Time System</h3><ul>
+<li>定義: 嚴謹的定義的時間限制，Processor在處理工作時必須在時間內完成，若否即失效。</li>
+</ul>
+<p>可分成兩類</p>
+<ol>
+<li>硬性即時系統</li>
+<li>軟性即時系統</li>
+</ol>
+<h4 id="硬性即時系統"><a href="#硬性即時系統" class="headerlink" title="硬性即時系統"></a>硬性即時系統</h4><p>狹義化的即時系統定義，並相對於柔性即時系統。</p>
+<ul>
+<li>注意限制: 除了OS運作的時間以外，也要考慮系統內的delay(如傳輸、硬體運算等)必須須小於情境所需要的Time Constraint。</li>
+<li>OS特性: OS的功能少甚至沒有，以減少干預，強調即時，限制延遲。</li>
+<li>使用需求可以想像這個系統是需要在特定時間限制需求的環境下使用的。</li>
+</ul>
+<h4 id="軟性即時系統"><a href="#軟性即時系統" class="headerlink" title="軟性即時系統"></a>軟性即時系統</h4><p>確保高優先權Process會先於低優先權被完成，且高優先權Process的優先權要維持到工作完成，對比硬性即時系統來看，此系統僅能保證高優先權最先，但不會限定什麼時間完成。</p>
+<ul>
+<li>注意限制: OS造成的延遲要盡可能縮短，避免優先權反轉(註7)問題。</li>
+<li>OS特性: 支援Priority優先權演算法，且優先權不能被Aging(註8)。</li>
+</ul>
+<h3 id="集成-x2F-叢集式系統-Clustered-System"><a href="#集成-x2F-叢集式系統-Clustered-System" class="headerlink" title="集成&#x2F;叢集式系統 Clustered System"></a>集成&#x2F;叢集式系統 Clustered System</h3><ul>
+<li>定義: 其定義有點類似分散式系統: 集合多個CPU完成工作並共享儲存裝置稱為一個clustered，且又透過連線緊密連結。</li>
+</ul>
+<p>差異的話，相對於Tightly coupled，他不是多個CPU共用相同資源；而相對於loosely coupled，他也不是多個<strong>單獨系統</strong>作訊息溝通。</p>
+<p>硬要想像跟理解的話，有點像是多個Tightly coupled系統作loosely coupled，不過每個Tightly coupled系統僅共享儲存裝置這樣。</p>
+<p>不過回頭來看，我們要說Tightly coupled系統也是一種Clustered System，應該也是符合定義的吧。</p>
+<h2 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h2><h3 id="註1-Multiprogramming-degree"><a href="#註1-Multiprogramming-degree" class="headerlink" title="註1- Multiprogramming degree"></a>註1- Multiprogramming degree</h3><p>系統內等待執行的Process數量</p>
+<h3 id="註2-Thrashing"><a href="#註2-Thrashing" class="headerlink" title="註2- Thrashing"></a>註2- Thrashing</h3><p>因為Context switch需要記憶體或虛擬記憶體作為資訊存放的地方，於是，當Multingprogramming degreee超過一定程度時，會讓所有Process忙於資訊在記憶體及虛擬記憶體(disk)轉換之中，CPU為了等待完成反而造成閒置。</p>
+<h3 id="註3-Round-Robin"><a href="#註3-Round-Robin" class="headerlink" title="註3- Round-Robin"></a>註3- Round-Robin</h3><p>每個Process有固定的配額時間，配額的時間沒完成目前的工作，Process會被迫放棄並讓出CPU的使用。</p>
+<h3 id="註4-Spooling"><a href="#註4-Spooling" class="headerlink" title="註4- Spooling"></a>註4- Spooling</h3><p>為了因應速度不相同的裝置，在兩者之間設置緩衝區(Buffering)，以減少兩者速度傳輸造成的閒置或是順序錯誤。</p>
+<p>常見的舉例像是: 印表機處理多個裝置的影印工作不會錯置順序。</p>
+<h3 id="註5-匯流排Bus"><a href="#註5-匯流排Bus" class="headerlink" title="註5- 匯流排Bus"></a>註5- 匯流排Bus</h3><p>指的是電腦組件之間交換資料的方式，我的理解就是主機板上連接著組件間的線路。</p>
+<h3 id="註6-Share-Memory"><a href="#註6-Share-Memory" class="headerlink" title="註6- Share Memory"></a>註6- Share Memory</h3><p>允許兩個不相關的Process進入讀取、寫入的邏輯記憶體。</p>
+<h3 id="註7-Priority-Inversion優先權反轉"><a href="#註7-Priority-Inversion優先權反轉" class="headerlink" title="註7- Priority Inversion優先權反轉"></a>註7- Priority Inversion優先權反轉</h3><p>高優先權Process在特定情況下，遭到低優先權阻擋而無法完成工作。</p>
+<p>特定情況像是，雖然高優先權拿到了CPU的使用權，但低優先權霸佔了高優先權完成工作時需要的資源，造成CPU idle。</p>
+<h3 id="註8-aging"><a href="#註8-aging" class="headerlink" title="註8-aging"></a>註8-aging</h3><p>系統根據特定規則，將系統內很長時間未完成工作的process逐步提高其 Priority的技術。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>在了解了這些不同的作業系統類別之後，我發現這些作業系統的設計其實都是跟著實務上使用的需求而專門誕生的，只是後續才被整理出這些類別才是。</p>
+<p>在大概了解完OS之後，其實還是有很多大大小小的內容可以在深入了解一些，那接著就是在介紹時常常提到的行程Process囉!</p>
+<p>此篇文章同步發表於<a target="_blank" rel="noopener" href="https://medium.com/on-my-way-coding/%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1-operating-system-os-overview-%E4%B8%8B-37670e4c368a">部落格</a>，歡迎逛逛~</p>
+<p>如果沒有前面那是正常的，因為我從今天才決定要放部落格的XD</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=tA4KiYrFdAM&ab_channel=%E3%80%90%E6%9D%B0%E5%93%A5%E6%95%B8%E4%BD%8D%E6%95%99%E5%AE%A4%E3%80%91">作業系統簡介</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10203950">即時作業系統</a><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98">Shared Memory</a><br><a target="_blank" rel="noopener" href="https://zh.m.wikipedia.org/zh-tw/%E6%80%BB%E7%BA%BF">匯流排</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/09/23/OS_Process/" rel="next" title="行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理">
+                  行程(Process)、執行緒(thread)傻傻分不清楚(上)-行程管理 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">19k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">17 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/motion.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
