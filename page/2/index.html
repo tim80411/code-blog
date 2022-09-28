@@ -20,31 +20,26 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
-    <meta name="description" content="前言從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。 稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫">
-<meta property="og:type" content="article">
-<meta property="og:title" content="作業系統(Operating System&#x2F;OS) Overview(上)">
-<meta property="og:url" content="https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/index.html">
+    <meta name="description" content="Coding Learning Writing">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Timothy Coding Ground">
+<meta property="og:url" content="https://username.github.io/code-blog/page/2/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
-<meta property="og:description" content="前言從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。 稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫">
+<meta property="og:description" content="Coding Learning Writing">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-09-21T04:08:02.000Z">
-<meta property="article:modified_time" content="2022-09-28T17:22:35.357Z">
 <meta property="article:author" content="Timothy Liao">
-<meta property="article:tag" content="鐵人賽">
-<meta property="article:tag" content="Backend">
-<meta property="article:tag" content="OS">
-<meta property="article:tag" content="CPU Scheduling">
+<meta property="article:tag" content="Backend, web dev, nodeJs, JavaScript">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/">
+<link rel="canonical" href="https://username.github.io/code-blog/page/2/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/","path":"2022/09/21/OS_System-Concept_Overview/","title":"作業系統(Operating System/OS) Overview(上)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":true,"isPost":false,"lang":"en","comments":"","permalink":"","path":"page/2/index.html","title":""}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>作業系統(Operating System/OS) Overview(上) | Timothy Coding Ground</title>
+<title>Timothy Coding Ground - 沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</title>
   
 
 
@@ -75,7 +70,7 @@
 
     <a href="/code-blog/" class="brand" rel="start">
       <i class="logo-line"></i>
-      <p class="site-title">Timothy Coding Ground</p>
+      <h1 class="site-title">Timothy Coding Ground</h1>
       <i class="logo-line"></i>
     </a>
       <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
@@ -135,7 +130,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+    <div class="sidebar-inner sidebar-overview-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -148,7 +143,6 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E9%80%94"><span class="nav-number">3.</span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1%E8%88%87%E7%A1%AC%E9%AB%94%E7%9A%84%E4%BA%92%E5%8B%95"><span class="nav-number">4.</span> <span class="nav-text">作業系統與硬體的互動</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8D%E8%A9%9E%E8%A7%A3%E9%87%8B"><span class="nav-number">5.</span> <span class="nav-text">名詞解釋</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU-Scheduling-Short-term-Scheduling"><span class="nav-number">5.1.</span> <span class="nav-text">CPU Scheduling(Short-term Scheduling)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Context-Switching"><span class="nav-number">5.2.</span> <span class="nav-text">Context Switching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">6.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -213,18 +207,17 @@
 </noscript>
 
 
-    <div class="main-inner post posts-expand">
+    <div class="main-inner index posts-expand">
 
-
-  
+    
 
 
 <div class="post-block">
   
   
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/">
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/18/Network_Browser/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -237,13 +230,13 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="作業系統(Operating System/OS) Overview(上) | Timothy Coding Ground">
+      <meta itemprop="name" content="undefined | Timothy Coding Ground">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          作業系統(Operating System/OS) Overview(上)
-        </h1>
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/code-blog/2022/09/18/Network_Browser/" class="post-title-link" itemprop="url">瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?</a>
+        </h2>
 
         <div class="post-meta-container">
           <div class="post-meta">
@@ -253,7 +246,7 @@
       </span>
       <span class="post-meta-item-text">Posted on</span>
 
-      <time title="Created: 2022-09-21 12:08:02" itemprop="dateCreated datePublished" datetime="2022-09-21T12:08:02+08:00">2022-09-21</time>
+      <time title="Created: 2022-09-18 12:20:15" itemprop="dateCreated datePublished" datetime="2022-09-18T12:20:15+08:00">2022-09-18</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -272,8 +265,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/code-blog/2022/09/21/OS_System-Concept_Overview/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/21/OS_System-Concept_Overview/" itemprop="commentCount"></span>
+    <a title="disqus" href="/code-blog/2022/09/18/Network_Browser/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/18/Network_Browser/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -283,7 +276,7 @@
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">Reading time &asymp;</span>
-      <span>1 mins.</span>
+      <span>2 mins.</span>
     </span>
 </div>
 
@@ -294,32 +287,74 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。</p>
-<p>稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫他們做點事情幫忙，但最終還是你一個人處理所有的電話…情何以堪XD</p>
-<p>為了解決這個問題，因此有了pm2套件、原生的cluster及worker threads，他們各自有不同的問題解決邏輯，或許通過這段時間的鑽研我們可以稍微探討這些差異。</p>
-<p>我個人是蠻期待這部分的學習，那，就開始今天的OS overview吧。</p>
-<span id="more"></span>
-
-<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><blockquote>
-<p>一組主管並控制電腦操作、運用和執行硬體、軟體資源和提供公共服務來組織使用者互動的相互關聯的系統軟體程式。 – <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">維基百科</a></p>
-</blockquote>
-<p>這邊我用我的方式來理解作業系統是: 提供易於操作的介面，讓程式開發者&#x2F;使用者可以用更簡單直覺的方式操作硬體。</p>
-<h2 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h2><p>於是，作業系統的用途包含但可能不限於以下:</p>
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>這邊將提及的是，當我們在瀏覽器的搜尋欄中輸入一串網址<code>https://ithelp.ithome.com.tw/</code>時，在瀏覽器的背後到底發生了什麼事情?</p>
+<p>稍稍了解這個部分，對於開發者在開發符合使用者需求的網站-快速渲染網頁、交互溝通順暢，是會帶來幫助的；甚至當網頁出現問題或效率不彰的時候，透過對於瀏覽器運作機制的了解，也能對糾錯帶來一定的幫助。</p>
+<p>不過因為這邊主要側重後端的角度上，瀏覽器溝通的前面步驟導航其實就是典型的HTTP溝通，也是後端常會接觸到的範圍，所以這部分會多些篇幅，而在解析、渲染的部分等關於畫面的部分就會說得相對少很多XD。</p>
+<p>那就開始今天的部分吧!!</p>
+<h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><p>透過MDN的分類，可以將這段流程分為以下幾段</p>
 <ol>
-<li>控制及管理硬體資源</li>
-<li>提供使用者介面</li>
-<li>程式的錯誤預防</li>
+<li>導航Navigation: 建立與Server連線</li>
+<li>回應Response: 發出請求並得到回應</li>
+<li>解析Parsing: 解析回應</li>
+<li>渲染Render: 渲染畫面</li>
+<li>交互Interactivity: 與使用者互動</li>
 </ol>
-<p>根據需求情境及使用者對象，其考量而產生的作業系統型態可能會完全不一樣，比如說，家用個人電腦的目標是讓使用者更方便的使用系統，所以可能會更在意GUI(圖形化介面)的方便性；而伺服器的目標是資源的隔離性及使用率最佳化，可能面向的對象多是開發者，其介面可能僅會使用CLI(文字命令介面)。</p>
-<h2 id="作業系統與硬體的互動"><a href="#作業系統與硬體的互動" class="headerlink" title="作業系統與硬體的互動"></a>作業系統與硬體的互動</h2><p>一般來說會分成使用者(User)及應用程式(Program)透過OS與硬體互動，使用者通過OS的命令直譯器(Command Interpreter)與硬體互動，而當使用者在操作應用程式時，應用程式會對OS做系統呼叫(System Call)，進而與硬體層溝通，完成使用者指定的操作。</p>
-<h2 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h2><p>在進入後面一般系統種類介紹前，也想先對幾個名詞作概要的解釋，會對於後面的內容有比較好的理解。</p>
-<h3 id="CPU-Scheduling-Short-term-Scheduling"><a href="#CPU-Scheduling-Short-term-Scheduling" class="headerlink" title="CPU Scheduling(Short-term Scheduling)"></a>CPU Scheduling(Short-term Scheduling)</h3><p>最早期的系統其實是單純的順序，意思是指，CPU會按照程式的執行順序，依序把工作完成，其中常有造成CPU珍貴的運算資源被閒置的狀況，像是程式設計錯誤，或是因為硬體的速度不一，導致CPU等待其他工作完成…等等。</p>
-<p>因此為了得到最大的CPU使用率，會藉由適當的排班演算法，先CPU處理該process(CPU Burst)，接著做I&#x2F;O資料的傳送(I&#x2F;O Burst)，process會在這兩個狀態一直循環，最後在工作完成後呼叫一個終止Process的System Call作為結束。</p>
-<p>這可以說是後面的系統類別在設計時的核心之一，目標式在確保CPU使用率的狀況下，作出最符合當前系統情境的需求的決策。</p>
-<h3 id="Context-Switching"><a href="#Context-Switching" class="headerlink" title="Context Switching"></a>Context Switching</h3><p>CPU使用權轉移時，需要儲存舊的Process資訊，載入新Process資訊，這個工作就稱之為Context Switching。</p>
-<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>內容遠比我想得來的多了，不得已之好分成兩天完成來完成了XD<br>明天會開始介紹作業系統的種類。</p>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10232695">Node Cluster 讓你的 Thread 不再孤軍奮戰</a><br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/56656498/how-do-cluster-and-worker-threads-work-in-node-js">Different between cluster and worker thread</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=Cl0uql06KK0&ab_channel=%E3%80%90%E6%9D%B0%E5%93%A5%E6%95%B8%E4%BD%8D%E6%95%99%E5%AE%A4%E3%80%91">作業系統簡介</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10203990">CPU Scheduling</a></p>
+<h2 id="導航"><a href="#導航" class="headerlink" title="導航"></a>導航</h2><p>此部分將完成的工作是透過傳輸層與Server建立連線。</p>
+<p>這部份我們會先以HTTP&#x2F;2.0之前作為範例，在前一天已經有提到過HTTP&#x2F;3會使用不同的傳輸層協定，有興趣可以再回頭看一下。</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10292700">超文本傳輸協定(HTTP)是什麼?</a></li>
+</ul>
+<h3 id="網域名稱系統Domain-Name-System-DNS"><a href="#網域名稱系統Domain-Name-System-DNS" class="headerlink" title="網域名稱系統Domain Name System(DNS)"></a>網域名稱系統Domain Name System(DNS)</h3><p>在瀏覽器與OS溝通完畢要進行與目標網址的對話後，第一步要做的就是與DNS溝通取得正確ip位置，在談及DNS時，我們稍微談一下網址，並以<code>https://ithelp.ithome.com.tw/</code>作為範例，網址結構上分為:</p>
+<ol>
+<li>傳輸協定Protocol: <code>https://</code></li>
+<li>主機&#x2F;網域Host&#x2F;Domain: <code>ithelp.ithome.com.tw</code></li>
+<li>路徑Path: <code>/</code></li>
+</ol>
+<p>接著，我們目前僅需要知道的部分是，目前可讀的網域其實僅是一種對照，他會被對照到一個真實的ip，好處包括彈性(可以隨意變換Domain背後的ip)、易讀易記等。</p>
+<p>而要怎麼透過Domain去找到真實的ip，這個就是DNS工作的範疇了，詳情我就不解釋，這是明天的主題XD</p>
+<h3 id="TCP連線"><a href="#TCP連線" class="headerlink" title="TCP連線"></a>TCP連線</h3><p>在得知ip位置之後，會進行經典的TCP三次握手(TCP 3-way Handshake)，其目的是為了確保連接的正確性，包含SYN, SYN-ACK, ACK。</p>
+<p>A及B分別代表Client及Server, 而三次握手分別完成的工作包括有:</p>
+<ol>
+<li>同步Sync: 由A發出，讓Server知道我們的TCP設置。</li>
+<li>同步確認Sync Check: 由B發出，回應Client他已經收到訊息並準備建立連線進行通信。</li>
+<li>確認Check: 由A再度發出，表示完成連線。</li>
+</ol>
+<p>在這裡我當時自問了一個有趣的小問題: 為什麼需要第三次確認才算建立連線呢?<br>這邊找到了一個解釋: </p>
+<blockquote>
+<p>一句話，主要防止已經失效的連接請求報文突然又傳送到了服務器，從而產生錯誤。 – <a target="_blank" rel="noopener" href="https://blog.csdn.net/qzcsu/article/details/72861891">兩張動圖-徹底明白TCP的三次握手與四次揮手</a><br>————————————————<br>版权声明：本文为CSDN博主「小书go」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。</p>
+</blockquote>
+<p>他的原意是為了避免產生錯誤且不必要的連結，假設是二次握手好了: </p>
+<ol>
+<li>比如連接X請求SYN送出，雖沒丟失但因為某些原因被延誤。</li>
+<li>A因為遲遲沒收到SYN-ACK誤以為連接請求丟失就重發連接請求Y。</li>
+<li>重發後完成二次握手，在完成request-response後關閉連線。</li>
+<li>此時連接請求X總算到了B，B發回SYN-ACK</li>
+<li>A在收到訊息後就又建立了新的連線了。</li>
+</ol>
+<p>作為旁觀者的我們知道這個步驟5的連接其實是不必要的損耗，為了避免這個損耗，於是就出現了三次握手，我們回到原本的過程5。</p>
+<ol start="5">
+<li>此時SYN-ACK回到A，A這邊有資訊知道這個連接是不用被建立的，就不會再回傳一次ACK給B</li>
+<li>B在收不到ACK的狀況下，就也可以知道這個連接是不用被建立的。</li>
+</ol>
+<h3 id="SSL-x2F-TLS握手"><a href="#SSL-x2F-TLS握手" class="headerlink" title="SSL&#x2F;TLS握手"></a>SSL&#x2F;TLS握手</h3><p>基於安全的需求，在TCP之上又多出了一層SSL&#x2F;TLS安全協定，於是當我們使用HTTPS的網址時就會多出這段過程，其目的在於讓端點雙方溝通的訊息僅能被彼此看懂，這也會在後面的鐵人賽在多加敘述XD。</p>
+<h2 id="回應Response"><a href="#回應Response" class="headerlink" title="回應Response"></a>回應Response</h2><p>總算完成連接之後，就會開始進行HTTP的Request-Response過程，輸入在網址欄的網址，會作為GET請求被發出，更準確來說，瀏覽器會替你發出一條HTTP報文並請求Server回覆。</p>
+<h2 id="解析Parsing、渲染Render、交互性Interactivity"><a href="#解析Parsing、渲染Render、交互性Interactivity" class="headerlink" title="解析Parsing、渲染Render、交互性Interactivity"></a>解析Parsing、渲染Render、交互性Interactivity</h2><p>在收到<code>https://ithelp.ithome.com.tw</code>回應的網頁資料之後，接著就是開始將資料做解析。<br>其過程根據不同的瀏覽器，有不同的渲染引擎，像是Chrome使用的是開源引擎WebKit的分支Blink，FireFox使用的則是Gecko，解析的流程略有不同，但概念的大方向其實是接近的。</p>
+<ol>
+<li>將HTML轉換成DOM tree，CSS轉換成CSSOM tree</li>
+<li>將兩者計算並建立Render Tree</li>
+<li>Layout過程，為每個Render tree的節點決定在螢幕上的確切座標</li>
+<li>遍歷Render Tree的節點，使用UI後端繪製畫面。</li>
+</ol>
+<p>在完成畫面繪製後，畫面就可以與使用者互動了。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>還有好些地方可以深入研究，包括解析、渲染、交互之後的TCP關閉連線，甚至是HTTP&#x2F;3的QUIC連線都有深入可以理解的部分。</p>
+<p>不過透過對於這些內容的理解究竟可以做些什麼呢?</p>
+<p>來舉一些例子好了，從比較底層的來看，當我們知道SSL&#x2F;TLS是作為安全性的增強而產生的協議，並且知道他產生了多次的RTT(封包往返時間)，如果未來網頁溝通效率很遭，有可能可以以此猜測瓶頸出現在哪。</p>
+<p>另外一個比較實際的角度，我們的網頁有可能突然掛掉，並收到伺服器回饋表示DNS parsing fail，這時候或許就不是一籌莫展，我們因為知道DNS僅代表ip的映射，若有些重大服務&#x2F;第三方服務，在考量之下也可以請對方先以真實ip代替迴避重大損失。</p>
+<p>大概就是這樣囉，明天我們會稍稍深入DNS，了解到我們的DN是怎麼被映射回ip的，明天見~</p>
+<p>此文章同步發表於<a target="_blank" rel="noopener" href="https://tim80411.github.io/code-blog/">部落格</a></p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://web.dev/howbrowserswork/">How Browsers Work</a><br><a target="_blank" rel="noopener" href="https://www.homenethowto.com/advanced-topics/traffic-example-the-full-picture/">Traffic example</a><br><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/314817">TCP壅塞控制機制</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Performance/How_browsers_work">MDN-How_browsers_work</a></p>
 
+      
     </div>
 
     
@@ -327,27 +362,8 @@
     
 
     <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
-              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
-              <a href="/code-blog/tags/OS/" rel="tag"># OS</a>
-              <a href="/code-blog/tags/CPU-Scheduling/" rel="tag"># CPU Scheduling</a>
-          </div>
-
-        
-
-          <div class="post-nav">
-            <div class="post-nav-item">
-                <a href="/code-blog/2022/09/19/Network_hosting/" rel="prev" title="欸黑，我的主機不在我家-託管(hosting)">
-                  <i class="fa fa-chevron-left"></i> 欸黑，我的主機不在我家-託管(hosting)
-                </a>
-            </div>
-            <div class="post-nav-item">
-                <a href="/code-blog/2022/09/22/OS_System_Classification_Overview/" rel="next" title="作業系統(Operating System/OS) Overview(下)">
-                  作業系統(Operating System/OS) Overview(下) <i class="fa fa-chevron-right"></i>
-                </a>
-            </div>
-          </div>
+        <div class="post-eof"></div>
+      
     </footer>
   </article>
 </div>
@@ -355,13 +371,10 @@
 
 
 
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/code-blog/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/code-blog/">1</a><span class="page-number current">2</span>
+  </nav>
 
-
-    
-  <div class="comments" id="disqus_thread">
-    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
-  </div>
-  
 </div>
   </main>
 
