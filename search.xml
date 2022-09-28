@@ -138,6 +138,48 @@
       </tags>
   </entry>
   <entry>
+    <title>Unix的標準-POSIX Basics</title>
+    <url>/code-blog/2022/09/28/OS_POSIX_Basics/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>POSIX到底是什麼神秘的東西呢?老實說，在roadMap提到這個單字前，我是真的完全不知道他是什麼XD</p>
+<p>其實他就是一種interface的標準，為了要讓作業系統之間的相容性提高，所以符合POSIX的應用程式都會有一個重要的特性是:</p>
+<blockquote>
+<p>應該要能與其他符合POSIX標準的作業系統相容</p>
+</blockquote>
+<p>於是今天會講到一些歷史，並提到關於POSIX具有移植性的一些原因。</p>
+<span id="more"></span>
+
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>有人說他的全稱是Portable Operating System Interface，並且最後加上X代表Unix，不過官方似乎也沒針對名字的全稱給出解釋。<br>他是由IEEE制定的，並且符合此標準的應用程式應該具有如前言所說的特性。</p>
+<p>也因為這樣，在Linux及類Unix系統上多數工具的行為會幾乎相同。<br>這邊為什麼會將Linux與Unix分開說呢?<br>因為Linux雖然是根據大部分的POSIX的標準實現的，但他是從頭開發的，所以根本上他並不與Unix有實質的關聯。</p>
+<h2 id="歷史小故事"><a href="#歷史小故事" class="headerlink" title="歷史小故事"></a>歷史小故事</h2><p>Unix在1974年由貝爾實驗室對外發布，自此開始出現了多個版本，並也有Unix廠商試圖加上一些不相容的特性來讓系統與其他有所區隔。<br>而後，為了提高相容性及應用程式的可移植性，IEEE開始著手將Unix的開發標準化，後由Richard Stallman命名為”POSIX”。</p>
+<h2 id="可移植性"><a href="#可移植性" class="headerlink" title="可移植性"></a>可移植性</h2><p>這邊會談到為什麼遵循POSIX就代表具有可移植性。<br>基本上作業系統有兩種方式可以跟硬體溝通:</p>
+<ol>
+<li>system call</li>
+<li>library function</li>
+</ol>
+<h3 id="system-call"><a href="#system-call" class="headerlink" title="system call"></a>system call</h3><p>由作業系統提供給Process的溝通介面，因為是由作業系統直接提供的，所以不同的作業系統他們所提供的system call介面可能不同。</p>
+<h3 id="library-function"><a href="#library-function" class="headerlink" title="library function"></a>library function</h3><p>作業系統會提供另一種方式，將很多過程封裝成一些常用的函式，比如說，一個寫入的函式可能包含很多記憶體、硬碟的操作。<br>而所謂的符合POSIX其實就是指:</p>
+<blockquote>
+<p>這些函式需要輸入的參數、型別、回傳值等都符合POSIX要求的規範</p>
+</blockquote>
+<p>根據下圖你就能看到事實上其實一個function可能封裝了system call在其中，那這樣可以帶來什麼好處呢?<br><img src="https://i.imgur.com/FGJlGxm.png"></p>
+<h3 id="使用library-function的好處"><a href="#使用library-function的好處" class="headerlink" title="使用library function的好處"></a>使用library function的好處</h3><ol>
+<li>節省成本: 會這樣說的原因，需要回到前幾天談過的Kernel mode，當我們使用system call的時候其實會經過mode的轉換，這其實需要一些成本，我們可能會接著問，那library也會使用system call不會嗎?當然會，所以我們的角度會變成，盡可能在進入kernel mode時完成大部分的system call。</li>
+<li>可移植: 回到原本談得移植性，當我們的Program是用符合POSIX標準的library與硬體溝通時，這代表這段程式碼可以被直接搬到一樣符合標準的系統，就算這些不同的library內部實現這些介面的方式不同，但這並不是開發人員在乎的事情。不過如果是直接使用system call呢?假如兩邊使用的參數或甚至名稱不同，那段就要經過檢查後重寫…</li>
+</ol>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>這次的學習解答了為什麼我們在Linux或是其他類Unix的系統上所使用的script大部分都無法搬到windows上使用XD<br>而且通過資料，也看到windows從windows NT原本也期望符合POSIX，但最終放棄，他目前是改為面對開發人員，推出了wsl(Windows Subsystem for Linux)。</p>
+<p>到今天為止總算在OS overview的部分告一段落了，後面幾天開始就是DB的一些overview囉!<br>明天見~~</p>
+<p>本文章同步發布於<a href="https://tim80411.github.io/code-blog/2022/09/28/OS_POSIX_Basics/">部落格</a>，歡迎來逛逛~</p>
+<h2 id="後話"><a href="#後話" class="headerlink" title="後話"></a>後話</h2><p>閒聊一下，我在寫這天的內容時，使用的正是wsl2，一般而言他還是蠻好用的，他讓我們可以在windows有好用的GUI基礎上，可以透過vscode或是terminal實現類似在linux上開發的感受，我個人覺得是可行的。<br>不過今天也出現問題，在複製照片想貼進md文件時出現了錯誤，看來是在同步剪貼簿時對於照片的轉換出現了問題…</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://www.baeldung.com/linux/posix">A Guide to POSIX</a><br><a href="https://unix.stackexchange.com/questions/11983/what-exactly-is-posix/220877#220877">What exactly is POSIX?</a><br><a href="https://zhuanlan.zhihu.com/p/392588996">posix是什麼都不知道，還好意思說你懂Linux</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>OS</tag>
+        <tag>POSIX</tag>
+        <tag>UNIX</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>行程(Process)、執行緒(thread)傻傻分不清楚(中)-執行緒管理</title>
     <url>/code-blog/2022/09/23/OS_Thread/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天會討論執行緒Thread，是一個我覺得很容易跟行程Process混淆的概念，為了學習跟整理這個概念，我們可以踩在前人的肩膀上前進XD</p>

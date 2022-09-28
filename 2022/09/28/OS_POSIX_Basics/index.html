@@ -20,30 +20,33 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
-    <meta name="description" content="前言在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。">
+    <meta name="description" content="前言POSIX到底是什麼神秘的東西呢?老實說，在roadMap提到這個單字前，我是真的完全不知道他是什麼XD 其實他就是一種interface的標準，為了要讓作業系統之間的相容性提高，所以符合POSIX的應用程式都會有一個重要的特性是:  應該要能與其他符合POSIX標準的作業系統相容  於是今天會講到一些歷史，並提到關於POSIX具有移植性的一些原因。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="行程間通訊(Inter Process Communication)">
-<meta property="og:url" content="https://username.github.io/code-blog/2022/09/25/OS_Inter_Process_Communication/index.html">
+<meta property="og:title" content="Unix的標準-POSIX Basics">
+<meta property="og:url" content="https://username.github.io/code-blog/2022/09/28/OS_POSIX_Basics/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
-<meta property="og:description" content="前言在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。">
+<meta property="og:description" content="前言POSIX到底是什麼神秘的東西呢?老實說，在roadMap提到這個單字前，我是真的完全不知道他是什麼XD 其實他就是一種interface的標準，為了要讓作業系統之間的相容性提高，所以符合POSIX的應用程式都會有一個重要的特性是:  應該要能與其他符合POSIX標準的作業系統相容  於是今天會講到一些歷史，並提到關於POSIX具有移植性的一些原因。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-09-25T22:55:37.000Z">
+<meta property="og:image" content="https://i.imgur.com/FGJlGxm.png">
+<meta property="article:published_time" content="2022-09-28T04:36:32.000Z">
 <meta property="article:modified_time" content="2022-09-28T11:32:54.563Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
 <meta property="article:tag" content="OS">
-<meta property="article:tag" content="IPC">
+<meta property="article:tag" content="POSIX">
+<meta property="article:tag" content="UNIX">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/FGJlGxm.png">
 
 
-<link rel="canonical" href="https://username.github.io/code-blog/2022/09/25/OS_Inter_Process_Communication/">
+<link rel="canonical" href="https://username.github.io/code-blog/2022/09/28/OS_POSIX_Basics/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/25/OS_Inter_Process_Communication/","path":"2022/09/25/OS_Inter_Process_Communication/","title":"行程間通訊(Inter Process Communication)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/28/OS_POSIX_Basics/","path":"2022/09/28/OS_POSIX_Basics/","title":"Unix的標準-POSIX Basics"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>行程間通訊(Inter Process Communication) | Timothy Coding Ground</title>
+<title>Unix的標準-POSIX Basics | Timothy Coding Ground</title>
   
 
 
@@ -147,7 +150,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%83%85%E5%A2%83%E9%9C%80%E8%A6%81"><span class="nav-number">3.</span> <span class="nav-text">情境需要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%9E%E5%88%A5"><span class="nav-number">4.</span> <span class="nav-text">類別</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shared-Memory"><span class="nav-number">5.</span> <span class="nav-text">Shared Memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Message-Passing"><span class="nav-number">6.</span> <span class="nav-text">Message Passing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">7.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">8.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%B7%E5%8F%B2%E5%B0%8F%E6%95%85%E4%BA%8B"><span class="nav-number">3.</span> <span class="nav-text">歷史小故事</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E7%A7%BB%E6%A4%8D%E6%80%A7"><span class="nav-number">4.</span> <span class="nav-text">可移植性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#system-call"><span class="nav-number">4.1.</span> <span class="nav-text">system call</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#library-function"><span class="nav-number">4.2.</span> <span class="nav-text">library function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8library-function%E7%9A%84%E5%A5%BD%E8%99%95"><span class="nav-number">4.3.</span> <span class="nav-text">使用library function的好處</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">5.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BE%8C%E8%A9%B1"><span class="nav-number">6.</span> <span class="nav-text">後話</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -223,7 +226,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/25/OS_Inter_Process_Communication/">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/28/OS_POSIX_Basics/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -236,12 +239,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="行程間通訊(Inter Process Communication) | Timothy Coding Ground">
+      <meta itemprop="name" content="Unix的標準-POSIX Basics | Timothy Coding Ground">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          行程間通訊(Inter Process Communication)
+          Unix的標準-POSIX Basics
         </h1>
 
         <div class="post-meta-container">
@@ -251,15 +254,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
+      
 
-      <time title="Created: 2022-09-26 06:55:37" itemprop="dateCreated datePublished" datetime="2022-09-26T06:55:37+08:00">2022-09-26</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-09-28 19:32:54" itemprop="dateModified" datetime="2022-09-28T19:32:54+08:00">2022-09-28</time>
+      <time title="Created: 2022-09-28 12:36:32 / Modified: 19:32:54" itemprop="dateCreated datePublished" datetime="2022-09-28T12:36:32+08:00">2022-09-28</time>
     </span>
 
   
@@ -271,8 +268,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/code-blog/2022/09/25/OS_Inter_Process_Communication/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/25/OS_Inter_Process_Communication/" itemprop="commentCount"></span>
+    <a title="disqus" href="/code-blog/2022/09/28/OS_POSIX_Basics/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/28/OS_POSIX_Basics/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -282,7 +279,7 @@
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">Reading time &asymp;</span>
-      <span>1 mins.</span>
+      <span>2 mins.</span>
     </span>
 </div>
 
@@ -293,43 +290,37 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在系統內，Process或是Thread若需要與其他合作，就須要有溝通的方式，而溝通的原因包括資料分享需要、模組…等等，這些就被稱為行程間通訊。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>POSIX到底是什麼神秘的東西呢?老實說，在roadMap提到這個單字前，我是真的完全不知道他是什麼XD</p>
+<p>其實他就是一種interface的標準，為了要讓作業系統之間的相容性提高，所以符合POSIX的應用程式都會有一個重要的特性是:</p>
+<blockquote>
+<p>應該要能與其他符合POSIX標準的作業系統相容</p>
+</blockquote>
+<p>於是今天會講到一些歷史，並提到關於POSIX具有移植性的一些原因。</p>
 <span id="more"></span>
 
-<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>多個 process&#x2F;thread 內部要去溝通，都統稱叫做 IPC。</p>
-<p>關於這點我曾經有點困惑，為什麼Thread之間的溝通也被稱為行程間通訊，我個人給他的解釋是，因為Thread本身也可以算是一個Process，只是跟其他同Process的Thread共享了部分記憶體空間。</p>
-<p><del>不過說不定只是那時候的人取錯名字了?</del></p>
-<h2 id="情境需要"><a href="#情境需要" class="headerlink" title="情境需要"></a>情境需要</h2><ul>
-<li>資訊分享: node.js經過cluster產生的child process和main process需要溝通。</li>
-<li>加速運算: Parallel</li>
-<li>模組化</li>
-<li>方便</li>
-</ul>
-<h2 id="類別"><a href="#類別" class="headerlink" title="類別"></a>類別</h2><ul>
-<li>Shared Memory</li>
-<li>Message Passing</li>
-</ul>
-<h2 id="Shared-Memory"><a href="#Shared-Memory" class="headerlink" title="Shared Memory"></a>Shared Memory</h2><p>共享記憶體以進行通訊，使用時不需要kernel。<br>不過若是兩個Process之間想要使用這個方式進行通訊會因為需要額外建立共享的memeory區塊而發出system call了。</p>
-<h2 id="Message-Passing"><a href="#Message-Passing" class="headerlink" title="Message Passing"></a>Message Passing</h2><p>要實現這個通訊方式，必須包含</p>
-<ul>
-<li>溝通方法: send &amp; receive</li>
-<li>溝通管道</li>
-</ul>
-<p>在有些資料中，雖然會將IPC分為更多類，不過我最後根據<a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ipc</a>這份資料，認為理解他們的方式應視為在討論Message Passing實踐時的相異之處。</p>
-<p>其中包括討論:</p>
-<ul>
-<li>溝通管道如何被建立?<br>通常會討論是直接通訊Direct Communication或是間接通訊Indirect Communication。</li>
-<li>一個管道是否可以與兩個以上的Process有關?</li>
-<li>Process與Process之間可以有多少管道?</li>
-<li>管道的容量有多少?可容納的訊息是固定還是可變的</li>
-<li>管道是雙向還是單向的</li>
-</ul>
-<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>看了資料後才發現其實IPC蠻靠近我們的<br>包括我們在shell裡面常用的pipe</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find a | xargs grep &#x27;something&#x27;</span><br></pre></td></tr></table></figure>
-<p>因為每個指令是一個process，前指令在將結果傳給後指令接收時使用的就是IPC。</p>
-<p>另外瀏覽器請求server的通信也是。<br>不過IPC的細節實在太燒腦了，差點寫不完只好先停在這裡，若之後真的有機會再回頭來更新吧。</p>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><!-- Tanenbaum & Bos 的Modern Operating Systems -->
-<p><a target="_blank" rel="noopener" href="https://hackmd.io/@YiZjennnnn/OS_Note/https%3A%2F%2Fhackmd.io%2F%40YiZjennnnn%2Fipc_interprocess_communication?type=book">IPC (Interprocess Communication)</a><br><a target="_blank" rel="noopener" href="https://www.geeksforgeeks.org/inter-process-communication-ipc/">inter-process-communication-ip</a></p>
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>有人說他的全稱是Portable Operating System Interface，並且最後加上X代表Unix，不過官方似乎也沒針對名字的全稱給出解釋。<br>他是由IEEE制定的，並且符合此標準的應用程式應該具有如前言所說的特性。</p>
+<p>也因為這樣，在Linux及類Unix系統上多數工具的行為會幾乎相同。<br>這邊為什麼會將Linux與Unix分開說呢?<br>因為Linux雖然是根據大部分的POSIX的標準實現的，但他是從頭開發的，所以根本上他並不與Unix有實質的關聯。</p>
+<h2 id="歷史小故事"><a href="#歷史小故事" class="headerlink" title="歷史小故事"></a>歷史小故事</h2><p>Unix在1974年由貝爾實驗室對外發布，自此開始出現了多個版本，並也有Unix廠商試圖加上一些不相容的特性來讓系統與其他有所區隔。<br>而後，為了提高相容性及應用程式的可移植性，IEEE開始著手將Unix的開發標準化，後由Richard Stallman命名為”POSIX”。</p>
+<h2 id="可移植性"><a href="#可移植性" class="headerlink" title="可移植性"></a>可移植性</h2><p>這邊會談到為什麼遵循POSIX就代表具有可移植性。<br>基本上作業系統有兩種方式可以跟硬體溝通:</p>
+<ol>
+<li>system call</li>
+<li>library function</li>
+</ol>
+<h3 id="system-call"><a href="#system-call" class="headerlink" title="system call"></a>system call</h3><p>由作業系統提供給Process的溝通介面，因為是由作業系統直接提供的，所以不同的作業系統他們所提供的system call介面可能不同。</p>
+<h3 id="library-function"><a href="#library-function" class="headerlink" title="library function"></a>library function</h3><p>作業系統會提供另一種方式，將很多過程封裝成一些常用的函式，比如說，一個寫入的函式可能包含很多記憶體、硬碟的操作。<br>而所謂的符合POSIX其實就是指:</p>
+<blockquote>
+<p>這些函式需要輸入的參數、型別、回傳值等都符合POSIX要求的規範</p>
+</blockquote>
+<p>根據下圖你就能看到事實上其實一個function可能封裝了system call在其中，那這樣可以帶來什麼好處呢?<br><img src="https://i.imgur.com/FGJlGxm.png"></p>
+<h3 id="使用library-function的好處"><a href="#使用library-function的好處" class="headerlink" title="使用library function的好處"></a>使用library function的好處</h3><ol>
+<li>節省成本: 會這樣說的原因，需要回到前幾天談過的Kernel mode，當我們使用system call的時候其實會經過mode的轉換，這其實需要一些成本，我們可能會接著問，那library也會使用system call不會嗎?當然會，所以我們的角度會變成，盡可能在進入kernel mode時完成大部分的system call。</li>
+<li>可移植: 回到原本談得移植性，當我們的Program是用符合POSIX標準的library與硬體溝通時，這代表這段程式碼可以被直接搬到一樣符合標準的系統，就算這些不同的library內部實現這些介面的方式不同，但這並不是開發人員在乎的事情。不過如果是直接使用system call呢?假如兩邊使用的參數或甚至名稱不同，那段就要經過檢查後重寫…</li>
+</ol>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>這次的學習解答了為什麼我們在Linux或是其他類Unix的系統上所使用的script大部分都無法搬到windows上使用XD<br>而且通過資料，也看到windows從windows NT原本也期望符合POSIX，但最終放棄，他目前是改為面對開發人員，推出了wsl(Windows Subsystem for Linux)。</p>
+<p>到今天為止總算在OS overview的部分告一段落了，後面幾天開始就是DB的一些overview囉!<br>明天見~~</p>
+<p>本文章同步發布於<a target="_blank" rel="noopener" href="https://tim80411.github.io/code-blog/2022/09/28/OS_POSIX_Basics/">部落格</a>，歡迎來逛逛~</p>
+<h2 id="後話"><a href="#後話" class="headerlink" title="後話"></a>後話</h2><p>閒聊一下，我在寫這天的內容時，使用的正是wsl2，一般而言他還是蠻好用的，他讓我們可以在windows有好用的GUI基礎上，可以透過vscode或是terminal實現類似在linux上開發的感受，我個人覺得是可行的。<br>不過今天也出現問題，在複製照片想貼進md文件時出現了錯誤，看來是在同步剪貼簿時對於照片的轉換出現了問題…</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.baeldung.com/linux/posix">A Guide to POSIX</a><br><a target="_blank" rel="noopener" href="https://unix.stackexchange.com/questions/11983/what-exactly-is-posix/220877#220877">What exactly is POSIX?</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/392588996">posix是什麼都不知道，還好意思說你懂Linux</a></p>
 
     </div>
 
@@ -341,21 +332,19 @@
           <div class="post-tags">
               <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
               <a href="/code-blog/tags/OS/" rel="tag"># OS</a>
-              <a href="/code-blog/tags/IPC/" rel="tag"># IPC</a>
+              <a href="/code-blog/tags/POSIX/" rel="tag"># POSIX</a>
+              <a href="/code-blog/tags/UNIX/" rel="tag"># UNIX</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/24/OS_concurrency/" rel="prev" title="行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)">
-                  <i class="fa fa-chevron-left"></i> 行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)
+                <a href="/code-blog/2022/09/27/OS_IO/" rel="prev" title="電腦與外界的通訊方式-輸入/輸出(I/O)管理">
+                  <i class="fa fa-chevron-left"></i> 電腦與外界的通訊方式-輸入/輸出(I/O)管理
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/27/OS_IO/" rel="next" title="電腦與外界的通訊方式-輸入/輸出(I/O)管理">
-                  電腦與外界的通訊方式-輸入/輸出(I/O)管理 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
