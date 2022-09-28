@@ -1,7 +1,7 @@
 ---
 title: Unix的標準-POSIX Basics
 tags: ['鐵人賽', 'OS', 'POSIX', 'UNIX']
-date: 2022-09-28 21:36:32
+date: 2022-09-28 12:36:32
 ---
 ## 前言
 POSIX到底是什麼神秘的東西呢?老實說，在roadMap提到這個單字前，我是真的完全不知道他是什麼XD
