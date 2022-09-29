@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>DB relational db comparison</title>
+    <title>db大觀園(上)-關聯式資料庫overview</title>
     <url>/code-blog/2022/09/29/DB_relational_db_comparion/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>開始進入DB的範圍，DB目前分兩類，SQL及No SQL，No SQL並不真的算是一種種類，他比較算是集合，所以兩者的意思說起來應該是:</p>
 <blockquote>
