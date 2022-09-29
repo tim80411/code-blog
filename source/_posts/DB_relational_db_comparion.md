@@ -1,5 +1,5 @@
 ---
-title: DB relational db comparison
+title: db大觀園(上)-關聯式資料庫overview
 date: 2022-09-29 12:39:03
 tags: ['鐵人賽', 'RDBMS', 'RDB', 'SQL']
 ---
