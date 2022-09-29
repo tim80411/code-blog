@@ -86,7 +86,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">14</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">11</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">17</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">12</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
         </a>
@@ -157,13 +157,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/code-blog/archives/">
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/code-blog/tags/">
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -217,6 +217,133 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/19/Network_DNS/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/code-blog/2022/09/19/Network_DNS/" class="post-title-link" itemprop="url">自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system)</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-09-19 12:15:10" itemprop="dateCreated datePublished" datetime="2022-09-19T12:15:10+08:00">2022-09-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-09-29 18:43:41" itemprop="dateModified" datetime="2022-09-29T18:43:41+08:00">2022-09-29</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/09/19/Network_DNS/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/19/Network_DNS/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>1 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>域名讓網頁的ip地址轉變成能夠被人類理解的內容，根據維基百科的資料，到2022年已經有超過5億的域名登記註冊。</p>
+<p>今天要稍微深入看一下Domain name這個部分的內容，內容應該會包含域名的結構、域名系統(DNS)如何在client要求與建立連線時將正確的ip交付。</p>
+<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><ol>
+<li>可理解性: 比IP位置更好被記億。</li>
+<li>唯一性: 和IP位置一樣，域名也是唯一性的，同一個域名不會代表兩個不同的IP位置，另外，因為他是映射的IP位置可以被更改，你可以隨意修改你的DN對應到的服務器IP位置。</li>
+</ol>
+<h2 id="結構"><a href="#結構" class="headerlink" title="結構"></a>結構</h2><p>一個域名可以由好幾個字串組成，這些字串被點(.)分隔，而最右邊的字串被稱為頂級域名Top-Level Domain(TLD)。</p>
+<p>頂級域名可以大致分為國家和地區頂級域(ccTLD)以及通用頂級域(gTLD)，ccTLD就像是台灣的tw結尾，而gTLD通常具有特定意義代表多個組織，例如gov(政府)、edu(教育機構)、com(商業)…等等</p>
+<p>頂級域名往左就會被稱為子域名，由二級開始，每向左多出一個域名就會下降一層，三級、四級…等等。</p>
+<h2 id="DNS機制"><a href="#DNS機制" class="headerlink" title="DNS機制"></a>DNS機制</h2><p>我們稍稍回到昨天，當我們輸入網址並按下ENTER後，在透過DNS取得正確的步驟包括以下:</p>
+<ol>
+<li>檢查本機的DNS緩存是否有保存IP位置。</li>
+<li>假設並沒有緩存，現在要開始做DNS查詢。</li>
+<li>DNS查詢首先會往此電腦被設定的DNS伺服器去查詢，我們在此處稱為本地伺服器。</li>
+<li>若是符合該主機的本域名會直接回答，沒有的話也會檢查Cache看有沒有相關資料。</li>
+<li>若依舊沒有的狀況，此本地DNS server會向此server有紀錄的根網域主機root domain name server(保管所有TLDNS的伺服器位置資料)發出請求。</li>
+<li>該根網域主機會回傳一台控制該網域的DNS的ip位置。</li>
+<li>在得到新的DNS IP後，本地DNS會向該DNS發出請求。</li>
+<li>若並非為該DNS儲存的資料，則會回傳更靠近該網域的DNS server。</li>
+<li>重複7, 8步驟直到收到正確ip為止</li>
+</ol>
+<p>從以上資訊我們可以得到一個結論是一台DNS並不會存放所有域名的DN資料，資料都是分別儲存在層層搜尋出來的。</p>
+<p>唯一共用位置資料的只有前面提到的根網域伺服器，他們共用同一份根域(Root Zone file)檔案，裡面記錄著頂級域名權威伺服器的ip位置。</p>
+<h2 id="有趣的小指令-whois"><a href="#有趣的小指令-whois" class="headerlink" title="有趣的小指令: whois"></a>有趣的小指令: whois</h2><p>linux的系統可以透過apt install whois安裝這個命令。</p>
+<p>這個命令可以讓你查看指定網域的註冊資料，你也可以知道你查詢的網域是不是已經被使用了。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>還記得過往曾經看過一些文章和你說，修改DNS的位置可以加速你的網路讀取速度，現在想想，他的邏輯應該是，若你可以直接在第一層詢問local DNS就拿到你要的ip位置，就可以少等待很多時間。</p>
+<p><img src="https://i.imgur.com/L6EtBWC.png" alt="windows DNS設定修改"></p>
+<p>但換個方式來說，你的server或是你的電腦為了效率，其實也會將取得的IP做Cache，所以第二次連接相同網站速度還是無法提升時，也代表或許瓶頸並不是出現在DNS這段，對於排錯又可以多一些額外的資訊了。</p>
+<p>今天差不多就到這裡囉，明天會聊聊託管(hoisting)</p>
+<p>此文章同步發表於<a target="_blank" rel="noopener" href="https://tim80411.github.io/code-blog/">部落格</a></p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/What_is_a_domain_name">MDN-Domain</a><br><a target="_blank" rel="noopener" href="https://www.homenethowto.com/advanced-topics/traffic-example-the-full-picture/">Traffic</a><br><a target="_blank" rel="noopener" href="https://blog.twnic.tw/wp-content/uploads/2021/08/2021_jprs_ZH-TW_0830_final.pdf">網路大冒險</a></p>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/18/Network_Browser/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -253,7 +380,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-09-29 01:22:35" itemprop="dateModified" datetime="2022-09-29T01:22:35+08:00">2022-09-29</time>
+      <time title="Modified: 2022-09-29 18:43:41" itemprop="dateModified" datetime="2022-09-29T18:43:41+08:00">2022-09-29</time>
     </span>
 
   
@@ -395,13 +522,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="Symbols count total">26k</span>
+    <span title="Symbols count total">27k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">24 mins.</span>
+    <span title="Reading time total">25 mins.</span>
   </span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
