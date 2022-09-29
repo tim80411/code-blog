@@ -45,6 +45,8 @@ SQL全名叫做結構話查詢語言Structured Query Language，專門用來與�
 - [不同資料庫的比較 - SQL Server vs Oracle and MySQL](http://caryhsu.blogspot.com/2011/06/sql-server-vs-oracle-and-mysql.html)
 - [PostgreSQL vs MySQL vs SQL Server vs Oracle](https://faq.postgresql.tw/postgresql-vs-mysql-vs-sql-server-vs-oracle)
 
+此文章同步發表於[部落格](https://tim80411.github.io/code-blog/)，歡迎來逛逛～
+
 ## 參考資料
 [Relational Databases](https://www.ibm.com/cloud/learn/relational-databases)
 [Database Transaction & ACID](https://oldmo860617.medium.com/database-transaction-acid-156a3b75845e)
