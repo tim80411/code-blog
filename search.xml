@@ -1,14 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>db大觀園(下)-非關聯式資料庫overview及分散式設計</title>
+    <url>/code-blog/2022/09/30/DB_Non_Relational/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>談到NoSQL時常有兩種說法，一種說不是SQL，一種說不僅僅是SQL，但總之，這一類的資料庫相對於SQL，不再採用昨天所說的關係表。</p>
+<p>關聯式資料庫最大的特色是可以減少冗餘，除了減少儲存成本，在資料更新上也會佔到優勢。<br>不過在儲存成本大幅降低的時候開始，開始出現了已管理而非最少資料為導向的NoSQL DB。</p>
+<p>除此之外，資料與資料間具有關係的關聯式資料庫在分散式系統設計上的困難也讓NoSQL冒出頭來。</p>
+<p>雖然我所在的工作使用的是mongoDB，但今天也會稍稍看一下其他不同種類的DB，拓展一點視野，那就開始吧~</p>
+<span id="more"></span>
+<h2 id="類型"><a href="#類型" class="headerlink" title="類型"></a>類型</h2><p>以資料型態來區分，可以分為四種類型</p>
+<ul>
+<li>Document database</li>
+<li>Key-value database</li>
+<li>Wide-column store</li>
+<li>Graph databases</li>
+</ul>
+<h3 id="Document-database"><a href="#Document-database" class="headerlink" title="Document database"></a>Document database</h3><p>資料被存在類似JSON結構的檔案中，被稱為document，每個document包含成對的值。<br>舉例像是: mongoDB<br>特色: 資料結構彈性高，且可對應開發時的資料結構。</p>
+<h3 id="Key-value-database"><a href="#Key-value-database" class="headerlink" title="Key-value database"></a>Key-value database</h3><p>如名字所示，資料被表示成key及對應的value，因為通常只能用key去搜尋value，所以查詢上相對簡單，適合儲存大量、不需複雜查詢的資料，常用於cache。<br>舉例像是: redis及DynanoDB<br>特色: 查詢速度快且簡單</p>
+<h3 id="Wide-column-store"><a href="#Wide-column-store" class="headerlink" title="Wide-column store"></a>Wide-column store</h3><p>資料被儲存在column family中，每個column family會儲存常被一起搜尋的資料，例如若有一個Person類別，年資跟薪水或許是被認定常被一起搜尋的內容，就會被放在一起。<br>由上可知，被儲存的資料是根據我們預先會查詢他們的方式被儲存起來的。<br>舉例像是: Cassandra、HBase<br>特色: 特定查詢效能高</p>
+<h3 id="Graph-databases"><a href="#Graph-databases" class="headerlink" title="Graph databases"></a>Graph databases</h3><p>將資料以圖的方式儲存，每個資料實例都是一個節點。<br>而節點之間有一個具有方向性、可命名的連結，稱為關係。<br>這樣的資料庫常用來處理具有多層關係的數據資料，例如推薦引擎、地圖等。<br>舉例像是: Neo4j<br>特色: 以數據之間的關係作為重心，適用情境相對少。</p>
+<h2 id="CAP"><a href="#CAP" class="headerlink" title="CAP"></a>CAP</h2><h3 id="初步認識"><a href="#初步認識" class="headerlink" title="初步認識"></a>初步認識</h3><p>什麼是CAP呢?</p>
+<blockquote>
+<p>在理論計算機科學中，CAP定理（CAP theorem），又被稱作布魯爾定理（Brewer’s theorem），它指出對於一個分布式計算系統來說，不可能同時滿足以下三點: Consistency一致性、Availability可用性、Partition tolerance分隔容忍<br>– <a href="https://zh.m.wikipedia.org/zh-tw/CAP%E5%AE%9A%E7%90%86">維基百科</a></p>
+</blockquote>
+<p>根據這個理論，一個資料庫在做分散式系統時，不可能同時滿足三者，你也可以稱它為魚與熊掌不可兼得理論XD<br>也因此產生下圖說明這件事情</p>
+<p><img src="https://i.imgur.com/dYbstCB.png" alt="圖 4">  </p>
+<p>稍微解釋一下三者</p>
+<ul>
+<li>Consistency一致性<blockquote>
+<p>all nodes see the same data at the same time</p>
+</blockquote>
+</li>
+</ul>
+<p>如果把多個資料中的各個單台稱為節點好了，一致性指的是每個節點都拿的到最新的資料。</p>
+<ul>
+<li>Availability 可用性<blockquote>
+<p>a guarantee that every request receives a response about whether it was successful or failed</p>
+</blockquote>
+</li>
+</ul>
+<p>意思是指所有對資料庫的請求都能得到回應，也就是服務持續可用</p>
+<ul>
+<li>Partition Tolerance分區容錯性<blockquote>
+<p>the system continues to operate despite arbitrary message loss or failure of part of the system</p>
+</blockquote>
+</li>
+</ul>
+<p>分散式系統的部分因為機器或是網路問題無法運作時，其餘系統仍能提供完整的服務</p>
+<h3 id="CAP與NoSQL"><a href="#CAP與NoSQL" class="headerlink" title="CAP與NoSQL"></a>CAP與NoSQL</h3><p>在查到許多資料的時候，常把CAP與NoSQL一起談，但我一直很困惑為什麼一個談分散式資料庫的理論和NoSQL有什麼很強的關聯嗎?<br>後來想想，這大概跟NoSQL的一個特性有關-資料間的關聯性弱或沒有，在這樣的狀況下，當資料規模變很大的時候，我可以直接增加機器去接受請求，這樣的方式稱做水平擴展。<br>事實上，SQL本身也是可以討論CAP，正如上圖所言，他會落在CA這區，犧牲了分區容錯性。</p>
+<p>但因為剛剛提到的平行擴展，也就是增加多台DB必定無法容忍分區容錯性的問題，也代表SQL相對難以水平擴展。<br>而NoSQL通常都適宜水平擴展，也就是符合CP、或是AP的狀況。</p>
+<p>這兩個狀況其實就代表使用情境的選擇，畢竟，適合的才是最好的~</p>
+<ul>
+<li><p>AP<br>重視可用性，也代表犧牲了強一致性，意思是指，雖然每次請求資料庫都會有結果，但資料拿到手有可能不是最新的。</p>
+</li>
+<li><p>CP<br>重視強一致性，也代表犧牲了可用性，剛好和上方顛倒。</p>
+</li>
+</ul>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>透過了解NoSQL的出現，對於整個開發的發展也可以看到，在各場景適用各自適合的方法的論述變得越來越明顯。<br>而且蠻有趣的，這些概念也都會對於未來需要判斷如何決策帶來重要的影響，雖然淺淺的，但也算是開頭了吧~~</p>
+<p>明天會來看一下關聯式資料庫的一個重要特性-ACID及和此相關的Transactions。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://ithelp.ithome.com.tw/articles/10256528">[淺談]-NoSQL資料庫怎麼選？</a><br><a href="https://ithelp.ithome.com.tw/articles/10256528">學了那麼多 NoSQL 資料庫 NoSQL 究竟是啥</a><br><a href="https://oldmo860617.medium.com/%E5%88%9D%E6%AD%A5%E8%AA%8D%E8%AD%98%E5%88%86%E6%95%A3%E5%BC%8F%E8%B3%87%E6%96%99%E5%BA%AB%E8%88%87-nosql-cap-%E7%90%86%E8%AB%96-a02d377938d1">初步認識分散式資料庫與 NoSQL CAP 理論</a><br><a href="https://www.julianbrowne.com/article/brewers-cap-theorem">Brewer’s CAP Theorem</a><br><a href="https://www.twblogs.net/a/5b8c64a82b7177188332865e">學習分佈式不得不會的CAP理論</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>DBMS</tag>
+        <tag>NoSQL</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>db大觀園(上)-關聯式資料庫overview</title>
-    <url>/code-blog/2022/09/29/DB_relational_db_comparion/</url>
+    <url>/code-blog/2022/09/29/DB_Relational/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>開始進入DB的範圍，DB目前分兩類，SQL及No SQL，No SQL並不真的算是一種種類，他比較算是集合，所以兩者的意思說起來應該是:</p>
 <blockquote>
 <p>SQL DB跟那些不是SQL的DB</p>
 </blockquote>
 <p>SQL也就是今天要聊的relational DB到底有什麼了不起的地方，竟然讓除了他以外的DB都被分成一類。<br>這就是好像有天有人跟你說，這世界上的飲料只分成烏弄跟不是烏弄得一樣XD</p>
 <p>另外其實SQL裡面也分了很多不同的DB，那他們有什麼樣相同的特性，讓他們既是不同的DB卻被通稱為SQL DB呢?<br>我們今天也會稍微看看他們彼此的特色~</p>
+<span id="more"></span>
+
 <h2 id="什麼是關聯式資料庫relational-db-RDB"><a href="#什麼是關聯式資料庫relational-db-RDB" class="headerlink" title="什麼是關聯式資料庫relational db(RDB)?"></a>什麼是關聯式資料庫relational db(RDB)?</h2><blockquote>
 <p>關聯資料庫 (RDB) 是在資料表、資料列和資料欄中建構資訊的方式。RDB 可透過彙整資料表來建立資訊之間的關聯或關係，以便輕鬆瞭解各資料點之間的關係並取得深入分析。<br>– <a href="https://cloud.google.com/learn/what-is-a-relational-database">Google</a></p>
 </blockquote>
@@ -42,6 +112,8 @@
 <p>稍稍了解這個部分，對於開發者在開發符合使用者需求的網站-快速渲染網頁、交互溝通順暢，是會帶來幫助的；甚至當網頁出現問題或效率不彰的時候，透過對於瀏覽器運作機制的了解，也能對糾錯帶來一定的幫助。</p>
 <p>不過因為這邊主要側重後端的角度上，瀏覽器溝通的前面步驟導航其實就是典型的HTTP溝通，也是後端常會接觸到的範圍，所以這部分會多些篇幅，而在解析、渲染的部分等關於畫面的部分就會說得相對少很多XD。</p>
 <p>那就開始今天的部分吧!!</p>
+<span id="more"></span>
+
 <h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><p>透過MDN的分類，可以將這段流程分為以下幾段</p>
 <ol>
 <li>導航Navigation: 建立與Server連線</li>
@@ -116,6 +188,8 @@
     <url>/code-blog/2022/09/19/Network_DNS/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>域名讓網頁的ip地址轉變成能夠被人類理解的內容，根據維基百科的資料，到2022年已經有超過5億的域名登記註冊。</p>
 <p>今天要稍微深入看一下Domain name這個部分的內容，內容應該會包含域名的結構、域名系統(DNS)如何在client要求與建立連線時將正確的ip交付。</p>
+<span id="more"></span>
+
 <h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><ol>
 <li>可理解性: 比IP位置更好被記億。</li>
 <li>唯一性: 和IP位置一樣，域名也是唯一性的，同一個域名不會代表兩個不同的IP位置，另外，因為他是映射的IP位置可以被更改，你可以隨意修改你的DN對應到的服務器IP位置。</li>
