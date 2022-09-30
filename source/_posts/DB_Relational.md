@@ -13,6 +13,8 @@ SQL也就是今天要聊的relational DB到底有什麼了不起的地方，竟�
 另外其實SQL裡面也分了很多不同的DB，那他們有什麼樣相同的特性，讓他們既是不同的DB卻被通稱為SQL DB呢?
 我們今天也會稍微看看他們彼此的特色~
 
+<!-- more -->
+
 ## 什麼是關聯式資料庫relational db(RDB)?
 > 關聯資料庫 (RDB) 是在資料表、資料列和資料欄中建構資訊的方式。RDB 可透過彙整資料表來建立資訊之間的關聯或關係，以便輕鬆瞭解各資料點之間的關係並取得深入分析。
 > -- [Google](https://cloud.google.com/learn/what-is-a-relational-database)
