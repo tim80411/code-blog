@@ -17,17 +17,17 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
     <meta name="description" content="前言這邊將提及的是，當我們在瀏覽器的搜尋欄中輸入一串網址https:&#x2F;&#x2F;ithelp.ithome.com.tw&#x2F;時，在瀏覽器的背後到底發生了什麼事情? 稍稍了解這個部分，對於開發者在開發符合使用者需求的網站-快速渲染網頁、交互溝通順暢，是會帶來幫助的；甚至當網頁出現問題或效率不彰的時候，透過對於瀏覽器運作機制的了解，也能對糾錯帶來一定的幫助。 不過因為這邊主要側重後端的角度上，瀏覽器溝通的前面步">
 <meta property="og:type" content="article">
 <meta property="og:title" content="瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?">
-<meta property="og:url" content="https://username.github.io/code-blog/2022/09/18/Network_Browser/index.html">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/09/18/Network_Browser/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
 <meta property="og:description" content="前言這邊將提及的是，當我們在瀏覽器的搜尋欄中輸入一串網址https:&#x2F;&#x2F;ithelp.ithome.com.tw&#x2F;時，在瀏覽器的背後到底發生了什麼事情? 稍稍了解這個部分，對於開發者在開發符合使用者需求的網站-快速渲染網頁、交互溝通順暢，是會帶來幫助的；甚至當網頁出現問題或效率不彰的時候，透過對於瀏覽器運作機制的了解，也能對糾錯帶來一定的幫助。 不過因為這邊主要側重後端的角度上，瀏覽器溝通的前面步">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2022-09-18T04:20:15.000Z">
-<meta property="article:modified_time" content="2022-10-01T16:22:25.791Z">
+<meta property="article:modified_time" content="2022-10-01T17:08:40.124Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
 <meta property="article:tag" content="Backend">
@@ -35,11 +35,11 @@
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://username.github.io/code-blog/2022/09/18/Network_Browser/">
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/09/18/Network_Browser/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/18/Network_Browser/","path":"2022/09/18/Network_Browser/","title":"瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/09/18/Network_Browser/","path":"2022/09/18/Network_Browser/","title":"瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的? | Timothy Coding Ground</title>
@@ -233,7 +233,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/18/Network_Browser/">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/18/Network_Browser/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -269,7 +269,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-02 00:22:25" itemprop="dateModified" datetime="2022-10-02T00:22:25+08:00">2022-10-02</time>
+      <time title="Modified: 2022-10-02 01:08:40" itemprop="dateModified" datetime="2022-10-02T01:08:40+08:00">2022-10-02</time>
     </span>
 
   
@@ -369,7 +369,7 @@
 <p>來舉一些例子好了，從比較底層的來看，當我們知道SSL&#x2F;TLS是作為安全性的增強而產生的協議，並且知道他產生了多次的RTT(封包往返時間)，如果未來網頁溝通效率很遭，有可能可以以此猜測瓶頸出現在哪。</p>
 <p>另外一個比較實際的角度，我們的網頁有可能突然掛掉，並收到伺服器回饋表示DNS parsing fail，這時候或許就不是一籌莫展，我們因為知道DNS僅代表ip的映射，若有些重大服務&#x2F;第三方服務，在考量之下也可以請對方先以真實ip代替迴避重大損失。</p>
 <p>大概就是這樣囉，明天我們會稍稍深入DNS，了解到我們的DN是怎麼被映射回ip的，明天見~</p>
-<p>此文章同步發表於<a target="_blank" rel="noopener" href="https://tim80411.github.io/code-blog/">部落格</a></p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a></p>
 <h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://web.dev/howbrowserswork/">How Browsers Work</a><br><a target="_blank" rel="noopener" href="https://www.homenethowto.com/advanced-topics/traffic-example-the-full-picture/">Traffic example</a><br><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/314817">TCP壅塞控制機制</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/Performance/How_browsers_work">MDN-How_browsers_work</a></p>
 
     </div>
@@ -388,7 +388,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://username.github.io/code-blog/2022/09/18/Network_Browser/" title="瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?">https://username.github.io/code-blog/2022/09/18/Network_Browser/</a>
+      <a href="https://tim80411.github.io/code-blog/2022/09/18/Network_Browser/" title="瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?">https://tim80411.github.io/code-blog/2022/09/18/Network_Browser/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.

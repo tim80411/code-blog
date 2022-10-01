@@ -17,12 +17,12 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
     <meta name="description" content="前言並發Concurrency也是一個常在開發中聽到的名詞，他跟並行Parallel有什麼差別呢?他能夠給系統帶來什麼好處?又有什麼風險需要注意?我們常聽到js是個單執行緒的語言，這又是什麼意思?node.js是單執行緒嗎? 這就是今天會希望解答的問題，那就開始吧~">
 <meta property="og:type" content="article">
 <meta property="og:title" content="行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)">
-<meta property="og:url" content="https://username.github.io/code-blog/2022/09/24/OS_concurrency/index.html">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/09/24/OS_concurrency/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
 <meta property="og:description" content="前言並發Concurrency也是一個常在開發中聽到的名詞，他跟並行Parallel有什麼差別呢?他能夠給系統帶來什麼好處?又有什麼風險需要注意?我們常聽到js是個單執行緒的語言，這又是什麼意思?node.js是單執行緒嗎? 這就是今天會希望解答的問題，那就開始吧~">
 <meta property="og:locale" content="en_US">
@@ -32,7 +32,7 @@
 <meta property="og:image" content="https://i.imgur.com/IxbwdDb.png">
 <meta property="og:image" content="https://i.imgur.com/SHSoik1.png">
 <meta property="article:published_time" content="2022-09-24T16:40:37.000Z">
-<meta property="article:modified_time" content="2022-10-01T16:22:25.791Z">
+<meta property="article:modified_time" content="2022-10-01T17:08:40.124Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
 <meta property="article:tag" content="OS">
@@ -43,11 +43,11 @@
 <meta name="twitter:image" content="https://i.imgur.com/kPV2fk8.png">
 
 
-<link rel="canonical" href="https://username.github.io/code-blog/2022/09/24/OS_concurrency/">
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/09/24/OS_concurrency/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/09/24/OS_concurrency/","path":"2022/09/24/OS_concurrency/","title":"行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/09/24/OS_concurrency/","path":"2022/09/24/OS_concurrency/","title":"行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
 <title>行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency) | Timothy Coding Ground</title>
@@ -241,7 +241,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/09/24/OS_concurrency/">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/24/OS_concurrency/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -277,7 +277,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-02 00:22:25" itemprop="dateModified" datetime="2022-10-02T00:22:25+08:00">2022-10-02</time>
+      <time title="Modified: 2022-10-02 01:08:40" itemprop="dateModified" datetime="2022-10-02T01:08:40+08:00">2022-10-02</time>
     </span>
 
   
@@ -484,7 +484,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://username.github.io/code-blog/2022/09/24/OS_concurrency/" title="行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)">https://username.github.io/code-blog/2022/09/24/OS_concurrency/</a>
+      <a href="https://tim80411.github.io/code-blog/2022/09/24/OS_concurrency/" title="行程(Process)、執行緒(thread)傻傻分不清楚(下)-並發(concurrency)">https://tim80411.github.io/code-blog/2022/09/24/OS_concurrency/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
