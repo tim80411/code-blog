@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言在真實的網路行為上，一個只是點擊的動作常常會牽動對於多個數據的動作，這樣一系列動作的組成被稱為Transaction，中文有人說事務，也有人稱呼他為交易。而ACID則是確保Transaction能正確可靠的四個特性。 後面會來稍微了解這個部分~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="交易的安全保證-ACID &amp; Transactions">
+<meta property="og:url" content="https://username.github.io/code-blog/2022/10/01/DB_ACID_And_Transaction/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言在真實的網路行為上，一個只是點擊的動作常常會牽動對於多個數據的動作，這樣一系列動作的組成被稱為Transaction，中文有人說事務，也有人稱呼他為交易。而ACID則是確保Transaction能正確可靠的四個特性。 後面會來稍微了解這個部分~">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-10-01T11:55:12.000Z">
+<meta property="article:modified_time" content="2022-10-01T15:00:03.746Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="ACID">
+<meta property="article:tag" content="Transaction">
+<meta property="article:tag" content="Isolation">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://username.github.io/code-blog/2022/10/01/DB_ACID_And_Transaction/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://username.github.io/code-blog/2022/10/01/DB_ACID_And_Transaction/","path":"2022/10/01/DB_ACID_And_Transaction/","title":"交易的安全保證-ACID & Transactions"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>交易的安全保證-ACID & Transactions | Timothy Coding Ground</title>
+  
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">14</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Transaction%E9%8C%AF%E8%AA%A4"><span class="nav-number">2.</span> <span class="nav-text">Transaction錯誤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Dirty-Reads"><span class="nav-number">2.1.</span> <span class="nav-text">Dirty Reads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Non-Repeatable-Reads"><span class="nav-number">2.2.</span> <span class="nav-text">Non-Repeatable Reads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Phantom-Reads"><span class="nav-number">2.3.</span> <span class="nav-text">Phantom Reads</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ACID-%E5%8E%9F%E5%89%87"><span class="nav-number">3.</span> <span class="nav-text">ACID 原則</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Atomicity"><span class="nav-number">3.1.</span> <span class="nav-text">Atomicity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Consistency"><span class="nav-number">3.2.</span> <span class="nav-text">Consistency</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Isolation"><span class="nav-number">3.3.</span> <span class="nav-text">Isolation</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Read-Uncommitted"><span class="nav-number">3.3.1.</span> <span class="nav-text">Read Uncommitted</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Read-Committed"><span class="nav-number">3.3.2.</span> <span class="nav-text">Read Committed</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Repeatable-Read"><span class="nav-number">3.3.3.</span> <span class="nav-text">Repeatable Read</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Serializable"><span class="nav-number">3.3.4.</span> <span class="nav-text">Serializable</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Durability"><span class="nav-number">3.4.</span> <span class="nav-text">Durability</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">4.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://username.github.io/code-blog/2022/10/01/DB_ACID_And_Transaction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="交易的安全保證-ACID & Transactions | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          交易的安全保證-ACID & Transactions
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-10-01 19:55:12 / Modified: 23:00:03" itemprop="dateCreated datePublished" datetime="2022-10-01T19:55:12+08:00">2022-10-01</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/10/01/DB_ACID_And_Transaction/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/01/DB_ACID_And_Transaction/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在真實的網路行為上，一個只是點擊的動作常常會牽動對於多個數據的動作，這樣一系列動作的組成被稱為Transaction，中文有人說事務，也有人稱呼他為交易。<br>而ACID則是確保Transaction能正確可靠的四個特性。</p>
+<p>後面會來稍微了解這個部分~</p>
+<span id="more"></span>
+<h2 id="Transaction錯誤"><a href="#Transaction錯誤" class="headerlink" title="Transaction錯誤"></a>Transaction錯誤</h2><p>剛剛前提已經提到了關於Transaction的定義。<br>原則上，我們會希望當Transaction進行的時候，資料庫要像是時間停止一樣，直到commit之前所有的資料都保持不動；<br>而其他的事務的操作若有取得與前面事務相關的資料時，應該以前面事務的最終結果為結果。<br>ANSI&#x2F;ISO standard SQL 92舉出一些並非如此的錯誤: </p>
+<ul>
+<li>髒讀Dirty Reads</li>
+<li>不可重複讀Non-Repeatable Reads</li>
+<li>幻讀Phantom Reads</li>
+</ul>
+<h3 id="Dirty-Reads"><a href="#Dirty-Reads" class="headerlink" title="Dirty Reads"></a>Dirty Reads</h3><blockquote>
+<p>有兩個Transaction分別為A及B，若A的操作將包含更改一個欄位的資料，B這時候在A尚未commit(註1)的時候去讀取，並取得了更新後的結果，這就稱為Dirty Reads</p>
+</blockquote>
+<p>為什麼這樣是一種錯誤呢?原因在於A並未確定已經成功了，若他失敗，將會把資料從已更新的資料退回，這時候B使用到的值就是錯誤的。</p>
+<ul>
+<li>白話案例:<br>假如有一個Transaction A的目的是將user的身分從一般normal轉成VIP，在更新完但還沒commit時，這時候Transaction B出現，他希望使用一個VIP才能使用的優惠，此時讀取的資料若是VIP，就能順利完成Transaction B，並用掉了優惠；沒想到這時候發現Transaction A後面在完成某個確認的流程沒有通過，於是所有動作都退回，導致使用者的身分其實還是normal卻使用了VIP才能用的優惠。</li>
+</ul>
+<p>註1: 一個Transaction的commit代表在這個Transaction的所有操作都被確定完成了。</p>
+<h3 id="Non-Repeatable-Reads"><a href="#Non-Repeatable-Reads" class="headerlink" title="Non-Repeatable Reads"></a>Non-Repeatable Reads</h3><blockquote>
+<p>一個Transaction裡面，讀取兩次相同欄位，卻得到不同結果，稱為Non-Repeatable Reads</p>
+</blockquote>
+<h3 id="Phantom-Reads"><a href="#Phantom-Reads" class="headerlink" title="Phantom Reads"></a>Phantom Reads</h3><blockquote>
+<p>一個Transaction裡面，進行兩次查詢，得到不同數量的結果，就稱為Phantom Reads</p>
+</blockquote>
+<p>看起來跟Non-Repeatable Reads有點相像，差異應該是讀取的層級不太一樣，以SQL的講法，Phantom Reads是發生在table內的等級，而Non-Repeatable Reads則是row內的等級，所以意思是，Non-Repeatable Reads跟Phantom Reads確實是可能在同一次搜尋裡面發生的。</p>
+<h2 id="ACID-原則"><a href="#ACID-原則" class="headerlink" title="ACID 原則"></a>ACID 原則</h2><p>為了避免上述的錯誤，大部分的關聯式資料庫都遵循這個原則，包括</p>
+<ul>
+<li>原子性Atomicity</li>
+<li>一致性Consistency</li>
+<li>隔離Isolation</li>
+<li>持久性Durability</li>
+</ul>
+<h3 id="Atomicity"><a href="#Atomicity" class="headerlink" title="Atomicity"></a>Atomicity</h3><p>全有全無，Transaction的操作要就全部發生，要就全部沒有，視為一個整體。</p>
+<p>有一個說法是我覺得很清楚的</p>
+<blockquote>
+<p>一般來說，原子性 意為某樣東西不可在被切割的更小塊。但在計算機領域中，則是指在多執行緒底下，某個執行緒若執行一個原子操作 (atomic operation)，另一個執行緒無法看到該操作中的半完成狀態，只有操作前跟操作後兩個狀態。<br>– <a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10259236">Transactions (1) - ACID</a></p>
+</blockquote>
+<h3 id="Consistency"><a href="#Consistency" class="headerlink" title="Consistency"></a>Consistency</h3><blockquote>
+<p>在事務開始之前和事務結束以後，資料庫的完整性沒有被破壞。這表示寫入的資料必須完全符合所有的預設約束、觸發器、級聯回滾等<br>– <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/ACID">維基百科</a></p>
+</blockquote>
+<p>這邊在維基百科其實說的有點抽象，但我看到一些其他的說法，包括: </p>
+<ul>
+<li>data is consistent before and after a transaction without any missing steps–<a target="_blank" rel="noopener" href="https://retool.com/blog/whats-an-acid-compliant-database/">參考</a></li>
+<li>transaction 完成前後，資料都必須永遠符合 schema 的規範，保持資料與資料庫的一致性–<a target="_blank" rel="noopener" href="https://tw.alphacamp.co/blog/mysql-intro-acid-in-databases">參考</a></li>
+<li>不同的數據都會有一些基本的約束，而這些約束在交易前跟交易後都必須要遵守，如果沒辦法遵守交易就必須失敗–<a target="_blank" rel="noopener" href="https://lance.coderbridge.io/2021/04/24/short-what-is-acid/">參考</a></li>
+</ul>
+<p>我覺得一致性這邊要提到的約束其實是泛指所有，上面的說法都可能是其中一個部分，比如schema可能會限制unique index、另外不在schema中的約束可能是FK constraint等等的。</p>
+<p>不過這裡的一致性也部分受到原子性保護著，比如說錯誤的操作因為原子性的全有全無機制，不會因此出現例外，而是會回到原本的狀態，這樣也就確保錯誤時的一致性不會被破壞了。</p>
+<h3 id="Isolation"><a href="#Isolation" class="headerlink" title="Isolation"></a>Isolation</h3><p>這裡指的是當多個Transaction併發(concurrent)時，不會互相造成影響。</p>
+<p>最完美的作法當然後依序執行，也就是每次只完成一個Transaction，但這樣效能太差，這不就代表沒有併發嗎XD。<br>所以後面就會出現不同等級的隔離，都相對於依序執行隔離來的弱，有機率發生併發，但是在效能、情境上考量後可接受。<br>而開發者就需要了解不同層級的差異，以盡可能減少併發造成的bug，也就是前面提到的三種錯誤。</p>
+<p>以下分為幾個層級，由低到高分別為: </p>
+<h4 id="Read-Uncommitted"><a href="#Read-Uncommitted" class="headerlink" title="Read Uncommitted"></a>Read Uncommitted</h4><p>保證A事務已更新但未commit的資料，B事務僅可讀取。<br>因為可以讀取其他Transaction尚未commit的結果，其實意思幾乎等同於沒隔離了XD<br>不過他的意義還是在的，想像一下若沒有這層隔離會發生的狀況:</p>
+<ol>
+<li>原始資料X為0</li>
+<li>事務A更新資料X為1</li>
+<li>事務B更新資料X為2</li>
+<li>事務A rollback 回原值0</li>
+</ol>
+<p>原本預期嘗試更新為2就因此消失了，因此此層還是能至少避免更新的遺失。</p>
+<p>此隔離性會發生的問題包括:</p>
+<ul>
+<li>髒讀</li>
+<li>不可重複讀</li>
+<li>幻讀</li>
+</ul>
+<h4 id="Read-Committed"><a href="#Read-Committed" class="headerlink" title="Read Committed"></a>Read Committed</h4><p>保證讀取到的資料都是經過確認(commit)的。<br>因此可以避免髒讀。</p>
+<p>為什麼無法避免其餘錯誤呢?<br>有一個案例如下</p>
+<ol>
+<li>原始資料X為1</li>
+<li>事務A讀取資料X得到1</li>
+<li>事務B更新資料X為2並確認</li>
+<li>事務A讀取資料X得到2</li>
+</ol>
+<p>這樣就發生不可重複讀了。<br>同上，如果這裡的更新變成插入資料一樣無法避免幻讀。</p>
+<p>此隔離性會發生的問題包括:</p>
+<ul>
+<li>不可重複讀</li>
+<li>幻讀</li>
+</ul>
+<h4 id="Repeatable-Read"><a href="#Repeatable-Read" class="headerlink" title="Repeatable Read"></a>Repeatable Read</h4><p>保證同一次事務，取得的資料都相同。</p>
+<p>此隔離性會發生的問題包括:</p>
+<ul>
+<li>幻讀</li>
+</ul>
+<h4 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h4><p>以效能換取隔離。</p>
+<h3 id="Durability"><a href="#Durability" class="headerlink" title="Durability"></a>Durability</h3><p>若Transaction完成，就算出現錯誤，已經完成操作的資料也應該保持原樣、永久的。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>這次大致了解了Transaction，以及保持Transaction正確可靠的ACID。<br>不過其中在隔離性的部分雖然介紹了層級，但各資料庫實現這些層級隔離的方式完全是看他們自己XD<br>通常會應用到關於鎖Lock的觀念，不過這部分就只好留待以後了~~</p>
+<p>明天會了解一下與DB效能有關的話題-N+1 problem。</p>
+<p>此文章同步發表於<a target="_blank" rel="noopener" href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10259236">Transactions (1) - ACID</a><br><a target="_blank" rel="noopener" href="https://fauna.com/blog/database-transaction">What is a database transaction?</a><br><a target="_blank" rel="noopener" href="https://openhome.cc/Gossip/HibernateGossip/IsolationLevel.html">簡介隔離層級</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10247232">Transaction 併發錯誤與隔離層級 - (1)</a><br><a target="_blank" rel="noopener" href="https://blog.amis.com/database-transaction-isolation-a1e448a7736e">資料庫交易的 Isolation</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/ACID/" rel="tag"># ACID</a>
+              <a href="/code-blog/tags/Transaction/" rel="tag"># Transaction</a>
+              <a href="/code-blog/tags/Isolation/" rel="tag"># Isolation</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/09/30/DB_Non_Relational/" rel="prev" title="db大觀園(下)-非關聯式資料庫overview及分散式設計">
+                  <i class="fa fa-chevron-left"></i> db大觀園(下)-非關聯式資料庫overview及分散式設計
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">32k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">29 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/motion.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
