@@ -16,9 +16,8 @@
 
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-<script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+<script class="next-config" data-name="main" type="application/json">{"hostname":"username.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
     <meta name="description" content="前言今天會討論執行緒Thread，是一個我覺得很容易跟行程Process混淆的概念，為了學習跟整理這個概念，我們可以踩在前人的肩膀上前進XD 透過一張別人整理出來的Process、Thread比較圖，我們來問問一些「為什麼?」。而透過回答經過整理的問題，可以看到兩者的差別及是什麼造成這些差別。 而最後我相信通過探究這些差異的過程，不只可以幫助理解Thread，也同時可以回頭幫助了解Process~">
 <meta property="og:type" content="article">
@@ -29,7 +28,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://i.imgur.com/Np4e2XK.png">
 <meta property="article:published_time" content="2022-09-23T16:40:37.000Z">
-<meta property="article:modified_time" content="2022-10-01T15:49:24.958Z">
+<meta property="article:modified_time" content="2022-10-01T16:14:23.453Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
 <meta property="article:tag" content="OS">
@@ -70,7 +69,7 @@
   </noscript>
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+<body itemscope itemtype="http://schema.org/WebPage">
   <div class="headband"></div>
 
   <main class="main">
@@ -273,7 +272,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-01 23:49:24" itemprop="dateModified" datetime="2022-10-01T23:49:24+08:00">2022-10-01</time>
+      <time title="Modified: 2022-10-02 00:14:23" itemprop="dateModified" datetime="2022-10-02T00:14:23+08:00">2022-10-02</time>
     </span>
 
   
@@ -498,7 +497,7 @@
 
   
   <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
-<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/motion.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
 
   
 <script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
