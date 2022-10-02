@@ -102,6 +102,70 @@
       </tags>
   </entry>
   <entry>
+    <title>效能危機-N+1 problems</title>
+    <url>/code-blog/2022/10/02/DB_N_Plus_One_Problem/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>有個好故事可以回答什麼是N+1 problems: </p>
+<blockquote>
+<p>假如有一天你拿到一份食譜，希望製作蘋果派，你待在廚房裡，食材都在儲藏室，你需要去拿:</p>
+<ol>
+<li>你需要蘋果，於是你去了一趟儲藏室。</li>
+<li>你需要糖，於是你是去了一趟儲藏室。</li>
+<li>你需要麵粉，於是你去了一趟儲藏室，然後你發現今天已經快過完了XD</li>
+</ol>
+</blockquote>
+<span id="more"></span>
+
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>你一定在吐槽，不能一次看完，然後再一起從儲藏室把食材拿回來嗎？<br>沒錯，這麼麻煩的部分就是N+1 problems提到的，我們現在改用描述現象的方式解釋N+1 problems：</p>
+<blockquote>
+<p>在查詢主資料時，為了取得有與主資料有關連的資料，重複的查詢相同資料。</p>
+</blockquote>
+<p>用SQL來表示一下:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="string">&#x27;Recipes&#x27;</span> <span class="keyword">WHERE</span> Recipes.id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span> <span class="comment">-- 取得食譜1的資料</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="string">&#x27;Foods&#x27;</span> <span class="keyword">WHERE</span> Foods.id <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span> <span class="comment">-- 取得食材1的資料</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="string">&#x27;Foods&#x27;</span> <span class="keyword">WHERE</span> Foods.id <span class="operator">=</span> <span class="string">&#x27;2&#x27;</span> <span class="comment">-- 取得食材2的資料</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="string">&#x27;Foods&#x27;</span> <span class="keyword">WHERE</span> Foods.id <span class="operator">=</span> <span class="string">&#x27;3&#x27;</span> <span class="comment">-- 取得食材3的資料</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> <span class="string">&#x27;Foods&#x27;</span> <span class="keyword">WHERE</span> Foods.id <span class="operator">=</span> <span class="string">&#x27;4&#x27;</span> <span class="comment">-- 取得食材4的資料</span></span><br><span class="line"><span class="comment">-- 以此類推N個，看取得食譜1時包含多少個Foods需要被查詢</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="錯誤發生的原因"><a href="#錯誤發生的原因" class="headerlink" title="錯誤發生的原因"></a>錯誤發生的原因</h2><p>先總結的話，可以說是在使用關聯式資料庫且在應用程式層沒有處理好搜尋造成的錯誤。<br>不過實際狀況，常發生在使用ORM不當的狀況下。</p>
+<p>以node.js搭配sequelize這個SQL的ORM來操作SQL為例:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">(<span class="keyword">async</span> ()=&gt; &#123;</span><br><span class="line">  <span class="comment">// 省略了sequelize的設定、對Recipe及Food的引入。</span></span><br><span class="line">  <span class="keyword">const</span> recipes = <span class="keyword">await</span> <span class="title class_">Recipe</span>.<span class="title function_">findAll</span>(&#123;<span class="attr">id</span>: <span class="number">1</span>&#125;); <span class="comment">// 取得食譜1的資料</span></span><br><span class="line">  <span class="keyword">const</span> foods = [];</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> recipe <span class="keyword">of</span> recipes) &#123; <span class="comment">// 取得n次食材的資料</span></span><br><span class="line">    <span class="keyword">const</span> foodId = recipe.<span class="property">foodId</span>;</span><br><span class="line">    <span class="keyword">const</span> food = <span class="keyword">await</span> <span class="title class_">Foods</span>.<span class="title function_">findOne</span>(&#123;<span class="attr">id</span>: foodId&#125;);</span><br><span class="line">    foods.<span class="title function_">push</span>(food)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+<p>正因為關聯式資料庫的資料並未存在單獨的table身上，可能僅是存了FK在db，為了透過FK取得其他table的資料。<br>就使用了迴圈一一收集資料，造成了n+1 problems。</p>
+<h2 id="解決方式"><a href="#解決方式" class="headerlink" title="解決方式"></a>解決方式</h2><p>如果熟悉SQL，其實要解決這樣的問題倒是蠻容易的。</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Recipes </span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> Foods <span class="keyword">on</span> Recipes.food_id <span class="operator">=</span> Foods.id</span><br><span class="line"><span class="keyword">WHERE</span> Recipes.id <span class="operator">=</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>也就是直接透過JOIN將資料做成一個新的table，而後續的query都直接使用此新的table，就沒有重複搜尋資料的問題了。</p>
+<p>在sequelize這裏，我們可以參考<a href="https://sequelize.org/docs/v6/advanced-association-concepts/eager-loading/">官方文件</a></p>
+<blockquote>
+<p>As briefly mentioned in the associations guide, eager Loading is the act of querying data of several models at once (one ‘main’ model and one or more associated models). At the SQL level, this is a query with one or more joins.</p>
+</blockquote>
+<p>如果是在node.js透過Sequelize提供的includes介面，我們也可以完成JOIN</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">(<span class="keyword">async</span> ()=&gt; &#123;</span><br><span class="line">  <span class="comment">// 省略了sequelize的設定、對Recipe及Food的引入。</span></span><br><span class="line">  <span class="keyword">const</span> recipes = <span class="keyword">await</span> <span class="title class_">Recipe</span>.<span class="title function_">findAll</span>(&#123;</span><br><span class="line">    <span class="attr">where</span>: &#123;</span><br><span class="line">      <span class="attr">id</span>: <span class="number">1</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">includes</span>: &#123;</span><br><span class="line">      <span class="attr">model</span>: <span class="title class_">Food</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;); <span class="comment">// 取得id=1的Recipe以及他所關聯到的食材Food</span></span><br><span class="line">&#125;)()</span><br></pre></td></tr></table></figure>
+
+<h2 id="eager-loading-amp-lazy-loading"><a href="#eager-loading-amp-lazy-loading" class="headerlink" title="eager loading &amp; lazy loading"></a>eager loading &amp; lazy loading</h2><p>這邊會提到的是，ORM如何處理關聯的兩種概念。<br>注意，這邊強調概念是有原因的，我們後面看下去:</p>
+<ul>
+<li>eager loading: 一開始就透過較大的查詢取得所有內容，包括關聯資料</li>
+<li>lazy loading: 僅在確實需要時才取得關聯資料</li>
+</ul>
+<p>會強調概念，指的是各個ORM實現這個概念的技術並不一定相同。<br>以Sequelize而言–<a href="https://demopark.github.io/sequelize-docs-Zh-CN/core-concepts/assocs.html">官方範例</a>:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// lazy loading</span></span><br><span class="line"><span class="keyword">const</span> awesomeCaptain = <span class="keyword">await</span> <span class="title class_">Captain</span>.<span class="title function_">findOne</span>(&#123;</span><br><span class="line">  <span class="attr">where</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;Jack Sparrow&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Name:&#x27;</span>, awesomeCaptain.<span class="property">name</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Skill Level:&#x27;</span>, awesomeCaptain.<span class="property">skillLevel</span>);</span><br><span class="line"><span class="comment">// getShip即為Sequelize實現lazy loading的方式，他會被自動加入Captain實例中。</span></span><br><span class="line"><span class="keyword">const</span> hisShip = <span class="keyword">await</span> awesomeCaptain.<span class="title function_">getShip</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// eager loading</span></span><br><span class="line"><span class="keyword">const</span> awesomeCaptain = <span class="keyword">await</span> <span class="title class_">Captain</span>.<span class="title function_">findOne</span>(&#123;</span><br><span class="line">  <span class="attr">where</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;Jack Sparrow&quot;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// include為Sequelize實現的方式</span></span><br><span class="line">  <span class="attr">include</span>: <span class="title class_">Ship</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>Sequelize的實現方式:<br>lazy loading是透過他提供的getInstance()介面，多做一次query並將資料對應到之上；而eager loading，則是在搜尋的時候，就直接使用JOIN建立新的table以供搜尋。</p>
+<h2 id="不一樣的實現方式"><a href="#不一樣的實現方式" class="headerlink" title="不一樣的實現方式"></a>不一樣的實現方式</h2><p>以Laravel的Eloquent而言，他在eager loading其實是採用多次query而非JOIN的方式。<br>如果將他的方式寫成SQL發生的query，大概會是</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Captain <span class="keyword">WHERE</span> Captain.name <span class="operator">=</span> <span class="string">&#x27;Jack Sparrow&#x27;</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> Ship <span class="keyword">WHERE</span> Ship.id <span class="keyword">IN</span> [<span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;3&#x27;</span>] <span class="comment">-- 看有幾艘船</span></span><br></pre></td></tr></table></figure>
+<p>然後透過ORM把兩次query資料組合給應用程式。</p>
+<p>根據了解，這樣雖然可能會相對於JOIN來的慢，但他的好處可能包括:</p>
+<ul>
+<li>關聯式資料庫與非關聯式資料庫的關係可以透過這樣的分離較容易實現。</li>
+<li>對於Paginator有利</li>
+</ul>
+<p>詳情可以在閱讀參考資料～<br>我認為對於eager loading 及lazy loading是以一個概念或技術的角度去理解，並了解不同的ORM如何實現。<br>有助於我們思考如何針對情境使用更有利的方式做搜尋～</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>這個單元有比較多程式碼，同時也對於eager loading 及 lazy loading在不同的ORM有不同的實現有了一些認識！<br>而且從這裡的概念也可以知道，其實無論是什麼資料庫，若資料AB間具有一對多關係，若想同時取得資料，就需要預防撰寫程式時發生N+1 problems。</p>
+<p>今天就這樣啦，明天就要進到有關於API的部分囉</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://medium.com/doctolib/understanding-and-fixing-n-1-query-30623109fe89">Understanding and fixing N+1 query</a><br><a href="https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem-in-orm-object-relational-mapping">What is the “N+1 selects problem” in ORM (Object-Relational Mapping)?</a><br><a href="https://stackoverflow.com/questions/23920540/why-cant-laravel-eloquent-use-join-for-eager-loading">Why can’t Laravel&#x2F;Eloquent use JOIN for Eager Loading?</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>N+1 Problems</tag>
+        <tag>RDBMS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>db大觀園(下)-非關聯式資料庫overview及分散式設計</title>
     <url>/code-blog/2022/09/30/DB_Non_Relational/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>談到NoSQL時常有兩種說法，一種說不是SQL，一種說不僅僅是SQL，但總之，這一類的資料庫相對於SQL，不再採用昨天所說的關係表。</p>
