@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言在網路開發中，最常見的就是以HTTP協定與其他端點溝通，但各自使用不同的內容及結構可能會造成困擾。比如不同的服務都需要閱讀各自的文件並適應不同的格式，於是為了解決這個問題，出現了諸如SOAP, REST, gRPC, graphQL等用來規範彼此如何規範的技術。 雖然聽起來有點複雜，但大致來說，他們想解決的事情就是:  如何訪問 Web 服務  今天會對不同的架構各自有些介紹，那就開始吧～">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常見的API架構比較">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/03/API_Design_Pattern/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言在網路開發中，最常見的就是以HTTP協定與其他端點溝通，但各自使用不同的內容及結構可能會造成困擾。比如不同的服務都需要閱讀各自的文件並適應不同的格式，於是為了解決這個問題，出現了諸如SOAP, REST, gRPC, graphQL等用來規範彼此如何規範的技術。 雖然聽起來有點複雜，但大致來說，他們想解決的事情就是:  如何訪問 Web 服務  今天會對不同的架構各自有些介紹，那就開始吧～">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.imgur.com/bXUoRAb.png">
+<meta property="article:published_time" content="2022-10-03T10:41:25.000Z">
+<meta property="article:modified_time" content="2022-10-03T15:30:01.861Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="API">
+<meta property="article:tag" content="RESTful">
+<meta property="article:tag" content="SOAP">
+<meta property="article:tag" content="gRPC">
+<meta property="article:tag" content="graphQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/bXUoRAb.png">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/03/API_Design_Pattern/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/03/API_Design_Pattern/","path":"2022/10/03/API_Design_Pattern/","title":"常見的API架構比較"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>常見的API架構比較 | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">28</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">16</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SOAP"><span class="nav-number">2.</span> <span class="nav-text">SOAP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%99%82%E6%A9%9F"><span class="nav-number">2.1.</span> <span class="nav-text">使用時機</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#REST"><span class="nav-number">3.</span> <span class="nav-text">REST</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%99%82%E6%A9%9F-1"><span class="nav-number">3.1.</span> <span class="nav-text">使用時機</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gRPC"><span class="nav-number">4.</span> <span class="nav-text">gRPC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B0%A1%E4%BB%8B"><span class="nav-number">4.1.</span> <span class="nav-text">簡介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">4.2.</span> <span class="nav-text">使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E8%89%B2"><span class="nav-number">4.3.</span> <span class="nav-text">特色</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#graphQL"><span class="nav-number">5.</span> <span class="nav-text">graphQL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B0%A1%E4%BB%8B-1"><span class="nav-number">6.</span> <span class="nav-text">簡介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%90%86%E5%BF%B5"><span class="nav-number">7.</span> <span class="nav-text">理念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B"><span class="nav-number">8.</span> <span class="nav-text">流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">9.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">10.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/03/API_Design_Pattern/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="常見的API架構比較 | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          常見的API架構比較
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-10-03 18:41:25 / Modified: 23:30:01" itemprop="dateCreated datePublished" datetime="2022-10-03T18:41:25+08:00">2022-10-03</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/10/03/API_Design_Pattern/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/03/API_Design_Pattern/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在網路開發中，最常見的就是以HTTP協定與其他端點溝通，但各自使用不同的內容及結構可能會造成困擾。<br>比如不同的服務都需要閱讀各自的文件並適應不同的格式，於是為了解決這個問題，出現了諸如SOAP, REST, gRPC, graphQL等用來規範彼此如何規範的技術。</p>
+<p>雖然聽起來有點複雜，但大致來說，他們想解決的事情就是:</p>
+<blockquote>
+<p>如何訪問 Web 服務</p>
+</blockquote>
+<p>今天會對不同的架構各自有些介紹，那就開始吧～</p>
+<span id="more"></span>
+
+<h2 id="SOAP"><a href="#SOAP" class="headerlink" title="SOAP"></a>SOAP</h2><p>是一種完全依賴XML進行傳輸且經過明確規範的協定，當初建立的目的是包括:</p>
+<ol>
+<li>抽象化介面: 讓不同語言都可以透過相同的格式取得資料。</li>
+<li>擴展性: 根據不同需求選用類似於Header的結構，像是: WS-ReliableMessaging, WS-Coordination。</li>
+<li>多網路協定可用: SMTP…等</li>
+</ol>
+<p>正因為他是明確的協定，所以如果不遵守規則就無法使用他，另外，相較於REST，因為解析規則、標準的必要開銷，以及內部包含的大量訊息，所以他普遍被認為成本更高。</p>
+<p><img src="https://i.imgur.com/bXUoRAb.png" alt="圖 1">  </p>
+<blockquote>
+<p>– <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E7%AE%80%E5%8D%95%E5%AF%B9%E8%B1%A1%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE">維基百科</a></p>
+</blockquote>
+<p>在使用的時候通常會搭配網路服務描述語言(Web Service Description Language, WSDL)，告訴我們如何解析一個SOAP server，而這樣的過程通常可以透過第三方套件來自動處理。<br>所以使用SOAP的好處就是，因為SOAP是經過明確定義的結構，因此可以自動化處理不論XML的產出或是解析，讓我們使用其他Web Server的元件就像是在使用function一樣。</p>
+<h3 id="使用時機"><a href="#使用時機" class="headerlink" title="使用時機"></a>使用時機</h3><ul>
+<li>需要高度結構化、有限制的傳輸</li>
+<li>狀態性的</li>
+</ul>
+<h2 id="REST"><a href="#REST" class="headerlink" title="REST"></a>REST</h2><p>相對於SOAP，REST更像是一種準則或建議，甚至是風格，並不強調完全遵守。<br>REST的全名為表現層狀態轉換，只要遵守一下規則的就可以稱他為RESTful服務:</p>
+<ul>
+<li>Client-Server</li>
+<li>Stateless: 需假設服務並不知道當前的狀態，</li>
+<li>Cache: 可以將資料做緩存</li>
+<li>Uniform Interface: 統一的資源介面，使責任分離，client並不用知道server如何實作</li>
+<li>Layered System: client端並不知道使用的url是否直接連到server，可以經過層層伺服器。</li>
+</ul>
+<p>所以RESTful API就是遵守以上架構風格的API，特別針對統一介面來說明</p>
+<ol>
+<li>資源: 使用名詞</li>
+<li>動詞: 使用HTTP method</li>
+<li>回應: http code</li>
+</ol>
+<p>比如:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET https://www.example.com/users</span><br></pre></td></tr></table></figure>
+
+<p>在統一介面下，可以清楚的知道這是取得所有users的資料的一條API。</p>
+<h3 id="使用時機-1"><a href="#使用時機-1" class="headerlink" title="使用時機"></a>使用時機</h3><ul>
+<li>有限的網路速度: 因為資料格式較小, 故傳輸要求較小</li>
+<li>快速實現: 因為標準、強制規則較少，可以快速編寫程式碼</li>
+<li>緩存需要: 如果需要緩存，因為統一了介面，所以可以針對固定介面保存資料，減少對於server的請求</li>
+</ul>
+<h2 id="gRPC"><a href="#gRPC" class="headerlink" title="gRPC"></a>gRPC</h2><h3 id="簡介"><a href="#簡介" class="headerlink" title="簡介"></a>簡介</h3><p>RPC指的是remote procedure call，原本在1980左右產生，當時就是為了解決電腦間的溝通，而在現在，由google在這個概念之上發展了gRPC，使用Protocol Buffers來描述資料如何交換，提供了另一種有別於RESTful的溝通方式。</p>
+<p>那gRPC是什麼呢？用中文來說就是「遠端程式呼叫系統」<br>意思就是呼叫API時就像呼叫自己的函式一樣。</p>
+<h3 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h3><ul>
+<li>編寫.proto定義</li>
+<li>client 直接使用定義好的function</li>
+</ul>
+<h3 id="特色"><a href="#特色" class="headerlink" title="特色"></a>特色</h3><ul>
+<li>快且小: 因為資料傳輸被編譯成二進制; 關於人類不可讀這點視情況決定是好是壞。</li>
+<li>直觀得命名: 因為是直接使用function name，可依據需要像是取用function一樣做取名。</li>
+<li>跨程式: Protocol Buffer可以根據語言編譯不同檔案。</li>
+<li>強型別: 型別明確。</li>
+<li>文件化: proto檔案可以寫註解，可以說定義本身就是文件。</li>
+</ul>
+<h2 id="graphQL"><a href="#graphQL" class="headerlink" title="graphQL"></a>graphQL</h2><h2 id="簡介-1"><a href="#簡介-1" class="headerlink" title="簡介"></a>簡介</h2><p>一種讓使用者可以通過定義好的語法取得指定的資料及修改指定的資料。</p>
+<p>通常會拿它來和RESTful api做比較，相較於後者:</p>
+<ul>
+<li>較小的資料傳輸: 因為可以指定資料，就可以讓資料在最小限度下傳輸</li>
+<li>可重複使用的介面: 因伺服器僅是定義資料schema，不用為了需求的變耕重複修改api</li>
+</ul>
+<p>某種程度上你可以說他跟SQL還真的蠻像的XD</p>
+<h2 id="理念"><a href="#理念" class="headerlink" title="理念"></a>理念</h2><ul>
+<li>分層Hierarchical: 為了資料的多層結構，graphQL也配合這樣的概念進行分層query。</li>
+<li>產品中心Product‐centric: 以畫面的需求為主。</li>
+<li>強型別Strong‐typing</li>
+<li>客戶客製化搜尋Client‐specified queries: 可以針對client端的需求客製化每次的query並處理。</li>
+<li>內省(自我查詢的)Introspective: 翻譯內省其實有點怪，不過他的意思大致是說，他自己的型別可以透過graphQL的語法搜尋出來。</li>
+</ul>
+<h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><p>他大致的流程如下:</p>
+<ol>
+<li>client端呼叫graphQL query</li>
+<li>後端解析query產生AST語法樹語法樹</li>
+<li>檢驗是否有語法錯誤</li>
+<li>執行query</li>
+<li>傳送</li>
+</ol>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>一次性了解不同的訪問web service的方式確實有點吃力，很多部分都只寫到最淺顯的部分…<br>剩下的部分就交給未來的自己了，現在至少可以在別人提到這個字的時候點頭然後不會睜眼瞎了XDD</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.redhat.com/en/topics/integration/whats-the-difference-between-soap-rest">REST vs. SOAP</a><br><a target="_blank" rel="noopener" href="https://smartbear.com/blog/soap-vs-rest-whats-the-difference/">SOAP vs REST. What’s the Difference?</a><br><a target="_blank" rel="noopener" href="https://coherence0815.wordpress.com/2016/02/11/why-soap/">Why SOAP</a><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E8%A1%A8%E7%8E%B0%E5%B1%82%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2">表現層狀態轉換</a><br><a target="_blank" rel="noopener" href="https://pjchender.dev/golang/grpc-getting-started/">[gRPC] gRPC Getting Started</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10200678">https://ithelp.ithome.com.tw/articles/10200678</a><br><a target="_blank" rel="noopener" href="http://spec.graphql.org/draft/#sec-Overview">graphQL</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2022/10/03/API_Design_Pattern/" title="常見的API架構比較">https://tim80411.github.io/code-blog/2022/10/03/API_Design_Pattern/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/API/" rel="tag"># API</a>
+              <a href="/code-blog/tags/RESTful/" rel="tag"># RESTful</a>
+              <a href="/code-blog/tags/SOAP/" rel="tag"># SOAP</a>
+              <a href="/code-blog/tags/gRPC/" rel="tag"># gRPC</a>
+              <a href="/code-blog/tags/graphQL/" rel="tag"># graphQL</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/10/02/DB_N_Plus_One_Problem/" rel="prev" title="效能危機-N+1 problems">
+                  <i class="fa fa-chevron-left"></i> 效能危機-N+1 problems
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">38k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">34 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>

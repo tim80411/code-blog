@@ -1,6 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>常見的API架構比較</title>
+    <url>/code-blog/2022/10/03/API_Design_Pattern/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在網路開發中，最常見的就是以HTTP協定與其他端點溝通，但各自使用不同的內容及結構可能會造成困擾。<br>比如不同的服務都需要閱讀各自的文件並適應不同的格式，於是為了解決這個問題，出現了諸如SOAP, REST, gRPC, graphQL等用來規範彼此如何規範的技術。</p>
+<p>雖然聽起來有點複雜，但大致來說，他們想解決的事情就是:</p>
+<blockquote>
+<p>如何訪問 Web 服務</p>
+</blockquote>
+<p>今天會對不同的架構各自有些介紹，那就開始吧～</p>
+<span id="more"></span>
+
+<h2 id="SOAP"><a href="#SOAP" class="headerlink" title="SOAP"></a>SOAP</h2><p>是一種完全依賴XML進行傳輸且經過明確規範的協定，當初建立的目的是包括:</p>
+<ol>
+<li>抽象化介面: 讓不同語言都可以透過相同的格式取得資料。</li>
+<li>擴展性: 根據不同需求選用類似於Header的結構，像是: WS-ReliableMessaging, WS-Coordination。</li>
+<li>多網路協定可用: SMTP…等</li>
+</ol>
+<p>正因為他是明確的協定，所以如果不遵守規則就無法使用他，另外，相較於REST，因為解析規則、標準的必要開銷，以及內部包含的大量訊息，所以他普遍被認為成本更高。</p>
+<p><img src="https://i.imgur.com/bXUoRAb.png" alt="圖 1">  </p>
+<blockquote>
+<p>– <a href="https://zh.wikipedia.org/zh-tw/%E7%AE%80%E5%8D%95%E5%AF%B9%E8%B1%A1%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE">維基百科</a></p>
+</blockquote>
+<p>在使用的時候通常會搭配網路服務描述語言(Web Service Description Language, WSDL)，告訴我們如何解析一個SOAP server，而這樣的過程通常可以透過第三方套件來自動處理。<br>所以使用SOAP的好處就是，因為SOAP是經過明確定義的結構，因此可以自動化處理不論XML的產出或是解析，讓我們使用其他Web Server的元件就像是在使用function一樣。</p>
+<h3 id="使用時機"><a href="#使用時機" class="headerlink" title="使用時機"></a>使用時機</h3><ul>
+<li>需要高度結構化、有限制的傳輸</li>
+<li>狀態性的</li>
+</ul>
+<h2 id="REST"><a href="#REST" class="headerlink" title="REST"></a>REST</h2><p>相對於SOAP，REST更像是一種準則或建議，甚至是風格，並不強調完全遵守。<br>REST的全名為表現層狀態轉換，只要遵守一下規則的就可以稱他為RESTful服務:</p>
+<ul>
+<li>Client-Server</li>
+<li>Stateless: 需假設服務並不知道當前的狀態，</li>
+<li>Cache: 可以將資料做緩存</li>
+<li>Uniform Interface: 統一的資源介面，使責任分離，client並不用知道server如何實作</li>
+<li>Layered System: client端並不知道使用的url是否直接連到server，可以經過層層伺服器。</li>
+</ul>
+<p>所以RESTful API就是遵守以上架構風格的API，特別針對統一介面來說明</p>
+<ol>
+<li>資源: 使用名詞</li>
+<li>動詞: 使用HTTP method</li>
+<li>回應: http code</li>
+</ol>
+<p>比如:</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">GET https://www.example.com/users</span><br></pre></td></tr></table></figure>
+
+<p>在統一介面下，可以清楚的知道這是取得所有users的資料的一條API。</p>
+<h3 id="使用時機-1"><a href="#使用時機-1" class="headerlink" title="使用時機"></a>使用時機</h3><ul>
+<li>有限的網路速度: 因為資料格式較小, 故傳輸要求較小</li>
+<li>快速實現: 因為標準、強制規則較少，可以快速編寫程式碼</li>
+<li>緩存需要: 如果需要緩存，因為統一了介面，所以可以針對固定介面保存資料，減少對於server的請求</li>
+</ul>
+<h2 id="gRPC"><a href="#gRPC" class="headerlink" title="gRPC"></a>gRPC</h2><h3 id="簡介"><a href="#簡介" class="headerlink" title="簡介"></a>簡介</h3><p>RPC指的是remote procedure call，原本在1980左右產生，當時就是為了解決電腦間的溝通，而在現在，由google在這個概念之上發展了gRPC，使用Protocol Buffers來描述資料如何交換，提供了另一種有別於RESTful的溝通方式。</p>
+<p>那gRPC是什麼呢？用中文來說就是「遠端程式呼叫系統」<br>意思就是呼叫API時就像呼叫自己的函式一樣。</p>
+<h3 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h3><ul>
+<li>編寫.proto定義</li>
+<li>client 直接使用定義好的function</li>
+</ul>
+<h3 id="特色"><a href="#特色" class="headerlink" title="特色"></a>特色</h3><ul>
+<li>快且小: 因為資料傳輸被編譯成二進制; 關於人類不可讀這點視情況決定是好是壞。</li>
+<li>直觀得命名: 因為是直接使用function name，可依據需要像是取用function一樣做取名。</li>
+<li>跨程式: Protocol Buffer可以根據語言編譯不同檔案。</li>
+<li>強型別: 型別明確。</li>
+<li>文件化: proto檔案可以寫註解，可以說定義本身就是文件。</li>
+</ul>
+<h2 id="graphQL"><a href="#graphQL" class="headerlink" title="graphQL"></a>graphQL</h2><h2 id="簡介-1"><a href="#簡介-1" class="headerlink" title="簡介"></a>簡介</h2><p>一種讓使用者可以通過定義好的語法取得指定的資料及修改指定的資料。</p>
+<p>通常會拿它來和RESTful api做比較，相較於後者:</p>
+<ul>
+<li>較小的資料傳輸: 因為可以指定資料，就可以讓資料在最小限度下傳輸</li>
+<li>可重複使用的介面: 因伺服器僅是定義資料schema，不用為了需求的變耕重複修改api</li>
+</ul>
+<p>某種程度上你可以說他跟SQL還真的蠻像的XD</p>
+<h2 id="理念"><a href="#理念" class="headerlink" title="理念"></a>理念</h2><ul>
+<li>分層Hierarchical: 為了資料的多層結構，graphQL也配合這樣的概念進行分層query。</li>
+<li>產品中心Product‐centric: 以畫面的需求為主。</li>
+<li>強型別Strong‐typing</li>
+<li>客戶客製化搜尋Client‐specified queries: 可以針對client端的需求客製化每次的query並處理。</li>
+<li>內省(自我查詢的)Introspective: 翻譯內省其實有點怪，不過他的意思大致是說，他自己的型別可以透過graphQL的語法搜尋出來。</li>
+</ul>
+<h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><p>他大致的流程如下:</p>
+<ol>
+<li>client端呼叫graphQL query</li>
+<li>後端解析query產生AST語法樹語法樹</li>
+<li>檢驗是否有語法錯誤</li>
+<li>執行query</li>
+<li>傳送</li>
+</ol>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>一次性了解不同的訪問web service的方式確實有點吃力，很多部分都只寫到最淺顯的部分…<br>剩下的部分就交給未來的自己了，現在至少可以在別人提到這個字的時候點頭然後不會睜眼瞎了XDD</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://www.redhat.com/en/topics/integration/whats-the-difference-between-soap-rest">REST vs. SOAP</a><br><a href="https://smartbear.com/blog/soap-vs-rest-whats-the-difference/">SOAP vs REST. What’s the Difference?</a><br><a href="https://coherence0815.wordpress.com/2016/02/11/why-soap/">Why SOAP</a><br><a href="https://zh.wikipedia.org/zh-tw/%E8%A1%A8%E7%8E%B0%E5%B1%82%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2">表現層狀態轉換</a><br><a href="https://pjchender.dev/golang/grpc-getting-started/">[gRPC] gRPC Getting Started</a><br><a href="https://ithelp.ithome.com.tw/articles/10200678">https://ithelp.ithome.com.tw/articles/10200678</a><br><a href="http://spec.graphql.org/draft/#sec-Overview">graphQL</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>API</tag>
+        <tag>RESTful</tag>
+        <tag>SOAP</tag>
+        <tag>gRPC</tag>
+        <tag>graphQL</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>交易的安全保證-ACID &amp; Transactions</title>
     <url>/code-blog/2022/10/01/DB_ACID_And_Transaction/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在真實的網路行為上，一個只是點擊的動作常常會牽動對於多個數據的動作，這樣一系列動作的組成被稱為Transaction，中文有人說事務，也有人稱呼他為交易。<br>而ACID則是確保Transaction能正確可靠的四個特性。</p>
