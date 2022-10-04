@@ -1,6 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>先生你誰?-身分驗證Authentication (Oauth, Basic, JWT, token)</title>
+    <url>/code-blog/2022/10/04/API_Authenticate/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前面不管是在提到HTTP這個應用協定或是REST的風格，都有提到無狀態(stateless)這個特性。</p>
+<p>這個特性其中一個目的是希望可以將每次的request都隔離，讓各request不用依賴其他的請求，僅依靠自己單個請求身上所帶的資料完成目的。</p>
+<p>但我們回想類似FB, Google，有許多服務的商業模式都是以「會員制」作為基礎，那我們該如何在維持無狀態的特性下，實現這樣的會員制，讓伺服器「認得」請求呢?</p>
+<p>今天就會談到這個部分: 「驗證Authenticate」。</p>
+<span id="more"></span>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>其實不管是哪種驗證過程，最終的目的就是要讓伺服器可以「認得」你是誰。</p>
+<p>不過「認得」這個字眼實在太過哲學。</p>
+<p>想想，如果有一天你已經7, 80歲，突然有個陌生人說他是你的某某國小同學，你該怎麼認得出來是他呢?</p>
+<p>最終我們憑藉認得一個人的方式大概分兩種:</p>
+<ol>
+<li>只有當事人跟你才知道的知識: 共同的回憶、秘密。</li>
+<li>只有當事人才有的東西: 身分證、長相。</li>
+</ol>
+<p>根據不同情境其實這兩個概念可以講出的東西可能有點不太一樣。<br>比如看電影的時候，門口的人看的是門票，他相信的是，只有當事人才會那個座位的電影票，所謂的認票不認人。</p>
+<p>回到程式這邊，不知道腦筋有沒有開始自動分類常見的驗證機制?</p>
+<ol>
+<li>共同知識: 帳號、密碼、密碼提示問題…等等。</li>
+<li>獨有物品: email、電話號碼、密碼卡、指紋、面部特徵…等等。</li>
+</ol>
+<p>這兩個類別可能會重疊，比如，伺服器會記錄你的電話號碼，並且在你請求時發送一次性密碼。</p>
+<p>概念大致如此，我們實作上一般可分為兩種驗證策略(註1)。</p>
+<p>註1: 大部分的驗證策略其實是一種「約定」，這指的是，我們通過一種有共識的做法減少溝通鎖需要的成本。</p>
+<h2 id="Basic-Authentication"><a href="#Basic-Authentication" class="headerlink" title="Basic Authentication"></a>Basic Authentication</h2><p>這是一個透過Header來進行驗證的策略，你可以想像你每次要進到一間店裡，都得告訴他你的帳號跟密碼才會放行。<br><img src="https://i.imgur.com/hJGqG3B.png" alt="圖 6"> </p>
+<h3 id="概要流程"><a href="#概要流程" class="headerlink" title="概要流程"></a>概要流程</h3><ol>
+<li>一個有因應此策略的client訪問一個使用Basic Authentication的server</li>
+<li>伺服器會檢查在Header裡的Authorization欄位，規格應為 <code>Authorization: Basic &lt;value&gt;</code></li>
+<li>此時因為沒有Authorization並沒有資料，server按照約定會回傳401 status code並在Header上加上 <code>WWW-Authenticate: Basic realm=&quot;&lt;value&gt;&quot;</code></li>
+<li>client當發現得到以上的回應後，會出現一個給予使用者輸入用戶名稱及密碼的地方</li>
+<li>client將用戶名稱跟密碼做成一個base64的資料，虛擬碼表示為: <code>base64(username:password)</code></li>
+<li>client將資料放到Header: <code>Authorization: base64(username:password)</code></li>
+<li>server重複2開始的動作。</li>
+</ol>
+<h3 id="原則"><a href="#原則" class="headerlink" title="原則"></a>原則</h3><p>從上面的流程我們可以整理出Basic Authentication的一些原則</p>
+<ol>
+<li>client使用<code>Authorization: Basic &lt;value&gt;</code> 放置待驗證資料(每次請求都會放)</li>
+<li>約定使用base64編碼&#x2F;解碼: 用於將不相容的資料轉換HTTP相容的字元</li>
+<li>server使用<code>WWW-Authenticate: Basic realm=&quot;&lt;value&gt;&quot;</code> 與client告知結果。</li>
+</ol>
+<h3 id="優點"><a href="#優點" class="headerlink" title="優點"></a>優點</h3><ul>
+<li>簡單易用</li>
+<li>大部分的瀏覽器都有支援</li>
+</ul>
+<h3 id="缺點"><a href="#缺點" class="headerlink" title="缺點"></a>缺點</h3><ul>
+<li>幾乎是明碼傳輸帳密</li>
+<li>瀏覽器保存通過驗證的資訊，但沒有提供Server如何透過HTTP指示刪除，意味除了關閉瀏覽器或分頁，沒辦法登入使用者</li>
+</ul>
+<h3 id="應用"><a href="#應用" class="headerlink" title="應用"></a>應用</h3><ul>
+<li>通常會搭配HTTPS使用</li>
+<li>在安全內網應用</li>
+</ul>
+<h2 id="Token-Based-Authentication"><a href="#Token-Based-Authentication" class="headerlink" title="Token Based Authentication"></a>Token Based Authentication</h2><p>相較於Basic Authentication把用戶名稱及密碼帶在每次request上，Token Based Authentication則是改將一個名為Token的資訊帶在每次request上以代替前者。</p>
+<p>Token是什麼呢?指的是一段由server提供給client端以作為驗證身分的字串。</p>
+<p>你可以想像你走進店裡的時候，先用「某種方式」讓警衛認得你，而後警衛就念給你一串無意義的字，告訴你在一段時間內，可以不用用前面的方式進到店裡，念給他那串字就可以。</p>
+<h3 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h3><p><img src="https://i.imgur.com/vWP7Sia.png" alt="圖 7"></p>
+<h3 id="Token的特徵"><a href="#Token的特徵" class="headerlink" title="Token的特徵"></a>Token的特徵</h3><ul>
+<li>看似隨機、無意義的資料</li>
+<li>被放在 <code>Authorization: &lt;method&gt; &lt;value&gt;</code></li>
+<li>(可選)具有使用期限</li>
+<li>(可選)具有驗證用的資訊</li>
+</ul>
+<h3 id="優點-1"><a href="#優點-1" class="headerlink" title="優點"></a>優點</h3><ul>
+<li>安全</li>
+</ul>
+<p>相對於使用Basic Authentication安全，主要是避開每次request都需要帶上沒有經過雜湊或加密的username和password。</p>
+<p>以前面的例子來說，你每次都跟警衛講用戶名稱跟密碼，會不會哪天就被聽到了?</p>
+<ul>
+<li>可帶資訊</li>
+</ul>
+<p>透過一些加密的方式，可以讓token本身帶有資訊可以被client解析。</p>
+<ul>
+<li>可控制</li>
+</ul>
+<p>跟前面可帶資訊有關，透過帶著過期的資訊讓資料在指定的時間無法在被使用或拋棄。</p>
+<h3 id="產生token的方法"><a href="#產生token的方法" class="headerlink" title="產生token的方法"></a>產生token的方法</h3><ol>
+<li>SWT(Simple Web Token)</li>
+<li>JWT(JSON Web Token)</li>
+</ol>
+<p>這兩個的比較可以參考以下</p>
+<blockquote>
+<p>Appendix C.  Relationship of JWTs to Simple Web Tokens (SWTs)</p>
+<p> Both JWTs and SWTs [SWT], at their core, enable sets of claims to be<br> communicated between applications.  For SWTs, both the claim names<br> and claim values are strings.  For JWTs, while claim names are<br> strings, claim values can be any JSON type.  Both token types offer<br> cryptographic protection of their content: SWTs with HMAC SHA-256 and<br> JWTs with a choice of algorithms, including signature, MAC, and<br> encryption algorithms.<br>– <a href="https://tools.ietf.org/html/rfc7519#appendix-C">JSON Web Token (JWT)</a></p>
+</blockquote>
+<p>概要的意思是:</p>
+<ol>
+<li>兩個產生的目的都是為了在應用程式間溝通</li>
+<li>SWT組成value的方式是string, JWT是JSON</li>
+<li>SWT雜湊的方式是HMAC SHA-256, JWT則是可選的雜湊演算法</li>
+</ol>
+<p>稍微介紹一下目前比較常見的JWT的結構跟製作流程:</p>
+<h4 id="組成"><a href="#組成" class="headerlink" title="組成"></a>組成</h4><p>包括: Header, Payload, Signature，這三者會以(.)做分隔<br><img src="https://tyk.io/docs/img/dashboard/system-management/jwt_jwtio_example.png"></p>
+<blockquote>
+<p>圖片來自<a href="https://tyk.io/docs/basic-config-and-security/security/authentication-authorization/json-web-tokens/">JSON Web Tokens</a></p>
+</blockquote>
+<ul>
+<li>Header: 包含是否要簽章、雜湊演算法的訊息</li>
+<li>Payload: 資料</li>
+<li>Signature: 簽章</li>
+</ul>
+<h4 id="製作過程"><a href="#製作過程" class="headerlink" title="製作過程"></a>製作過程</h4><ol>
+<li>按照需求產出Header, Payload</li>
+<li>將Header做base64得到<code>base64(Header)</code></li>
+<li>將Payload做base64得到<code>baser64(Payload)</code></li>
+<li>從伺服器得到一個秘密字串稱為secret</li>
+<li>(若HMACSHA256)將<code>base64(Header)</code>及<code>baser64(Payload)</code>使用secret做雜湊，參考下方虛擬碼</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// Signature虛擬碼</span><br><span class="line">HMACSHA256(base64(header) + &#x27;.&#x27; + base64(payload), secret)</span><br></pre></td></tr></table></figure>
+
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>稍稍了解了有關於驗證的知識，略過了關於cookie、session的概念，以及基於token延伸出的OAuth，有興趣可以再去找相關資訊。</p>
+<p>那就這樣啦，明天見~</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://swoopnow.com/user-authentication/">User Authentication: Understanding the Basics &amp; Top Tips</a><br><a href="https://roadmap.sh/guides/token-authentication">Token Based Authentication</a><br><a href="https://zh.wikipedia.org/zh-tw/HTTP%E5%9F%BA%E6%9C%AC%E8%AE%A4%E8%AF%81">HTTP基本認證</a><br><a href="https://codingnote.com/2021/01/18/jwt-intro-1/">深入理解JSON Web Token系列1：JWT的历史</a><br><a href="https://pjchender.dev/webdev/note-jwt/">產生 JWT</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>Basic Authentication</tag>
+        <tag>Token Based Authentication</tag>
+        <tag>JWT</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>常見的API架構比較</title>
     <url>/code-blog/2022/10/03/API_Design_Pattern/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在網路開發中，最常見的就是以HTTP協定與其他端點溝通，但各自使用不同的內容及結構可能會造成困擾。<br>比如不同的服務都需要閱讀各自的文件並適應不同的格式，於是為了解決這個問題，出現了諸如SOAP, REST, gRPC, graphQL等用來規範彼此如何規範的技術。</p>
