@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言現代Web最影響使用者是否使用服務的其中一項重大因素來自於服務響應使用者互動的速度。 白話的意思就是說點開網站內的內容有多快，就有多影響使用者體驗。 影響服務響應的原因可能很多，但大檔案或是常用的資料不斷重複的在服務之間流通絕對是影響速度的其中一大原因，因此為了解決這樣的服務瓶頸，出現了一個概念: Cache(緩存&#x2F;快取)。 這也是今天要介紹的部分，那就開始吧~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="就是快取啦-Cache">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/05/Web_Cache/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言現代Web最影響使用者是否使用服務的其中一項重大因素來自於服務響應使用者互動的速度。 白話的意思就是說點開網站內的內容有多快，就有多影響使用者體驗。 影響服務響應的原因可能很多，但大檔案或是常用的資料不斷重複的在服務之間流通絕對是影響速度的其中一大原因，因此為了解決這樣的服務瓶頸，出現了一個概念: Cache(緩存&#x2F;快取)。 這也是今天要介紹的部分，那就開始吧~">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.imgur.com/ywXHNlb.png">
+<meta property="og:image" content="https://i.imgur.com/KPcLq4a.png">
+<meta property="article:published_time" content="2022-10-05T12:22:45.000Z">
+<meta property="article:modified_time" content="2022-10-05T15:03:52.577Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="Cache">
+<meta property="article:tag" content="CDN">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="Storage">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/ywXHNlb.png">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/05/Web_Cache/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/05/Web_Cache/","path":"2022/10/05/Web_Cache/","title":"就是快取啦-Cache"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>就是快取啦-Cache | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">35</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">18</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Browser-layer-Browser-Storage"><span class="nav-number">3.</span> <span class="nav-text">Browser layer: Browser Storage</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BF%AB%E3%80%81%E6%85%A2%E5%85%83%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">快、慢元件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88"><span class="nav-number">3.2.</span> <span class="nav-text">解決方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Server-layer-Redis%E3%80%81Memcached"><span class="nav-number">4.</span> <span class="nav-text">Server layer: Redis、Memcached</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BF%AB%E3%80%81%E6%85%A2%E5%85%83%E4%BB%B6-1"><span class="nav-number">4.1.</span> <span class="nav-text">快、慢元件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88-1"><span class="nav-number">4.2.</span> <span class="nav-text">解決方案</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Client-layer-CDN"><span class="nav-number">5.</span> <span class="nav-text">Client layer: CDN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BF%AB%E3%80%81%E6%85%A2%E5%85%83%E4%BB%B6-2"><span class="nav-number">5.1.</span> <span class="nav-text">快、慢元件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E6%B1%BA%E6%96%B9%E6%A1%88-2"><span class="nav-number">5.2.</span> <span class="nav-text">解決方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%8D%E5%A4%96%E5%A5%BD%E8%99%95"><span class="nav-number">5.3.</span> <span class="nav-text">額外好處</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">6.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/05/Web_Cache/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="就是快取啦-Cache | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          就是快取啦-Cache
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-10-05 20:22:45 / Modified: 23:03:52" itemprop="dateCreated datePublished" datetime="2022-10-05T20:22:45+08:00">2022-10-05</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/10/05/Web_Cache/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/05/Web_Cache/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>現代Web最影響使用者是否使用服務的其中一項重大因素來自於服務響應使用者互動的速度。</p>
+<p>白話的意思就是說點開網站內的內容有多快，就有多影響使用者體驗。</p>
+<p>影響服務響應的原因可能很多，但大檔案或是常用的資料不斷重複的在服務之間流通絕對是影響速度的其中一大原因，因此為了解決這樣的服務瓶頸，出現了一個概念: Cache(緩存&#x2F;快取)。</p>
+<p>這也是今天要介紹的部分，那就開始吧~</p>
+<span id="more"></span>
+
+<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><p>將常用的資料儲存在本地memory(較快的元件(註1))中一段時間以取代從較慢元件取得資料的相關技術。</p>
+<p>這樣，當其他人需要請求相同的資料時，就不需要額外進行網路傳輸、資料庫提取等動作，可以直接從memory中取得資料，以加快響應速度。</p>
+<p>這個概念可以擴及到所有面臨瓶頸的服務身上，因為所有服務都有構成他相對有快、慢差異的元件。</p>
+<p>舉例來說我們的電腦就有memory及disk，如果OS在處理服務的過程，有一項技術是將常用的資料也放在memory，而不每次都從disk取得，這其實就是一個Cache的概念。</p>
+<p>回到Web溝通的層面，當Client和Server溝通時，常見的像是瀏覽器與提供網頁服務的瀏覽器，相對快、慢的元件可能是本地儲存、遠端服務db，於是將常訪問的網站資料儲存在瀏覽器預先設定的空間，就算是disk內，也可以說這樣是一種Cache。</p>
+<p>接下來會列出幾項在Web中常見的不同層次的瓶頸以及相對應實現Cache的技術。</p>
+<ul>
+<li>Browser layer: Browser Storage</li>
+<li>Server layer: Redis</li>
+<li>Client layer: CDN</li>
+</ul>
+<h2 id="Browser-layer-Browser-Storage"><a href="#Browser-layer-Browser-Storage" class="headerlink" title="Browser layer: Browser Storage"></a>Browser layer: Browser Storage</h2><h3 id="快、慢元件"><a href="#快、慢元件" class="headerlink" title="快、慢元件"></a>快、慢元件</h3><p>在瀏覽器與提供網頁瀏覽的Server交互時</p>
+<ul>
+<li>快: 本地的儲存裝置</li>
+<li>慢: 經過HTTP取得的資料</li>
+</ul>
+<h3 id="解決方案"><a href="#解決方案" class="headerlink" title="解決方案"></a>解決方案</h3><p>大部分的瀏覽器都支援以下的方案: </p>
+<ul>
+<li>HTTP Cache<br>瀏覽器每次發送Request前會先檢查Header裡的 <code>Cache-Control: no-cache, max-age=...</code> ，若在特定條件下可以不發出任何request。</li>
+</ul>
+<p>根據<a target="_blank" rel="noopener" href="https://web.dev/http-cache/">資料</a>，下圖是Cache-Control的決策圖，黃底代表決定使用哪個參數。<br><img src="https://i.imgur.com/ywXHNlb.png" alt="圖 10">  </p>
+<ul>
+<li>Data Store<br>在執行網頁時，藉由瀏覽器的API介面，透過JS去儲存、提取資料，其儲存的位置包含: Cookie、Web Storage、IndexedDB。</li>
+</ul>
+<p>未來可能會有Cache的API，目前還在實驗中~</p>
+<h2 id="Server-layer-Redis、Memcached"><a href="#Server-layer-Redis、Memcached" class="headerlink" title="Server layer: Redis、Memcached"></a>Server layer: Redis、Memcached</h2><h3 id="快、慢元件-1"><a href="#快、慢元件-1" class="headerlink" title="快、慢元件"></a>快、慢元件</h3><p>為了取得Client需要的資料，可能有與DB、或是其他服務溝通的必要</p>
+<ul>
+<li>慢: Server的DB或其他提供服務的Server</li>
+<li>快: Server的Memory</li>
+</ul>
+<h3 id="解決方案-1"><a href="#解決方案-1" class="headerlink" title="解決方案"></a>解決方案</h3><p>為了方便開發者使用Server的Memory，因此出現了以下兩種解決方案:</p>
+<ul>
+<li>Redis</li>
+</ul>
+<p>之前在NoSQL DB介紹過，key-value的DB，可以讓使用者快速的利用Memory，且支援許多data-type，並且提供一種類似快照(Snap Shot)的功能，讓儲存在Redis的資料可以回存其他DB。</p>
+<p>另外因為她支援套件，可以讓Redis得以處理類似關聯式的資料，或是JSON類型的資料，因此官方也宣稱他足以作為主DB來使用。</p>
+<ul>
+<li>Memcached</li>
+</ul>
+<p>multi-thread &amp; simple string data type，雖然data的種類限制了它的使用，但他的設計一開始就是為了減少DB或是API的壓力，於是若是在特定條件下也是一種方案</p>
+<h2 id="Client-layer-CDN"><a href="#Client-layer-CDN" class="headerlink" title="Client layer: CDN"></a>Client layer: CDN</h2><h3 id="快、慢元件-2"><a href="#快、慢元件-2" class="headerlink" title="快、慢元件"></a>快、慢元件</h3><p>全名是Content delivery network內容傳遞網路，他的情境與Browser layer Cache有點類似，但這裡的CDN是所有的Client都可以享受到好處的，他在意的情境除了網路傳輸的速度，更是提供服務的主機與Client的距離導致的傳輸延遲。</p>
+<ul>
+<li>慢: 較遠的Source Service Server(提供服務的伺服器)</li>
+<li>快: 較近的CDN Server</li>
+</ul>
+<p>按照這裡提到的，Browser除了可以使用Browser Cache把資料放在本地，也可以在request時使用CDN嘗試獲取比較近的資源。</p>
+<h3 id="解決方案-2"><a href="#解決方案-2" class="headerlink" title="解決方案"></a>解決方案</h3><p>本身就是解決方案，他期望做到的是，透過利用最靠近使用者的CDN Server，將從Source Service Server取得的資料，像是音樂、圖片、影片等，在CDN Server保留資料，並較快的提供給使用者。</p>
+<p>它的運作模式大部分也是依賴由Source Server提供的response內的 <code>cache-control</code> Header去做控制。</p>
+<p>除此之外廠商可能會提供API讓Source Server可以在資料被更新時主動更新CDN Server裡面的資料及相關回傳給Client的Header。</p>
+<p><img src="https://i.imgur.com/KPcLq4a.png" alt="圖 9">  </p>
+<h3 id="額外好處"><a href="#額外好處" class="headerlink" title="額外好處"></a>額外好處</h3><p>除了加快資源取得的速度，他也包含幾項好處</p>
+<ul>
+<li>減少用戶網路流量: 網路流量對使用者來說都是成本，不是全世界都有像台灣一樣吃到飽XD</li>
+<li>減少Source Server負擔: 因為減少了訪問Server次數及流量</li>
+<li>提高安全性: 舉例來說如果遭到DDoS攻擊，若CDN供應商有提供相關服務可以阻擋，若沒有，至少有一部份的攻擊會被CDN代替承受…XD</li>
+</ul>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>最主要了解Cache是基於組成服務的元件的速度不一致，其中一個就會成為瓶頸，因此將常用的資料儲存在較快的元件上可以減少訪問慢速元件的次數提升體驗。</p>
+<p>於是我們可以大膽猜測，如果哪天遠端服務響應的素快於本地硬體儲存的速度，這時候的Cache就會反過來儲存在遠端服務上了吧XD</p>
+<p>我覺得保留Cache的概念，並知道如何分析瓶頸元件，就足以應付後面的變化，各樣的技術&#x2F;解決方案無非也是為了解決當前遇到的問題。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://hsien-w-wei.medium.com/front-end-browser-cache-%E7%86%9F%E6%82%89%E7%9A%84%E9%99%8C%E7%94%9F%E4%BA%BA-i-5e1f76a4713d">[Front-end] Browser Cache : 熟悉的陌生人 I</a><br><a target="_blank" rel="noopener" href="https://pjchender.dev/webdev/note-http-cache/">[note] HTTP Cache 快取</a><br><a target="_blank" rel="noopener" href="https://web.dev/http-cache/">使用 HTTP 缓存避免不必要的网络请求</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=G1rOthIU-uo&ab_channel=Fireship">Redis in 100 Seconds</a><br><a target="_blank" rel="noopener" href="https://medium.com/jerrynotes/redis-vs-memcached-%E6%AF%94%E8%BC%83-15d2ba829da7">Redis vs Memcached 比較</a><br><a target="_blank" rel="noopener" href="https://mgleon08.github.io/blog/2018/10/29/understand-cdn/">簡單理解 CDN 原理</a><br><a target="_blank" rel="noopener" href="https://www.cloudflare.com/en-ca/learning/cdn/what-is-a-cdn/">什麼是 CDN？| CDN 是如何工作的？</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2022/10/05/Web_Cache/" title="就是快取啦-Cache">https://tim80411.github.io/code-blog/2022/10/05/Web_Cache/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/Cache/" rel="tag"># Cache</a>
+              <a href="/code-blog/tags/CDN/" rel="tag"># CDN</a>
+              <a href="/code-blog/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/code-blog/tags/Storage/" rel="tag"># Storage</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/10/04/API_Authenticate/" rel="prev" title="先生你誰?-身分驗證Authentication (Oauth, Basic, JWT, token)">
+                  <i class="fa fa-chevron-left"></i> 先生你誰?-身分驗證Authentication (Oauth, Basic, JWT, token)
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">43k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">40 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
