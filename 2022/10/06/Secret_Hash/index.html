@@ -19,32 +19,34 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
-    <meta name="description" content="前言域名讓網頁的ip地址轉變成能夠被人類理解的內容，根據維基百科的資料，到2022年已經有超過5億的域名登記註冊。 今天要稍微深入看一下Domain name這個部分的內容，內容應該會包含域名的結構、域名系統(DNS)如何在client要求與建立連線時將正確的ip交付。">
+    <meta name="description" content="前言昨天在聊到JWT的組成時有提到要將header跟payload做「雜湊」產生signature。 那到底雜湊是什麼呢?跟加密一樣嗎? 今天來了解一下!">
 <meta property="og:type" content="article">
-<meta property="og:title" content="自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system)">
-<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/09/19/Network_DNS/index.html">
+<meta property="og:title" content="我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt)">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/06/Secret_Hash/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
-<meta property="og:description" content="前言域名讓網頁的ip地址轉變成能夠被人類理解的內容，根據維基百科的資料，到2022年已經有超過5億的域名登記註冊。 今天要稍微深入看一下Domain name這個部分的內容，內容應該會包含域名的結構、域名系統(DNS)如何在client要求與建立連線時將正確的ip交付。">
+<meta property="og:description" content="前言昨天在聊到JWT的組成時有提到要將header跟payload做「雜湊」產生signature。 那到底雜湊是什麼呢?跟加密一樣嗎? 今天來了解一下!">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://i.imgur.com/L6EtBWC.png">
-<meta property="article:published_time" content="2022-09-19T04:15:10.000Z">
+<meta property="og:image" content="https://i.imgur.com/0R6oa62.png">
+<meta property="article:published_time" content="2022-10-06T11:33:13.000Z">
 <meta property="article:modified_time" content="2022-10-06T14:07:25.685Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
 <meta property="article:tag" content="Backend">
-<meta property="article:tag" content="DNS">
+<meta property="article:tag" content="Hash">
+<meta property="article:tag" content="MD5">
+<meta property="article:tag" content="SHA">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://i.imgur.com/L6EtBWC.png">
+<meta name="twitter:image" content="https://i.imgur.com/0R6oa62.png">
 
 
-<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/09/19/Network_DNS/">
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/06/Secret_Hash/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/09/19/Network_DNS/","path":"2022/09/19/Network_DNS/","title":"自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/06/Secret_Hash/","path":"2022/10/06/Secret_Hash/","title":"我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt)"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system) | Timothy Coding Ground</title>
+<title>我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt) | Timothy Coding Ground</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
@@ -159,7 +161,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B5%90%E6%A7%8B"><span class="nav-number">3.</span> <span class="nav-text">結構</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DNS%E6%A9%9F%E5%88%B6"><span class="nav-number">4.</span> <span class="nav-text">DNS機制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E8%B6%A3%E7%9A%84%E5%B0%8F%E6%8C%87%E4%BB%A4-whois"><span class="nav-number">5.</span> <span class="nav-text">有趣的小指令: whois</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">6.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86"><span class="nav-number">2.</span> <span class="nav-text">加密</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E9%BA%BC%E6%98%AF%E5%8A%A0%E5%AF%86"><span class="nav-number">2.1.</span> <span class="nav-text">什麼是加密?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%A1%9E"><span class="nav-number">2.2.</span> <span class="nav-text">分類</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E9%80%94"><span class="nav-number">2.3.</span> <span class="nav-text">用途</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%9C%E6%B9%8A"><span class="nav-number">3.</span> <span class="nav-text">雜湊</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E9%BA%BC%E6%98%AF%E9%9B%9C%E6%B9%8A"><span class="nav-number">3.1.</span> <span class="nav-text">什麼是雜湊?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E9%80%94-1"><span class="nav-number">3.2.</span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B0%A1%E4%BB%8B%E5%B8%B8%E8%A6%8B%E7%9A%84%E5%8A%A0%E5%AF%86%E5%8F%8A%E9%9B%9C%E6%B9%8A%E6%BC%94%E7%AE%97%E6%B3%95"><span class="nav-number">3.3.</span> <span class="nav-text">簡介常見的加密及雜湊演算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MD5"><span class="nav-number">3.3.1.</span> <span class="nav-text">MD5</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SHA-Family"><span class="nav-number">3.3.2.</span> <span class="nav-text">SHA Family</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bcrypt"><span class="nav-number">3.3.3.</span> <span class="nav-text">bcrypt</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#scrypt"><span class="nav-number">3.3.4.</span> <span class="nav-text">scrypt</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">4.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -235,7 +237,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/19/Network_DNS/">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/06/Secret_Hash/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -248,12 +250,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system) | Timothy Coding Ground">
+      <meta itemprop="name" content="我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt) | Timothy Coding Ground">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system)
+          我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt)
         </h1>
 
         <div class="post-meta-container">
@@ -263,15 +265,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
+      
 
-      <time title="Created: 2022-09-19 12:15:10" itemprop="dateCreated datePublished" datetime="2022-09-19T12:15:10+08:00">2022-09-19</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-06 22:07:25" itemprop="dateModified" datetime="2022-10-06T22:07:25+08:00">2022-10-06</time>
+      <time title="Created: 2022-10-06 19:33:13 / Modified: 22:07:25" itemprop="dateCreated datePublished" datetime="2022-10-06T19:33:13+08:00">2022-10-06</time>
     </span>
 
   
@@ -283,8 +279,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/code-blog/2022/09/19/Network_DNS/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/19/Network_DNS/" itemprop="commentCount"></span>
+    <a title="disqus" href="/code-blog/2022/10/06/Secret_Hash/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/06/Secret_Hash/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -305,39 +301,62 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>域名讓網頁的ip地址轉變成能夠被人類理解的內容，根據維基百科的資料，到2022年已經有超過5億的域名登記註冊。</p>
-<p>今天要稍微深入看一下Domain name這個部分的內容，內容應該會包含域名的結構、域名系統(DNS)如何在client要求與建立連線時將正確的ip交付。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天在聊到JWT的組成時有提到要將header跟payload做「雜湊」產生signature。</p>
+<p>那到底雜湊是什麼呢?跟加密一樣嗎?</p>
+<p>今天來了解一下!</p>
 <span id="more"></span>
 
-<h2 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h2><ol>
-<li>可理解性: 比IP位置更好被記億。</li>
-<li>唯一性: 和IP位置一樣，域名也是唯一性的，同一個域名不會代表兩個不同的IP位置，另外，因為他是映射的IP位置可以被更改，你可以隨意修改你的DN對應到的服務器IP位置。</li>
-</ol>
-<h2 id="結構"><a href="#結構" class="headerlink" title="結構"></a>結構</h2><p>一個域名可以由好幾個字串組成，這些字串被點(.)分隔，而最右邊的字串被稱為頂級域名Top-Level Domain(TLD)。</p>
-<p>頂級域名可以大致分為國家和地區頂級域(ccTLD)以及通用頂級域(gTLD)，ccTLD就像是台灣的tw結尾，而gTLD通常具有特定意義代表多個組織，例如gov(政府)、edu(教育機構)、com(商業)…等等</p>
-<p>頂級域名往左就會被稱為子域名，由二級開始，每向左多出一個域名就會下降一層，三級、四級…等等。</p>
-<h2 id="DNS機制"><a href="#DNS機制" class="headerlink" title="DNS機制"></a>DNS機制</h2><p>我們稍稍回到昨天，當我們輸入網址並按下ENTER後，在透過DNS取得正確的步驟包括以下:</p>
-<ol>
-<li>檢查本機的DNS緩存是否有保存IP位置。</li>
-<li>假設並沒有緩存，現在要開始做DNS查詢。</li>
-<li>DNS查詢首先會往此電腦被設定的DNS伺服器去查詢，我們在此處稱為本地伺服器。</li>
-<li>若是符合該主機的本域名會直接回答，沒有的話也會檢查Cache看有沒有相關資料。</li>
-<li>若依舊沒有的狀況，此本地DNS server會向此server有紀錄的根網域主機root domain name server(保管所有TLDNS的伺服器位置資料)發出請求。</li>
-<li>該根網域主機會回傳一台控制該網域的DNS的ip位置。</li>
-<li>在得到新的DNS IP後，本地DNS會向該DNS發出請求。</li>
-<li>若並非為該DNS儲存的資料，則會回傳更靠近該網域的DNS server。</li>
-<li>重複7, 8步驟直到收到正確ip為止</li>
-</ol>
-<p>從以上資訊我們可以得到一個結論是一台DNS並不會存放所有域名的DN資料，資料都是分別儲存在層層搜尋出來的。</p>
-<p>唯一共用位置資料的只有前面提到的根網域伺服器，他們共用同一份根域(Root Zone file)檔案，裡面記錄著頂級域名權威伺服器的ip位置。</p>
-<h2 id="有趣的小指令-whois"><a href="#有趣的小指令-whois" class="headerlink" title="有趣的小指令: whois"></a>有趣的小指令: whois</h2><p>linux的系統可以透過apt install whois安裝這個命令。</p>
-<p>這個命令可以讓你查看指定網域的註冊資料，你也可以知道你查詢的網域是不是已經被使用了。</p>
-<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>還記得過往曾經看過一些文章和你說，修改DNS的位置可以加速你的網路讀取速度，現在想想，他的邏輯應該是，若你可以直接在第一層詢問local DNS就拿到你要的ip位置，就可以少等待很多時間。</p>
-<p><img src="https://i.imgur.com/L6EtBWC.png" alt="windows DNS設定修改"></p>
-<p>但換個方式來說，你的server或是你的電腦為了效率，其實也會將取得的IP做Cache，所以第二次連接相同網站速度還是無法提升時，也代表或許瓶頸並不是出現在DNS這段，對於排錯又可以多一些額外的資訊了。</p>
-<p>今天差不多就到這裡囉，明天會聊聊託管(hoisting)</p>
-<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a></p>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Learn/Common_questions/What_is_a_domain_name">MDN-Domain</a><br><a target="_blank" rel="noopener" href="https://www.homenethowto.com/advanced-topics/traffic-example-the-full-picture/">Traffic</a><br><a target="_blank" rel="noopener" href="https://blog.twnic.tw/wp-content/uploads/2021/08/2021_jprs_ZH-TW_0830_final.pdf">網路大冒險</a></p>
+<h2 id="加密"><a href="#加密" class="headerlink" title="加密"></a>加密</h2><h3 id="什麼是加密"><a href="#什麼是加密" class="headerlink" title="什麼是加密?"></a>什麼是加密?</h3><p>加密指的是: </p>
+<blockquote>
+<p>將明文資訊改變為難以讀取的密文內容，使之不可讀的過程。<br>– <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E5%8A%A0%E5%AF%86">加密</a></p>
+</blockquote>
+<p>我覺得加密很像是把東西加上一把鎖，有鑰匙就可以進去資料的裡面。</p>
+<p>加密的特性:</p>
+<ul>
+<li>可逆: 可以經過特定演算法加上必要條件(例如: 金鑰)後還原回加密前的原始資料。</li>
+</ul>
+<h3 id="分類"><a href="#分類" class="headerlink" title="分類"></a>分類</h3><p>加密演算法一般可以分為兩類</p>
+<ul>
+<li>對稱加密: 加解密皆使用相同金鑰</li>
+<li>非對稱加密&#x2F;公鑰加密: 加密會使用公鑰，解密會使用私鑰</li>
+</ul>
+<h3 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h3><p>重點在於這個被加密的資料是還需要被指定的對象閱讀的，所以適合用在資料傳輸中。</p>
+<h2 id="雜湊"><a href="#雜湊" class="headerlink" title="雜湊"></a>雜湊</h2><h3 id="什麼是雜湊"><a href="#什麼是雜湊" class="headerlink" title="什麼是雜湊?"></a>什麼是雜湊?</h3><p>當我們提到雜湊時，其實是指說，將一些資料輸入到雜湊演算法，並取得經過雜湊演算法而有的新資料。</p>
+<blockquote>
+<p>是一種從任何一種資料中建立小的數字「指紋」的方法。雜湊函式把訊息或資料壓縮成摘要，使得資料量變小，將資料的格式固定下來。該函式將資料打亂混合，重新建立一個叫做雜湊值（hash values，hash codes，hash sums，或hashes）的指紋。<br>– <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B8">維基百科</a></p>
+</blockquote>
+<p>雜湊有幾個特性:</p>
+<ul>
+<li>輸出固定長度</li>
+<li>不可逆: 無法透過雜湊函式回算原本的輸入</li>
+<li>資料壓縮</li>
+<li>相同內容輸入同一雜湊函式會得到相同的雜湊值</li>
+<li>不同內容輸入同一雜湊函式得到相同雜湊值極低，若出現相同會稱為「碰撞Collision」</li>
+</ul>
+<h3 id="用途-1"><a href="#用途-1" class="headerlink" title="用途"></a>用途</h3><ul>
+<li>資料保護&#x2F;驗證: 因為資料在雜湊後能得到接近唯一值，可以用來檢查資料是否被修改。</li>
+<li>錯誤校正</li>
+</ul>
+<p>總而言之，有些資料是不必還原的，我們僅需要透過這些資料的「特徵」以確認資料有沒有被改變。</p>
+<h3 id="簡介常見的加密及雜湊演算法"><a href="#簡介常見的加密及雜湊演算法" class="headerlink" title="簡介常見的加密及雜湊演算法"></a>簡介常見的加密及雜湊演算法</h3><h4 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h4><p>是一種雜湊演算法，輸入不固定長度後，可以產出固定128-bits雜湊值。<br>在90年代時被廣泛運用，不過在2009年，有人用了一種碰撞演算法，可以在一般電腦執行數秒即可完成的複雜度之下完成碰撞。<br>故2011年，此演算法在RFC6151中被禁止用作金鑰雜湊訊息鑑別碼。</p>
+<p>除此之外，他的危險來自於:</p>
+<ul>
+<li>MD5的暴力硬解很快，</li>
+<li>因為被廣泛使用，所以他的字典裡的資料所對應已經儲存了相當大量，可參考MD5 Online</li>
+</ul>
+<h4 id="SHA-Family"><a href="#SHA-Family" class="headerlink" title="SHA Family"></a>SHA Family</h4><p>是一系列雜湊演算法的統稱，包括SHA-0, SHA-1, SHA-2(是SHA-224, SHA-256…SHA-512的統稱), SHA-3等。</p>
+<p><img src="https://i.imgur.com/0R6oa62.png" alt="圖 11">  </p>
+<p>根據資料，目前SHA-0已經淘汰, 而SHA-1也已經被列為弱安全性，目前較常使用的是SHA-256。</p>
+<h4 id="bcrypt"><a href="#bcrypt" class="headerlink" title="bcrypt"></a>bcrypt</h4><p>可以說是專門用於密碼的慢雜湊演算法，除了可以加鹽來抵抗彩虹表攻擊外，因為他可以保證加密的速度落在一個特定範圍內，所以可以延長攻擊方的加密速度，讓暴力搜尋變得比較容易被防禦。</p>
+<h4 id="scrypt"><a href="#scrypt" class="headerlink" title="scrypt"></a>scrypt</h4><p>記憶體依賴的雜湊演算法，目前常用於區塊鏈。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>大致了解演算法的種類，對於什麼情境常用到的演算法可以有些認識了。</p>
+<p>有時候其實也是會混合使用的，比如說，可能會先將資料加密，再將資料做雜湊給對方一個雜湊值以驗證資料有沒有經過竄改等等，都是一些常用的作法。</p>
+<p>有一個資料裡提到的結論蠻好的，引用一下:</p>
+<blockquote>
+<p>在資安領域沒有所謂絕對的安全，你只能不斷提高攻擊者的成本，當那個成本高到攻擊者無法負荷時（像是破解一個密碼要租超級電腦連續計算十年），那就可以說是足夠安全了XD<br>– <a target="_blank" rel="noopener" href="https://medium.com/starbugs/how-to-store-password-in-database-sefely-6b20f48def92">聽說不能用明文存密碼，那到底該怎麼存？</a></p>
+</blockquote>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10208884">[資料結構] 雜湊 (Hash)</a><br><a target="_blank" rel="noopener" href="https://dotblogs.com.tw/regionbbs/2017/09/21/hashing_is_not_encryption">[Security] 雜湊不是加密，雜湊不是加密，雜湊不是加密。</a><br><a target="_blank" rel="noopener" href="https://medium.com/@RiverChan/%E5%9F%BA%E7%A4%8E%E5%AF%86%E7%A2%BC%E5%AD%B8-%E5%B0%8D%E7%A8%B1%E5%BC%8F%E8%88%87%E9%9D%9E%E5%B0%8D%E7%A8%B1%E5%BC%8F%E5%8A%A0%E5%AF%86%E6%8A%80%E8%A1%93-de25fd5fa537">基礎密碼學(對稱式與非對稱式加密技術)</a><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/21668719/answer/2159366643">先用md5，再用sha1，这样密码会安全一点吗？</a><br><a target="_blank" rel="noopener" href="https://www.796t.com/content/1548055091.html">scrypt演算法的前世今生（從零開始學區塊鏈 192）</a><br><a target="_blank" rel="noopener" href="https://medium.com/starbugs/how-to-store-password-in-database-sefely-6b20f48def92">聽說不能用明文存密碼，那到底該怎麼存？</a></p>
 
     </div>
 
@@ -355,7 +374,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://tim80411.github.io/code-blog/2022/09/19/Network_DNS/" title="自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system)">https://tim80411.github.io/code-blog/2022/09/19/Network_DNS/</a>
+      <a href="https://tim80411.github.io/code-blog/2022/10/06/Secret_Hash/" title="我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt)">https://tim80411.github.io/code-blog/2022/10/06/Secret_Hash/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -366,21 +385,20 @@
           <div class="post-tags">
               <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
               <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
-              <a href="/code-blog/tags/DNS/" rel="tag"># DNS</a>
+              <a href="/code-blog/tags/Hash/" rel="tag"># Hash</a>
+              <a href="/code-blog/tags/MD5/" rel="tag"># MD5</a>
+              <a href="/code-blog/tags/SHA/" rel="tag"># SHA</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/18/Network_Browser/" rel="prev" title="瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?">
-                  <i class="fa fa-chevron-left"></i> 瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?
+                <a href="/code-blog/2022/10/05/Web_Cache/" rel="prev" title="就是快取啦-Cache">
+                  <i class="fa fa-chevron-left"></i> 就是快取啦-Cache
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/19/Network_hosting/" rel="next" title="欸黑，我的主機不在我家-託管(hosting)">
-                  欸黑，我的主機不在我家-託管(hosting) <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>

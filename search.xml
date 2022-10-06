@@ -1430,6 +1430,74 @@
       </tags>
   </entry>
   <entry>
+    <title>我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt)</title>
+    <url>/code-blog/2022/10/06/Secret_Hash/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>昨天在聊到JWT的組成時有提到要將header跟payload做「雜湊」產生signature。</p>
+<p>那到底雜湊是什麼呢?跟加密一樣嗎?</p>
+<p>今天來了解一下!</p>
+<span id="more"></span>
+
+<h2 id="加密"><a href="#加密" class="headerlink" title="加密"></a>加密</h2><h3 id="什麼是加密"><a href="#什麼是加密" class="headerlink" title="什麼是加密?"></a>什麼是加密?</h3><p>加密指的是: </p>
+<blockquote>
+<p>將明文資訊改變為難以讀取的密文內容，使之不可讀的過程。<br>– <a href="https://zh.wikipedia.org/zh-tw/%E5%8A%A0%E5%AF%86">加密</a></p>
+</blockquote>
+<p>我覺得加密很像是把東西加上一把鎖，有鑰匙就可以進去資料的裡面。</p>
+<p>加密的特性:</p>
+<ul>
+<li>可逆: 可以經過特定演算法加上必要條件(例如: 金鑰)後還原回加密前的原始資料。</li>
+</ul>
+<h3 id="分類"><a href="#分類" class="headerlink" title="分類"></a>分類</h3><p>加密演算法一般可以分為兩類</p>
+<ul>
+<li>對稱加密: 加解密皆使用相同金鑰</li>
+<li>非對稱加密&#x2F;公鑰加密: 加密會使用公鑰，解密會使用私鑰</li>
+</ul>
+<h3 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h3><p>重點在於這個被加密的資料是還需要被指定的對象閱讀的，所以適合用在資料傳輸中。</p>
+<h2 id="雜湊"><a href="#雜湊" class="headerlink" title="雜湊"></a>雜湊</h2><h3 id="什麼是雜湊"><a href="#什麼是雜湊" class="headerlink" title="什麼是雜湊?"></a>什麼是雜湊?</h3><p>當我們提到雜湊時，其實是指說，將一些資料輸入到雜湊演算法，並取得經過雜湊演算法而有的新資料。</p>
+<blockquote>
+<p>是一種從任何一種資料中建立小的數字「指紋」的方法。雜湊函式把訊息或資料壓縮成摘要，使得資料量變小，將資料的格式固定下來。該函式將資料打亂混合，重新建立一個叫做雜湊值（hash values，hash codes，hash sums，或hashes）的指紋。<br>– <a href="https://zh.wikipedia.org/zh-tw/%E6%95%A3%E5%88%97%E5%87%BD%E6%95%B8">維基百科</a></p>
+</blockquote>
+<p>雜湊有幾個特性:</p>
+<ul>
+<li>輸出固定長度</li>
+<li>不可逆: 無法透過雜湊函式回算原本的輸入</li>
+<li>資料壓縮</li>
+<li>相同內容輸入同一雜湊函式會得到相同的雜湊值</li>
+<li>不同內容輸入同一雜湊函式得到相同雜湊值極低，若出現相同會稱為「碰撞Collision」</li>
+</ul>
+<h3 id="用途-1"><a href="#用途-1" class="headerlink" title="用途"></a>用途</h3><ul>
+<li>資料保護&#x2F;驗證: 因為資料在雜湊後能得到接近唯一值，可以用來檢查資料是否被修改。</li>
+<li>錯誤校正</li>
+</ul>
+<p>總而言之，有些資料是不必還原的，我們僅需要透過這些資料的「特徵」以確認資料有沒有被改變。</p>
+<h3 id="簡介常見的加密及雜湊演算法"><a href="#簡介常見的加密及雜湊演算法" class="headerlink" title="簡介常見的加密及雜湊演算法"></a>簡介常見的加密及雜湊演算法</h3><h4 id="MD5"><a href="#MD5" class="headerlink" title="MD5"></a>MD5</h4><p>是一種雜湊演算法，輸入不固定長度後，可以產出固定128-bits雜湊值。<br>在90年代時被廣泛運用，不過在2009年，有人用了一種碰撞演算法，可以在一般電腦執行數秒即可完成的複雜度之下完成碰撞。<br>故2011年，此演算法在RFC6151中被禁止用作金鑰雜湊訊息鑑別碼。</p>
+<p>除此之外，他的危險來自於:</p>
+<ul>
+<li>MD5的暴力硬解很快，</li>
+<li>因為被廣泛使用，所以他的字典裡的資料所對應已經儲存了相當大量，可參考MD5 Online</li>
+</ul>
+<h4 id="SHA-Family"><a href="#SHA-Family" class="headerlink" title="SHA Family"></a>SHA Family</h4><p>是一系列雜湊演算法的統稱，包括SHA-0, SHA-1, SHA-2(是SHA-224, SHA-256…SHA-512的統稱), SHA-3等。</p>
+<p><img src="https://i.imgur.com/0R6oa62.png" alt="圖 11">  </p>
+<p>根據資料，目前SHA-0已經淘汰, 而SHA-1也已經被列為弱安全性，目前較常使用的是SHA-256。</p>
+<h4 id="bcrypt"><a href="#bcrypt" class="headerlink" title="bcrypt"></a>bcrypt</h4><p>可以說是專門用於密碼的慢雜湊演算法，除了可以加鹽來抵抗彩虹表攻擊外，因為他可以保證加密的速度落在一個特定範圍內，所以可以延長攻擊方的加密速度，讓暴力搜尋變得比較容易被防禦。</p>
+<h4 id="scrypt"><a href="#scrypt" class="headerlink" title="scrypt"></a>scrypt</h4><p>記憶體依賴的雜湊演算法，目前常用於區塊鏈。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>大致了解演算法的種類，對於什麼情境常用到的演算法可以有些認識了。</p>
+<p>有時候其實也是會混合使用的，比如說，可能會先將資料加密，再將資料做雜湊給對方一個雜湊值以驗證資料有沒有經過竄改等等，都是一些常用的作法。</p>
+<p>有一個資料裡提到的結論蠻好的，引用一下:</p>
+<blockquote>
+<p>在資安領域沒有所謂絕對的安全，你只能不斷提高攻擊者的成本，當那個成本高到攻擊者無法負荷時（像是破解一個密碼要租超級電腦連續計算十年），那就可以說是足夠安全了XD<br>– <a href="https://medium.com/starbugs/how-to-store-password-in-database-sefely-6b20f48def92">聽說不能用明文存密碼，那到底該怎麼存？</a></p>
+</blockquote>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://ithelp.ithome.com.tw/articles/10208884">[資料結構] 雜湊 (Hash)</a><br><a href="https://dotblogs.com.tw/regionbbs/2017/09/21/hashing_is_not_encryption">[Security] 雜湊不是加密，雜湊不是加密，雜湊不是加密。</a><br><a href="https://medium.com/@RiverChan/%E5%9F%BA%E7%A4%8E%E5%AF%86%E7%A2%BC%E5%AD%B8-%E5%B0%8D%E7%A8%B1%E5%BC%8F%E8%88%87%E9%9D%9E%E5%B0%8D%E7%A8%B1%E5%BC%8F%E5%8A%A0%E5%AF%86%E6%8A%80%E8%A1%93-de25fd5fa537">基礎密碼學(對稱式與非對稱式加密技術)</a><br><a href="https://www.zhihu.com/question/21668719/answer/2159366643">先用md5，再用sha1，这样密码会安全一点吗？</a><br><a href="https://www.796t.com/content/1548055091.html">scrypt演算法的前世今生（從零開始學區塊鏈 192）</a><br><a href="https://medium.com/starbugs/how-to-store-password-in-database-sefely-6b20f48def92">聽說不能用明文存密碼，那到底該怎麼存？</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>Hash</tag>
+        <tag>MD5</tag>
+        <tag>SHA</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>就是快取啦-Cache</title>
     <url>/code-blog/2022/10/05/Web_Cache/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>現代Web最影響使用者是否使用服務的其中一項重大因素來自於服務響應使用者互動的速度。</p>
