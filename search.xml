@@ -614,6 +614,123 @@
       </tags>
   </entry>
   <entry>
+    <title>說只有對方聽得懂的話-HTTPS &amp; SSL &amp; TLS</title>
+    <url>/code-blog/2022/10/07/Network_Https/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前曾經談過關於Internet Protocol Suite(IPS)，提到過Web中的各個網站就是HTTP的應用，又提到過IPS可以以四層來理解:</p>
+<ol>
+<li>應用(application): HTTP</li>
+<li>傳輸(transport): TCP</li>
+<li>網路互連(internet): IP</li>
+<li>網路存取(Network Access (link))。</li>
+</ol>
+<p>但我們都曾經在瀏覽器上的網址欄看到https開頭的網址<br><img src="https://i.imgur.com/yofUKox.png" alt="圖 12">  </p>
+<p>這樣，https又是什麼呢?</p>
+<p>那就來了解一下吧</p>
+<span id="more"></span>
+<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p>HTTPS全名為超文本傳輸安全協定HyperText Transfer Protocol Secure，還記得昨天提到過的加密嗎?<br>其實HTTPS就是指將要傳輸的資料經過加密傳輸出去再讓對方解密獲得資訊，以確保資料僅能被傳輸的雙方知道的一種協定。</p>
+<h2 id="SSL-amp-TLS"><a href="#SSL-amp-TLS" class="headerlink" title="SSL &amp; TLS"></a>SSL &amp; TLS</h2><p>全名分別是安全通訊協定Secure Sockets Layer(SSL)及傳輸層安全性協定Transport Layer Security(TLS)，這兩個協定的目的就是為了讓HTTP之間的通訊可以安全，且避免被竊聽。<br>SSL是比較早期的協定，後來由TLS取代~</p>
+<p>他的工作層的位置如圖<br><img src="https://i.imgur.com/nsPnWjP.png" alt="圖 14">  </p>
+<p>他的工作主要包括兩個:</p>
+<ul>
+<li>通訊驗證: 驗證證書以確認網站身分</li>
+<li>資訊加解密: 對資料使用對稱加密</li>
+</ul>
+<h2 id="HTTPS工作流程"><a href="#HTTPS工作流程" class="headerlink" title="HTTPS工作流程"></a>HTTPS工作流程</h2><p>要了解HTTPS如何工作以及為何要這樣做，我們需要對加密如何在對話兩端如何被應用、可能會發生什麼問題、如何改進逐步討論。</p>
+<h3 id="對稱加密"><a href="#對稱加密" class="headerlink" title="對稱加密"></a>對稱加密</h3><p>最單純的事情就是，我們共享一個密碼就好了~<br>而對稱加密就是指兩方都使用相同的密碼來作加解密。</p>
+<ul>
+<li><p>問題:<br>不管是由誰產生密碼，為了將密碼交給對方好讓對方解密，為了方便性就不得不經過網路。<br>只要會經過網路就有封包被劫持的風險，所以我只要劫持到某次封包裡包含著密碼，那我就發了XD</p>
+</li>
+<li><p>解決方案:<br>於是出現了非對稱加密~</p>
+</li>
+</ul>
+<h3 id="非對稱加密"><a href="#非對稱加密" class="headerlink" title="非對稱加密"></a>非對稱加密</h3><p>既然共用的密碼會被劫持，那就不要讓密碼共用就好啦。<br>後面出現了一種加密用A密碼，稱謂公鑰；解密用B密碼稱為私鑰的做法。</p>
+<p>於是Server決定產出A1公鑰及A2私鑰，他將公鑰透過網路傳輸給Client(Browser)。<br>這樣Client就可以將資料用公鑰加密，然後Server用從來沒外流過的私鑰解密，而就算公鑰被劫持，但因為他沒有私鑰，他也沒辦法解密了。</p>
+<p>這樣Client &#x3D;&gt; Server的單向傳輸安全了，那雙向呢?<br>ok，那Client也製作一個公私鑰，讓Server &#x3D;&gt; Client 也安全呢?</p>
+<ul>
+<li><p>問題:<br>看起來是可行的，但除了考量安全還得考量效能。<br>HTTP想要傳輸的資料可能會很龐大，而非對稱加密其實很費時，所以對於頻繁溝通且資料可能龐大的HTTP來說並不有利。</p>
+</li>
+<li><p>解決方案:<br>原本不使用對稱加密是因為網路不安全，密碼會在傳輸過程中被盜走。<br>那如果在安全的環境下分享密碼呢?</p>
+</li>
+</ul>
+<p>沒錯，我們應用剛剛提到的非對稱加密製造安全的傳輸環境來傳輸對稱加密用的密碼!</p>
+<h3 id="非對稱-對稱"><a href="#非對稱-對稱" class="headerlink" title="非對稱 + 對稱"></a>非對稱 + 對稱</h3><p>我覺得當初想到這個人很聰明XD</p>
+<p>狀況現在就變成</p>
+<ol>
+<li>在經過連線建立後</li>
+<li>Server製造公私鑰p1及s1，並將公鑰p1交給Client</li>
+<li>Client用公鑰p1加密密碼(對稱加密用)，並把加密後的資料傳回Server</li>
+<li>Server收到後用私鑰s1解密</li>
+<li>之後兩方都用對稱加密來加解密資料</li>
+</ol>
+<p>這樣是不是就完美了!!!!</p>
+<ul>
+<li>問題:<br>HTTPS確實採用類似這樣的方案，但這會出現一個問題: 中間人攻擊。</li>
+</ul>
+<p>什麼是中間人攻擊呢?中間人就是指在Server和Client之間多了一個人，作為兩者之間的轉發。<br>模擬一下他會做的事情:</p>
+<ol>
+<li>在經過連線建立後</li>
+<li>Server製造公私鑰p1及s1，並將公鑰嘗試交給Client</li>
+<li><strong>中間人攔截p1，並將自己製作的公鑰p2轉發給Client</strong></li>
+<li>Client用公鑰p2加密密碼(對稱加密用)，並把加密後的資料嘗試傳回Server</li>
+<li><strong>中間人攔截，加資料用自己的私鑰s2解密(取得共用密碼)，並將Client資料用p1加密後傳回Server</strong></li>
+<li>Server收到後用私鑰s1解密</li>
+<li>之後兩方都用對稱加密來加解密資料</li>
+</ol>
+<p>中間人就這樣開心拿資料，然後Client-Server都沒發現其實拿到的資料有問題。</p>
+<p>我們從上帝視角看，知道你明明就拿錯公鑰了，但問題就出在:<br>Client並不知道他拿到的公鑰是誰的，他只知道是一串無意義的資料~</p>
+<ul>
+<li>解決方案:<br>交給別人證明這個公鑰是真的，也就是現在的證書系統。</li>
+</ul>
+<h3 id="憑證"><a href="#憑證" class="headerlink" title="憑證"></a>憑證</h3><p>打開Chrome，點開網址左邊的那個鎖，如果你也是使用HTTPS的連線，一定會看到跟憑證有關的資訊。<br><img src="https://i.imgur.com/CCdeSS8.png" alt="圖 15">  </p>
+<p><strong>那這樣憑證是怎麼運作的?</strong></p>
+<p>他的核心就跟學校頒發畢業證書一樣，大家相信這些學校，所以相信他們頒發的證書；也有一個概念相同的機構在頒發這些證書。</p>
+<p>Server會將他的證書傳給Client，裡面會包含Server的相關資訊以及最重要的公鑰。</p>
+<p><strong>要怎麼不被假冒跟修改?</strong></p>
+<p>不過這樣似乎沒有解決原本的問題，就算有資訊，中間人還是可以竄改後再傳給Client。</p>
+<p>所以在Client的通訊加密層TLS還有一個任務就是要向權威機構確認這個證書到底是不是真的。</p>
+<p><strong>如何確認?</strong></p>
+<p>第一件事情: Server需要向權威機構申請證書，而權威機構這邊也會產生公私鑰，公鑰一樣發出去給大家，但機構會將資料先做雜湊再用私鑰加密(非對稱加密)。</p>
+<p>第二件事情: TLS在收到證書時，會拿到兩項重要的東西</p>
+<ul>
+<li>加密後的雜湊值: 簽章signature</li>
+<li>證書內容: 包含雜湊演算法</li>
+</ul>
+<p>他會把這兩項經過處理後去比對看是否相同，相同就ok，不相同就中斷連線</p>
+<ol>
+<li>把證書內容用證書上的雜湊演算法做出雜湊值hash1</li>
+<li>把簽章用公鑰解密得到hash2</li>
+</ol>
+<p>防止中間人的關鍵在2這段</p>
+<ol>
+<li>如果想要改證書內容: 但因為他沒有私鑰，所以就算他重新雜湊並加密，Client端會用權威機構的公鑰解密，會因此與證書內容的雜湊值相異。</li>
+<li>直接抽換成一個合格的證書: 因為這樣就不能更換內容，Client端比對他原本想要request的資料跟證書內容不相符也會直接失敗。</li>
+</ol>
+<p><strong>我們來當駭客看看</strong></p>
+<p>那這樣真的沒辦法騙過嗎?</p>
+<p>我想了一陣子，前面提到的關鍵是權威機構握有只有他才知道的私鑰。<br>而有了對於證書的非對稱加密才會無法騙過，所以我想到的方法只有:</p>
+<ol>
+<li>成為Server跟權威機構的中間人，讓Client取得的公鑰也是中間人的公鑰，這樣就可以直接抽換證書內容了XD</li>
+</ol>
+<p>也不知道對不對，不過這部份我們就不再深究了哈哈</p>
+<h2 id="流程總結"><a href="#流程總結" class="headerlink" title="流程總結"></a>流程總結</h2><p><img src="https://i.imgur.com/hETv3Qm.png" alt="圖 13">  </p>
+<blockquote>
+<p>– <a href="https://zhuanlan.zhihu.com/p/96494976">你知道，HTTPS用的是对称加密还是非对称加密？</a></p>
+</blockquote>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>以上圖做為總結就很足夠了，感謝製圖的大大，惠我良多~</p>
+<p>所以HTTPS其實是非對稱及對稱加密的結合，權威機構製作證書時做非對稱加密，傳輸時憑藉證書做對稱加密。<br>這樣的好處還蠻多的，除了安全性外，非對稱加密的時間成本在還沒傳輸前就解決了!</p>
+<p>今天又是有收穫的一天，明天見~</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://tw.alphacamp.co/blog/http-https-difference">一文搞懂 HTTP 和 HTTPS 是什麼？兩者有什麼差別</a><br><a href="https://www.readfog.com/a/1638923950567297024">終於有人把 HTTPS 原理講清楚了！</a><br><a href="https://zhuanlan.zhihu.com/p/96494976">你知道，HTTPS用的是对称加密还是非对称加密？</a><br><a href="https://blog.51cto.com/u_15290941/3047577">HTTPS(一) – 基础知识（密钥、对称加密、非对称加密、数字签名、数字证书）</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>HTTPS</tag>
+        <tag>SSL</tag>
+        <tag>TLS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>欸黑，我的主機不在我家-託管(hosting)</title>
     <url>/code-blog/2022/09/19/Network_hosting/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前幾天的主題大概已經描述一個輪廓Web: 一般而言我們使用瀏覽器作為client，透過HTTP，去與一台一個具有特定ip位置的server用GET方法取得網頁內容，並透過瀏覽器引擎渲染出網頁的畫面。</p>

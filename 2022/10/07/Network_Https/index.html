@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言之前曾經談過關於Internet Protocol Suite(IPS)，提到過Web中的各個網站就是HTTP的應用，又提到過IPS可以以四層來理解:  應用(application): HTTP 傳輸(transport): TCP 網路互連(internet): IP 網路存取(Network Access (link))。  但我們都曾經在瀏覽器上的網址欄看到https開頭的網址   這">
+<meta property="og:type" content="article">
+<meta property="og:title" content="說只有對方聽得懂的話-HTTPS &amp; SSL &amp; TLS">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/07/Network_Https/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言之前曾經談過關於Internet Protocol Suite(IPS)，提到過Web中的各個網站就是HTTP的應用，又提到過IPS可以以四層來理解:  應用(application): HTTP 傳輸(transport): TCP 網路互連(internet): IP 網路存取(Network Access (link))。  但我們都曾經在瀏覽器上的網址欄看到https開頭的網址   這">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.imgur.com/yofUKox.png">
+<meta property="og:image" content="https://i.imgur.com/nsPnWjP.png">
+<meta property="og:image" content="https://i.imgur.com/CCdeSS8.png">
+<meta property="og:image" content="https://i.imgur.com/hETv3Qm.png">
+<meta property="article:published_time" content="2022-10-07T11:25:47.000Z">
+<meta property="article:modified_time" content="2022-10-07T14:52:48.455Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="HTTPS">
+<meta property="article:tag" content="SSL">
+<meta property="article:tag" content="TLS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/yofUKox.png">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/07/Network_Https/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/07/Network_Https/","path":"2022/10/07/Network_Https/","title":"說只有對方聽得懂的話-HTTPS & SSL & TLS"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>說只有對方聽得懂的話-HTTPS & SSL & TLS | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">41</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">20</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTPS"><span class="nav-number">2.</span> <span class="nav-text">HTTPS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSL-amp-TLS"><span class="nav-number">3.</span> <span class="nav-text">SSL &amp; TLS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTPS%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">HTTPS工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8D%E7%A8%B1%E5%8A%A0%E5%AF%86"><span class="nav-number">4.1.</span> <span class="nav-text">對稱加密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%B0%8D%E7%A8%B1%E5%8A%A0%E5%AF%86"><span class="nav-number">4.2.</span> <span class="nav-text">非對稱加密</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%B0%8D%E7%A8%B1-%E5%B0%8D%E7%A8%B1"><span class="nav-number">4.3.</span> <span class="nav-text">非對稱 + 對稱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%86%91%E8%AD%89"><span class="nav-number">4.4.</span> <span class="nav-text">憑證</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E7%A8%8B%E7%B8%BD%E7%B5%90"><span class="nav-number">5.</span> <span class="nav-text">流程總結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">6.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/07/Network_Https/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="說只有對方聽得懂的話-HTTPS & SSL & TLS | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          說只有對方聽得懂的話-HTTPS & SSL & TLS
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-10-07 19:25:47 / Modified: 22:52:48" itemprop="dateCreated datePublished" datetime="2022-10-07T19:25:47+08:00">2022-10-07</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/10/07/Network_Https/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/07/Network_Https/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前曾經談過關於Internet Protocol Suite(IPS)，提到過Web中的各個網站就是HTTP的應用，又提到過IPS可以以四層來理解:</p>
+<ol>
+<li>應用(application): HTTP</li>
+<li>傳輸(transport): TCP</li>
+<li>網路互連(internet): IP</li>
+<li>網路存取(Network Access (link))。</li>
+</ol>
+<p>但我們都曾經在瀏覽器上的網址欄看到https開頭的網址<br><img src="https://i.imgur.com/yofUKox.png" alt="圖 12">  </p>
+<p>這樣，https又是什麼呢?</p>
+<p>那就來了解一下吧</p>
+<span id="more"></span>
+<h2 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h2><p>HTTPS全名為超文本傳輸安全協定HyperText Transfer Protocol Secure，還記得昨天提到過的加密嗎?<br>其實HTTPS就是指將要傳輸的資料經過加密傳輸出去再讓對方解密獲得資訊，以確保資料僅能被傳輸的雙方知道的一種協定。</p>
+<h2 id="SSL-amp-TLS"><a href="#SSL-amp-TLS" class="headerlink" title="SSL &amp; TLS"></a>SSL &amp; TLS</h2><p>全名分別是安全通訊協定Secure Sockets Layer(SSL)及傳輸層安全性協定Transport Layer Security(TLS)，這兩個協定的目的就是為了讓HTTP之間的通訊可以安全，且避免被竊聽。<br>SSL是比較早期的協定，後來由TLS取代~</p>
+<p>他的工作層的位置如圖<br><img src="https://i.imgur.com/nsPnWjP.png" alt="圖 14">  </p>
+<p>他的工作主要包括兩個:</p>
+<ul>
+<li>通訊驗證: 驗證證書以確認網站身分</li>
+<li>資訊加解密: 對資料使用對稱加密</li>
+</ul>
+<h2 id="HTTPS工作流程"><a href="#HTTPS工作流程" class="headerlink" title="HTTPS工作流程"></a>HTTPS工作流程</h2><p>要了解HTTPS如何工作以及為何要這樣做，我們需要對加密如何在對話兩端如何被應用、可能會發生什麼問題、如何改進逐步討論。</p>
+<h3 id="對稱加密"><a href="#對稱加密" class="headerlink" title="對稱加密"></a>對稱加密</h3><p>最單純的事情就是，我們共享一個密碼就好了~<br>而對稱加密就是指兩方都使用相同的密碼來作加解密。</p>
+<ul>
+<li><p>問題:<br>不管是由誰產生密碼，為了將密碼交給對方好讓對方解密，為了方便性就不得不經過網路。<br>只要會經過網路就有封包被劫持的風險，所以我只要劫持到某次封包裡包含著密碼，那我就發了XD</p>
+</li>
+<li><p>解決方案:<br>於是出現了非對稱加密~</p>
+</li>
+</ul>
+<h3 id="非對稱加密"><a href="#非對稱加密" class="headerlink" title="非對稱加密"></a>非對稱加密</h3><p>既然共用的密碼會被劫持，那就不要讓密碼共用就好啦。<br>後面出現了一種加密用A密碼，稱謂公鑰；解密用B密碼稱為私鑰的做法。</p>
+<p>於是Server決定產出A1公鑰及A2私鑰，他將公鑰透過網路傳輸給Client(Browser)。<br>這樣Client就可以將資料用公鑰加密，然後Server用從來沒外流過的私鑰解密，而就算公鑰被劫持，但因為他沒有私鑰，他也沒辦法解密了。</p>
+<p>這樣Client &#x3D;&gt; Server的單向傳輸安全了，那雙向呢?<br>ok，那Client也製作一個公私鑰，讓Server &#x3D;&gt; Client 也安全呢?</p>
+<ul>
+<li><p>問題:<br>看起來是可行的，但除了考量安全還得考量效能。<br>HTTP想要傳輸的資料可能會很龐大，而非對稱加密其實很費時，所以對於頻繁溝通且資料可能龐大的HTTP來說並不有利。</p>
+</li>
+<li><p>解決方案:<br>原本不使用對稱加密是因為網路不安全，密碼會在傳輸過程中被盜走。<br>那如果在安全的環境下分享密碼呢?</p>
+</li>
+</ul>
+<p>沒錯，我們應用剛剛提到的非對稱加密製造安全的傳輸環境來傳輸對稱加密用的密碼!</p>
+<h3 id="非對稱-對稱"><a href="#非對稱-對稱" class="headerlink" title="非對稱 + 對稱"></a>非對稱 + 對稱</h3><p>我覺得當初想到這個人很聰明XD</p>
+<p>狀況現在就變成</p>
+<ol>
+<li>在經過連線建立後</li>
+<li>Server製造公私鑰p1及s1，並將公鑰p1交給Client</li>
+<li>Client用公鑰p1加密密碼(對稱加密用)，並把加密後的資料傳回Server</li>
+<li>Server收到後用私鑰s1解密</li>
+<li>之後兩方都用對稱加密來加解密資料</li>
+</ol>
+<p>這樣是不是就完美了!!!!</p>
+<ul>
+<li>問題:<br>HTTPS確實採用類似這樣的方案，但這會出現一個問題: 中間人攻擊。</li>
+</ul>
+<p>什麼是中間人攻擊呢?中間人就是指在Server和Client之間多了一個人，作為兩者之間的轉發。<br>模擬一下他會做的事情:</p>
+<ol>
+<li>在經過連線建立後</li>
+<li>Server製造公私鑰p1及s1，並將公鑰嘗試交給Client</li>
+<li><strong>中間人攔截p1，並將自己製作的公鑰p2轉發給Client</strong></li>
+<li>Client用公鑰p2加密密碼(對稱加密用)，並把加密後的資料嘗試傳回Server</li>
+<li><strong>中間人攔截，加資料用自己的私鑰s2解密(取得共用密碼)，並將Client資料用p1加密後傳回Server</strong></li>
+<li>Server收到後用私鑰s1解密</li>
+<li>之後兩方都用對稱加密來加解密資料</li>
+</ol>
+<p>中間人就這樣開心拿資料，然後Client-Server都沒發現其實拿到的資料有問題。</p>
+<p>我們從上帝視角看，知道你明明就拿錯公鑰了，但問題就出在:<br>Client並不知道他拿到的公鑰是誰的，他只知道是一串無意義的資料~</p>
+<ul>
+<li>解決方案:<br>交給別人證明這個公鑰是真的，也就是現在的證書系統。</li>
+</ul>
+<h3 id="憑證"><a href="#憑證" class="headerlink" title="憑證"></a>憑證</h3><p>打開Chrome，點開網址左邊的那個鎖，如果你也是使用HTTPS的連線，一定會看到跟憑證有關的資訊。<br><img src="https://i.imgur.com/CCdeSS8.png" alt="圖 15">  </p>
+<p><strong>那這樣憑證是怎麼運作的?</strong></p>
+<p>他的核心就跟學校頒發畢業證書一樣，大家相信這些學校，所以相信他們頒發的證書；也有一個概念相同的機構在頒發這些證書。</p>
+<p>Server會將他的證書傳給Client，裡面會包含Server的相關資訊以及最重要的公鑰。</p>
+<p><strong>要怎麼不被假冒跟修改?</strong></p>
+<p>不過這樣似乎沒有解決原本的問題，就算有資訊，中間人還是可以竄改後再傳給Client。</p>
+<p>所以在Client的通訊加密層TLS還有一個任務就是要向權威機構確認這個證書到底是不是真的。</p>
+<p><strong>如何確認?</strong></p>
+<p>第一件事情: Server需要向權威機構申請證書，而權威機構這邊也會產生公私鑰，公鑰一樣發出去給大家，但機構會將資料先做雜湊再用私鑰加密(非對稱加密)。</p>
+<p>第二件事情: TLS在收到證書時，會拿到兩項重要的東西</p>
+<ul>
+<li>加密後的雜湊值: 簽章signature</li>
+<li>證書內容: 包含雜湊演算法</li>
+</ul>
+<p>他會把這兩項經過處理後去比對看是否相同，相同就ok，不相同就中斷連線</p>
+<ol>
+<li>把證書內容用證書上的雜湊演算法做出雜湊值hash1</li>
+<li>把簽章用公鑰解密得到hash2</li>
+</ol>
+<p>防止中間人的關鍵在2這段</p>
+<ol>
+<li>如果想要改證書內容: 但因為他沒有私鑰，所以就算他重新雜湊並加密，Client端會用權威機構的公鑰解密，會因此與證書內容的雜湊值相異。</li>
+<li>直接抽換成一個合格的證書: 因為這樣就不能更換內容，Client端比對他原本想要request的資料跟證書內容不相符也會直接失敗。</li>
+</ol>
+<p><strong>我們來當駭客看看</strong></p>
+<p>那這樣真的沒辦法騙過嗎?</p>
+<p>我想了一陣子，前面提到的關鍵是權威機構握有只有他才知道的私鑰。<br>而有了對於證書的非對稱加密才會無法騙過，所以我想到的方法只有:</p>
+<ol>
+<li>成為Server跟權威機構的中間人，讓Client取得的公鑰也是中間人的公鑰，這樣就可以直接抽換證書內容了XD</li>
+</ol>
+<p>也不知道對不對，不過這部份我們就不再深究了哈哈</p>
+<h2 id="流程總結"><a href="#流程總結" class="headerlink" title="流程總結"></a>流程總結</h2><p><img src="https://i.imgur.com/hETv3Qm.png" alt="圖 13">  </p>
+<blockquote>
+<p>– <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/96494976">你知道，HTTPS用的是对称加密还是非对称加密？</a></p>
+</blockquote>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>以上圖做為總結就很足夠了，感謝製圖的大大，惠我良多~</p>
+<p>所以HTTPS其實是非對稱及對稱加密的結合，權威機構製作證書時做非對稱加密，傳輸時憑藉證書做對稱加密。<br>這樣的好處還蠻多的，除了安全性外，非對稱加密的時間成本在還沒傳輸前就解決了!</p>
+<p>今天又是有收穫的一天，明天見~</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://tw.alphacamp.co/blog/http-https-difference">一文搞懂 HTTP 和 HTTPS 是什麼？兩者有什麼差別</a><br><a target="_blank" rel="noopener" href="https://www.readfog.com/a/1638923950567297024">終於有人把 HTTPS 原理講清楚了！</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/96494976">你知道，HTTPS用的是对称加密还是非对称加密？</a><br><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15290941/3047577">HTTPS(一) – 基础知识（密钥、对称加密、非对称加密、数字签名、数字证书）</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2022/10/07/Network_Https/" title="說只有對方聽得懂的話-HTTPS &amp; SSL &amp; TLS">https://tim80411.github.io/code-blog/2022/10/07/Network_Https/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/HTTPS/" rel="tag"># HTTPS</a>
+              <a href="/code-blog/tags/SSL/" rel="tag"># SSL</a>
+              <a href="/code-blog/tags/TLS/" rel="tag"># TLS</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/10/06/Secret_Hash/" rel="prev" title="我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt)">
+                  <i class="fa fa-chevron-left"></i> 我叫雜湊不叫加密-hashing (MD5, SHA family, scrpty, bcrypt)
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">48k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">43 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
