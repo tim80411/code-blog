@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言今天的資訊安全主題是(content security policy, CSP)，也是一種藉由擴充Header的約定，來達成網站安全的目的。 我們會先從同源政策same-origin policy說起，接著提到惡意攻擊者如何成功突破這項限制，並說明常見的漏洞攻擊。 然後我們就會談到什麼是CSP，包括他如何偵測及防範攻擊，以及如何使用的內容。 那就開始吧~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我不允許的你不能做-網頁內容安全政策content security policy">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言今天的資訊安全主題是(content security policy, CSP)，也是一種藉由擴充Header的約定，來達成網站安全的目的。 我們會先從同源政策same-origin policy說起，接著提到惡意攻擊者如何成功突破這項限制，並說明常見的漏洞攻擊。 然後我們就會談到什麼是CSP，包括他如何偵測及防範攻擊，以及如何使用的內容。 那就開始吧~">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/%E6%83%A1%E6%84%8F%E6%94%BB%E6%93%8A">
+<meta property="article:published_time" content="2022-10-08T05:27:08.000Z">
+<meta property="article:modified_time" content="2022-10-08T08:50:49.690Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="SOP">
+<meta property="article:tag" content="XSS">
+<meta property="article:tag" content="CSP">
+<meta property="article:tag" content="Header">
+<meta property="article:tag" content="HTTP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/%E6%83%A1%E6%84%8F%E6%94%BB%E6%93%8A">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/","path":"2022/10/08/Web_CSP/","title":"我不允許的你不能做-網頁內容安全政策content security policy"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>我不允許的你不能做-網頁內容安全政策content security policy | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">46</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">21</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E6%BA%90%E6%94%BF%E7%AD%96SOP"><span class="nav-number">2.</span> <span class="nav-text">同源政策SOP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E8%A6%81%E6%9C%89%E5%90%8C%E6%BA%90%E6%94%BF%E7%AD%96"><span class="nav-number">2.1.</span> <span class="nav-text">為什麼要有同源政策</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">2.2.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%8E%E6%A8%A3%E5%8F%AB%E5%90%8C%E6%BA%90"><span class="nav-number">2.3.</span> <span class="nav-text">怎樣叫同源?</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DOM%E6%94%BF%E7%AD%96"><span class="nav-number">2.3.1.</span> <span class="nav-text">DOM政策</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Cookie%E6%94%BF%E7%AD%96"><span class="nav-number">2.3.2.</span> <span class="nav-text">Cookie政策</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CORS-%E8%B7%A8%E7%B6%B2%E5%9F%9F%E8%B3%87%E6%BA%90%E8%AB%8B%E6%B1%82"><span class="nav-number">2.4.</span> <span class="nav-text">CORS: 跨網域資源請求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BB%E7%A0%B4%E5%90%8C%E6%BA%90%E6%94%BF%E7%AD%96%E7%9A%84%E6%94%BB%E6%93%8A"><span class="nav-number">3.</span> <span class="nav-text">攻破同源政策的攻擊</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cross-Site-Scripting-XSS"><span class="nav-number">3.1.</span> <span class="nav-text">Cross-Site Scripting, XSS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CSP"><span class="nav-number">4.</span> <span class="nav-text">CSP</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5-1"><span class="nav-number">4.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-number">4.2.</span> <span class="nav-text">使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">5.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="我不允許的你不能做-網頁內容安全政策content security policy | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          我不允許的你不能做-網頁內容安全政策content security policy
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-10-08 13:27:08 / Modified: 16:50:49" itemprop="dateCreated datePublished" datetime="2022-10-08T13:27:08+08:00">2022-10-08</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/10/08/Web_CSP/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/08/Web_CSP/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天的資訊安全主題是(content security policy, CSP)，也是一種藉由擴充Header的約定，來達成網站安全的目的。</p>
+<p>我們會先從同源政策same-origin policy說起，接著提到惡意攻擊者如何成功突破這項限制，並說明常見的漏洞攻擊。</p>
+<p>然後我們就會談到什麼是CSP，包括他如何偵測及防範攻擊，以及如何使用的內容。</p>
+<p>那就開始吧~</p>
+<span id="more"></span>
+<h2 id="同源政策SOP"><a href="#同源政策SOP" class="headerlink" title="同源政策SOP"></a>同源政策SOP</h2><h3 id="為什麼要有同源政策"><a href="#為什麼要有同源政策" class="headerlink" title="為什麼要有同源政策"></a>為什麼要有同源政策</h3><p>前面在驗證的環節時候曾說過，不管是什麼應證的方式，都會讓瀏覽器拿到一個類似身分憑證的東西，而伺服器是認證不認人的，而這個東西被儲存在個人的瀏覽器裡面。</p>
+<p>假使今天，使用者在瀏覽一個惡意網站，裡面包含一段程式碼寫著，要讀取在你個人瀏覽器內其他網站(銀行、臉書…等)的身分憑證，讀取還不打緊，資料還是在你瀏覽器，他還要把資料傳回他自己的資料庫。</p>
+<p>我們這樣看當然是不可以啦，如果有人跟你說他要你查出身分證，然後叫你交給她妳會答應嗎XD但很多在瀏覽器內發生的事情，一般的使用者並不知情，所以也就需要瀏覽器使用一套規則保護使用瀏覽器的使用者。</p>
+<p>那到底是用什麼規則保護的?</p>
+<h3 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h3><p>當我們在瀏覽器Client輸入url瀏覽網頁時，都是在Server取得相對應的資源。不同的網站有他們對應到的Server。</p>
+<p>而同源政策的概念就是指，Client端只能呼叫「同源」的資源，而跨來源的資源僅能在特定情況下才允許存取。</p>
+<p>再次注意: <strong>以下所有的討論都以瀏覽器Client作為主詞，因為只有瀏覽器為了保護Client有實現這個概念，也因為是由瀏覽器實現的，所以規則多少有些微不同，但大方向是相似的</strong></p>
+<h3 id="怎樣叫同源"><a href="#怎樣叫同源" class="headerlink" title="怎樣叫同源?"></a>怎樣叫同源?</h3><p>同源政策分兩種</p>
+<ul>
+<li>DOM政策: 決定瀏覽器讀取本地資料、嵌入外地資料、傳送的規則</li>
+<li>Cookie政策:決定cookie是否回傳給Server的政策</li>
+</ul>
+<h4 id="DOM政策"><a href="#DOM政策" class="headerlink" title="DOM政策"></a>DOM政策</h4><p>我們用一般狀況禁止，及例外允許的方式來理解DOM政策。</p>
+<p>在看待未來的DOM政策時，先判斷是否在一般狀況下，若否，則判斷是否又落於例外。</p>
+<p><strong>一般狀況下</strong></p>
+<ul>
+<li>相同協定: HTTPS, HTTP…</li>
+<li>相同port</li>
+<li>相同網域: 嚴格的，不接受子網域</li>
+</ul>
+<p>來個表格來比較一下:<br>對照: <code>https://ithelp.ithome.com.tw/articles/10290526</code></p>
+<table>
+<thead>
+<tr>
+<th>網址</th>
+<th>同源與否</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/anything">https://ithelp.ithome.com.tw/anything</a></td>
+<td>是</td>
+<td></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="http://ithelp.ithome.com.tw/articles/10290526">http://ithelp.ithome.com.tw/articles/10290526</a></td>
+<td>否</td>
+<td>協定不同</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw:81/articles/10290526">https://ithelp.ithome.com.tw:81/articles/10290526</a></td>
+<td>否</td>
+<td>port不同</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://anything.ithelp.ithome.com.tw/articles/10290526">https://anything.ithelp.ithome.com.tw/articles/10290526</a></td>
+<td>否</td>
+<td>網域不同</td>
+</tr>
+</tbody></table>
+<p><strong>例外狀況</strong><br>以下允許跨來源</p>
+<ul>
+<li>寫入: HTML標籤像是form送出(POST), link(GET), redirect(GET)</li>
+<li>嵌入: HTML標籤像是script, img, video</li>
+</ul>
+<p>特別提一下，禁止讀取，包括:</p>
+<ul>
+<li>讀取瀏覽器資料</li>
+<li>使用API讀取其他網域的資料</li>
+</ul>
+<p>於是前面提到取取瀏覽器內的資料就在這裡被擋住了。</p>
+<p><strong>例外中的例外XD</strong><br>Cookie這個東西照規則在操作的時候只能在同源的狀況下。</p>
+<p>但他有一個規則是，如果你在子網域(<a target="_blank" rel="noopener" href="https://a.example.com)的狀況下,可以修改父網域(https//example.com)%E7%9A%84cookie%E3%80%82">https://a.example.com)的狀況下，可以修改父網域(https://example.com)的cookie。</a></p>
+<p>會發生什麼呢?如果一個駭客攻破子網域，他在裡面埋了惡意程式，那你在逛子網域的時候就可能惡意修改你存在瀏覽器中父網域的cookie，而瀏覽器也允許。然後你連線母網域的時後就會將cookie帶在身上，造成風險。</p>
+<p>不過我在看資料時有兩個問題:</p>
+<ol>
+<li>頂多大規模無法登入?能造成其他危害嗎?XD</li>
+<li>這個例外是為了什麼啊…感覺沒事開了一個口</li>
+</ol>
+<p>總之大概知道子網域的安全也是蠻重要的~</p>
+<h4 id="Cookie政策"><a href="#Cookie政策" class="headerlink" title="Cookie政策"></a>Cookie政策</h4><p>這裡指的是針對瀏覽器內所存放的cookie資料(常是驗證用的資料)，並針對將Cookie回傳給Server的行為做出的規範。</p>
+<p>關於Cookie傳回，我們只要先理解，為了驗證需要，瀏覽器都會實作一個概念叫做Cookie，讓你每次訪問特定Server時都會帶著特定的Cookie，像是戴著會員卡一樣。</p>
+<p>一般而言，邏輯大致和DOM政策相同，不同的地方我加粗是:</p>
+<ul>
+<li>domain相同</li>
+<li><strong>不理會port</strong></li>
+<li><strong>可設定是否針對protocol判斷同源</strong></li>
+</ul>
+<p>這個政策的設定也是使用Header，詳細我就不多說了XD</p>
+<h3 id="CORS-跨網域資源請求"><a href="#CORS-跨網域資源請求" class="headerlink" title="CORS: 跨網域資源請求"></a>CORS: 跨網域資源請求</h3><p>因為有些服務還是有跨網域做寫入、讀取的需求，也就是跟其他不同源的Server取得服務的需要，特別是網頁在前後分離之後。</p>
+<p>所以就需要一個機制去允許有限度的跨網域，我們想像一下有可能的作法:</p>
+<ol>
+<li>由瀏覽器判斷網站裡的資料控制我可以信任誰: 會出現的問題就是惡意網站本身，他可以自由修改信任對象，那同源政策白做了XDD</li>
+<li>由Server決定他的資料可以由誰使用: 沒錯XD由Server透過設定Header決定所謂的「白名單」。</li>
+</ol>
+<p>概述他的方式就是</p>
+<ol>
+<li>瀏覽器上的網站在正式發出對於不同源Server的request前會先發一個preflight(預確認)，內容包含正式request會用的HTTP Method</li>
+<li>Server判斷是否在白名單內，會傳出相對應的Header</li>
+<li>瀏覽器看到Header會決定是否讓瀏覽器顯示</li>
+</ol>
+<p>這邊就是關鍵了XD<br>如果是GET等不用preflight的方法，事實上瀏覽器已經收到資料了，他只是選擇不讓瀏覽器顯示而已。</p>
+<p>所以開發者就會發生，明明有POSTMAN或curl都可以成功，但網頁就是出不來的狀況~~</p>
+<h2 id="攻破同源政策的攻擊"><a href="#攻破同源政策的攻擊" class="headerlink" title="攻破同源政策的攻擊"></a>攻破同源政策的攻擊</h2><p>好不容易談完SOP，我們要接著說SOP並不是完美的，所以才需要擴充的政策去解決被攻擊的狀況。</p>
+<p>首先我們要看一下，只有SOP時會怎麼被攻擊:</p>
+<h3 id="Cross-Site-Scripting-XSS"><a href="#Cross-Site-Scripting-XSS" class="headerlink" title="Cross-Site Scripting, XSS"></a>Cross-Site Scripting, XSS</h3><p>中文名稱是跨站腳本(可執行的程式碼內容)攻擊。</p>
+<p>我們先舉一個例子在定義這個攻擊:</p>
+<blockquote>
+<p>比如今天有一個部落格可以留言，而惡意攻擊者在留言的地方輸入了撰寫了<img src="惡意攻擊">，你有可能覺得很可愛，想要點擊並放大時，就受到攻擊了。<br>– <a target="_blank" rel="noopener" href="https://medium.com/on-my-way-coding/%E5%B8%B8%E8%A6%8B%E7%B6%B2%E7%AB%99%E8%B3%87%E5%AE%89%E5%95%8F%E9%A1%8C%E8%88%87%E9%98%B2%E7%A6%A6%E6%96%B9%E6%B3%95-%E5%BE%8C%E7%AB%AF%E8%A7%92%E5%BA%A6-d8ace46d3a1e">常見網站資安問題與防禦方法(後端角度)</a></p>
+</blockquote>
+<p>定義就是:</p>
+<blockquote>
+<p>在一個可輸入資料且資料可改變網站內容的網站裡輸入惡意程式碼，導致使用者的損失</p>
+</blockquote>
+<p>如果你覺得這個太淺怎麼會沒事去按(我也這麼覺得)，那你可以點開參考資料看更惡意的方式~</p>
+<p>總之，他把惡意的內容放在了被SOP允許的範圍內，以至於網頁被瀏覽器執行了，然後使用者就中招了XD</p>
+<p>一般來說，前後端都須要做的事情是需要檢驗可輸入內容的位置是否夾帶程式碼並禁止這些行為，不過自從CSP推出後，這件事情變得更容易些。</p>
+<h2 id="CSP"><a href="#CSP" class="headerlink" title="CSP"></a>CSP</h2><h3 id="概念-1"><a href="#概念-1" class="headerlink" title="概念"></a>概念</h3><p>剛剛前面提到的XSS攻擊來自於<strong>瀏覽器無條件相信網站提供的內容</strong>，以至於造成損失。<br>既然如此，我們是不是可以透過Server告訴瀏覽器，哪些來源的script是足以被信任且可以執行的?</p>
+<p>事實上也是這樣，我們再度透過擴展Header的使用約定，來實現這個技術。</p>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>使用<code>Content-Security-Policy</code></p>
+<p>其中幾項最重要的原則包括:</p>
+<ul>
+<li>最嚴格: 若有多個<code>Content-Security-Policy</code>存在，則個別以最嚴格的條件去看待，不過因為實現的是各瀏覽器，還是實際測試好</li>
+<li>規則定義:<ul>
+<li><source>-src: 各式以-src為結尾的限制；像是image-src, iframe-src</li>
+<li>navigation: 管理可以打開的連結、或可發出的表單連結</li>
+</ul>
+</li>
+<li>report功能: <code>Content-Security-Policy-Report-Only</code>，使用這個功能可以測試及實驗CSP的功能，他僅會回傳報告但不會實際作動</li>
+</ul>
+<p>透過這個設定，如果Server對於輸入有沒有篩除到的地方就可以用這個方法在擋下第二層了。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>結果我們談SOP比談CSP來的更多XD</p>
+<p>但這其實是有意義的，從這樣的脈絡看下來，我們可以發現:</p>
+<blockquote>
+<p>CSP這個技術就是對同源政策SOP的例外再做出約束，主要是希望能在使用性跟安全性上做出客製化的調整。</p>
+</blockquote>
+<p>好啦，今天就這樣囉，明天見!</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">Content Security Policy (CSP)</a><br><a target="_blank" rel="noopener" href="https://web.dev/csp/">Content security policy</a><br><a target="_blank" rel="noopener" href="https://medium.com/%E7%A8%8B%E5%BC%8F%E7%8C%BF%E5%90%83%E9%A6%99%E8%95%89/same-origin-policy-%E5%90%8C%E6%BA%90%E6%94%BF%E7%AD%96-%E4%B8%80%E5%88%87%E5%AE%89%E5%85%A8%E7%9A%84%E5%9F%BA%E7%A4%8E-36432565a226">網站安全🔒 Same Origin Policy 同源政策 ! 一切安全的基礎</a><br><a target="_blank" rel="noopener" href="https://medium.someone.tw/web-%E5%BE%B9%E5%BA%95%E7%90%86%E8%A7%A3%E5%90%8C%E6%BA%90%E6%94%BF%E7%AD%96-same-origin-policy-3e884e4e8919">【Web】徹底理解同源政策（Same Origin Policy）</a><br><a target="_blank" rel="noopener" href="https://medium.com/on-my-way-coding/%E5%B8%B8%E8%A6%8B%E7%B6%B2%E7%AB%99%E8%B3%87%E5%AE%89%E5%95%8F%E9%A1%8C%E8%88%87%E9%98%B2%E7%A6%A6%E6%96%B9%E6%B3%95-%E5%BE%8C%E7%AB%AF%E8%A7%92%E5%BA%A6-d8ace46d3a1e">常見網站資安問題與防禦方法(後端角度)</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/" title="我不允許的你不能做-網頁內容安全政策content security policy">https://tim80411.github.io/code-blog/2022/10/08/Web_CSP/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/SOP/" rel="tag"># SOP</a>
+              <a href="/code-blog/tags/XSS/" rel="tag"># XSS</a>
+              <a href="/code-blog/tags/CSP/" rel="tag"># CSP</a>
+              <a href="/code-blog/tags/Header/" rel="tag"># Header</a>
+              <a href="/code-blog/tags/HTTP/" rel="tag"># HTTP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/10/07/Network_Https/" rel="prev" title="說只有對方聽得懂的話-HTTPS & SSL & TLS">
+                  <i class="fa fa-chevron-left"></i> 說只有對方聽得懂的話-HTTPS & SSL & TLS
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">51k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">47 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
