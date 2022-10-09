@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言OWASP是一個線上社群、非營利組織，全名為開放軟體安全計畫Open Web Application Security Project，在全世界有許多分會，這個組織主要目標是研究及討論網路軟體安全的標準、工具、文件。 這個組織同時會進行許多計畫，不過我們今天要討論的是他發佈的「十大網路弱點防護守則」，這個守則也被許多組織列為必要文件。 在2017年有一版，可以看這個參考資料; 而在2021年時">
+<meta property="og:type" content="article">
+<meta property="og:title" content="十個好弱點，不保護嗎?-OWASP security risk">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/09/Web_OWASP/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言OWASP是一個線上社群、非營利組織，全名為開放軟體安全計畫Open Web Application Security Project，在全世界有許多分會，這個組織主要目標是研究及討論網路軟體安全的標準、工具、文件。 這個組織同時會進行許多計畫，不過我們今天要討論的是他發佈的「十大網路弱點防護守則」，這個守則也被許多組織列為必要文件。 在2017年有一版，可以看這個參考資料; 而在2021年時">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.imgur.com/Pw5dWY2.png">
+<meta property="article:published_time" content="2022-10-09T07:13:10.000Z">
+<meta property="article:modified_time" content="2022-10-09T15:02:47.556Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/Pw5dWY2.png">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/09/Web_OWASP/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/09/Web_OWASP/","path":"2022/10/09/Web_OWASP/","title":"十個好弱點，不保護嗎?-OWASP security risk"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>十個好弱點，不保護嗎?-OWASP security risk | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">46</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">22</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B0%A1%E4%BB%8B"><span class="nav-number">2.</span> <span class="nav-text">簡介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A01-2021-Broken-Access-Control"><span class="nav-number">3.</span> <span class="nav-text">A01:2021-Broken Access Control</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E"><span class="nav-number">3.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2"><span class="nav-number">3.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A02-2021-%E2%80%93-Cryptographic-Failures"><span class="nav-number">4.</span> <span class="nav-text">A02:2021 – Cryptographic Failures</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-1"><span class="nav-number">4.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-1"><span class="nav-number">4.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A03-2021-%E2%80%93-Injection"><span class="nav-number">5.</span> <span class="nav-text">A03:2021 – Injection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-2"><span class="nav-number">5.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-2"><span class="nav-number">5.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A04-2021-%E2%80%93-Insecure-Design"><span class="nav-number">6.</span> <span class="nav-text">A04:2021 – Insecure Design</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-3"><span class="nav-number">6.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E8%B7%9F%E6%88%91%E7%9A%84%E7%90%86%E8%A7%A3"><span class="nav-number">6.2.</span> <span class="nav-text">示例跟我的理解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A05-2021-%E2%80%93-Security-Misconfiguration"><span class="nav-number">7.</span> <span class="nav-text">A05:2021 – Security Misconfiguration</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-4"><span class="nav-number">7.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-3"><span class="nav-number">7.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A06-2021-%E2%80%93-Vulnerable-and-Outdated-Components"><span class="nav-number">8.</span> <span class="nav-text">A06:2021 – Vulnerable and Outdated Components</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-5"><span class="nav-number">8.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-4"><span class="nav-number">8.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A07-2021-%E2%80%93-Identification-and-Authentication-Failures"><span class="nav-number">9.</span> <span class="nav-text">A07:2021 – Identification and Authentication Failures</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-6"><span class="nav-number">9.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-5"><span class="nav-number">9.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A08-2021-%E2%80%93-Software-and-Data-Integrity-Failures"><span class="nav-number">10.</span> <span class="nav-text">A08:2021 – Software and Data Integrity Failures</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-7"><span class="nav-number">10.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-6"><span class="nav-number">10.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A09-2021-%E2%80%93-Security-Logging-and-Monitoring-Failures"><span class="nav-number">11.</span> <span class="nav-text">A09:2021 – Security Logging and Monitoring Failures</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-8"><span class="nav-number">11.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-7"><span class="nav-number">11.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A10-2021-%E2%80%93-Server-Side-Request-Forgery-SSRF"><span class="nav-number">12.</span> <span class="nav-text">A10:2021 – Server-Side Request Forgery (SSRF)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E-9"><span class="nav-number">12.1.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A0%90%E9%98%B2-8"><span class="nav-number">12.2.</span> <span class="nav-text">預防</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8D%E8%A9%9E%E8%A7%A3%E9%87%8B"><span class="nav-number">13.</span> <span class="nav-text">名詞解釋</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A8%BB1-CWE-201%EF%BC%9A%E5%B0%87%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%8F%92%E5%85%A5%E7%99%BC%E9%80%81%E6%95%B8%E6%93%9A"><span class="nav-number">13.1.</span> <span class="nav-text">註1: CWE-201：將敏感信息插入發送數據</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">14.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">15.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">46</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/09/Web_OWASP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="十個好弱點，不保護嗎?-OWASP security risk | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          十個好弱點，不保護嗎?-OWASP security risk
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-10-09 15:13:10 / Modified: 23:02:47" itemprop="dateCreated datePublished" datetime="2022-10-09T15:13:10+08:00">2022-10-09</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/10/09/Web_OWASP/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/09/Web_OWASP/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>4 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>OWASP是一個線上社群、非營利組織，全名為開放軟體安全計畫Open Web Application Security Project，在全世界有許多分會，這個組織主要目標是研究及討論網路軟體安全的標準、工具、文件。</p>
+<p>這個組織同時會進行許多計畫，不過我們今天要討論的是他發佈的「十大網路弱點防護守則」，這個守則也被許多組織列為必要文件。</p>
+<p>在2017年有一版，可以看這個<a target="_blank" rel="noopener" href="https://owasp.org/www-pdf-archive/OWASP_Top_10-2017_%28en%29.pdf.pdf">參考資料</a>; 而在2021年時做了更新，來看一下最新版的Top 10提到了什麼？</p>
+<span id="more"></span>
+<h2 id="簡介"><a href="#簡介" class="headerlink" title="簡介"></a>簡介</h2><p>這個Top 10的定義為何呢？</p>
+<blockquote>
+<p>The OWASP Top 10 is a standard awareness document for developers and web application security. It represents a broad consensus about the most critical security risks to web applications.</p>
+</blockquote>
+<p>根據官方的文件，這指的是OWASP共識而來十項他們認為最為關鍵的網路安全風險。</p>
+<p>從2017-2021的變化如下<br><img src="https://i.imgur.com/Pw5dWY2.png" alt="圖 1"></p>
+<blockquote>
+<p>from <a target="_blank" rel="noopener" href="https://owasp.org/www-project-top-ten/">OWASP Top Ten</a></p>
+</blockquote>
+<h2 id="A01-2021-Broken-Access-Control"><a href="#A01-2021-Broken-Access-Control" class="headerlink" title="A01:2021-Broken Access Control"></a>A01:2021-Broken Access Control</h2><h3 id="說明"><a href="#說明" class="headerlink" title="說明"></a>說明</h3><p>相對於2017年的第五名，在2021年被上升到第一名。</p>
+<p>他們對將近94%的網路應用程式做了某種形式的測試，其中有3.81%出現這個類型的錯誤。</p>
+<p>最值得注意的弱點包括: CWE-200：暴露機敏信息給未授權者、CWE-201：將敏感信息插入發送數據(註1)和​​CWE-352：跨站請求偽造(CSRF)。</p>
+<h3 id="預防"><a href="#預防" class="headerlink" title="預防"></a>預防</h3><p>登入控制Access Control僅能在server-side或是server-less的api中控制，讓攻擊者無法直接修改登入控制相關程式碼或是其他可能影響登入控制的metadata(描述資料的資料)。</p>
+<p>根據文件舉出幾點:</p>
+<ul>
+<li>Access Control機制應該被共用，而不是在同一個服務中有多種機制</li>
+<li>應該記錄所有的Access，並不讓使用者有可以對資料做CRUD的權限</li>
+<li>做rate limit避免類似DDoS等自動化工具的攻擊</li>
+<li>讓token能夠被失效，若有無法失效的JWT應該給予短暫的有效期限，若有長壽的JWT，強列建議遵循OAuth標準來撤銷權限。</li>
+</ul>
+<h2 id="A02-2021-–-Cryptographic-Failures"><a href="#A02-2021-–-Cryptographic-Failures" class="headerlink" title="A02:2021 – Cryptographic Failures"></a>A02:2021 – Cryptographic Failures</h2><h3 id="說明-1"><a href="#說明-1" class="headerlink" title="說明"></a>說明</h3><p>位置由#3變成#2，以前稱為Sensitive Data Expose，改名的原因是因為先前的命名更像是現象，而不是原因。</p>
+<p>主要原因在此列出是密碼學的相關失敗，常會導致資料的暴露，常見的風險包括: 使用寫死(固定)的金鑰加密、使用損壞或有風險的加密演算法、隨機度不夠高(熵低)</p>
+<h3 id="預防-1"><a href="#預防-1" class="headerlink" title="預防"></a>預防</h3><p>總結是：對敏感資料加密，時常關注加密演算法的變化，時時注意更新。</p>
+<p>另外根據文件列出以下幾點：</p>
+<ul>
+<li>需要做到<ul>
+<li>將資料作出分類，並可根據隱私法、監管法、業務需求列出敏感資料的類別</li>
+<li>靜態敏感資料需要被加密</li>
+<li>確保採用最新的演算法、協定及金鑰，並妥善保管金鑰</li>
+<li>使用安全協議加密所有傳輸時的數據: 包括前向(FS)、強制HTTPS(HSTS)等</li>
+<li>使用有自適應性(可設置迴圈應付進步的算力)、加鹽敏感的慢雜湊演算法雜湊密碼後儲存，例: bcrypt</li>
+</ul>
+</li>
+<li>不要這麼做<ul>
+<li>不保存不必要的敏感資料，在丟棄時注意不能被竊取</li>
+<li>禁止緩存敏感資料</li>
+<li>不要用FTP或SMTP傳輸敏感資料</li>
+<li>不使用已被驗證為低強度的加密或雜湊演算法: MD5, SHA1…等</li>
+</ul>
+</li>
+</ul>
+<h2 id="A03-2021-–-Injection"><a href="#A03-2021-–-Injection" class="headerlink" title="A03:2021 – Injection"></a>A03:2021 – Injection</h2><h3 id="說明-2"><a href="#說明-2" class="headerlink" title="說明"></a>說明</h3><p>指的是透過各種由網站允許的輸入方式將惡意資料放入了資料庫中，或直接被程式使用(例如參數)。</p>
+<h3 id="預防-2"><a href="#預防-2" class="headerlink" title="預防"></a>預防</h3><p>總結來說: 將數據和命令查詢分開</p>
+<p>以下列舉幾點官方建議:</p>
+<ul>
+<li>避免讓輸入的資料直接被interpreter直接解讀，使用安全的API、使用參數化接口或使用ORM</li>
+<li>使用limit或其他設定讓資料在洩露時能被控制在一定範圍內</li>
+</ul>
+<h2 id="A04-2021-–-Insecure-Design"><a href="#A04-2021-–-Insecure-Design" class="headerlink" title="A04:2021 – Insecure Design"></a>A04:2021 – Insecure Design</h2><h3 id="說明-3"><a href="#說明-3" class="headerlink" title="說明"></a>說明</h3><p>是2021年的一個新分類，關注的部分是設計跟架構有關的缺陷，他的目的是在呼籲大家使用安全的設計模式。</p>
+<p>這個分類重點在於「不安全的設計」，並指出「不安全的設計」與「不安全的實現」（也就是其他分類的總和）是有區別的，並提到若不安全的設計出現問題，是無法靠完美的實現來解決。</p>
+<p>並指出，這些分類的根本問題在於對於開發中的應用程式或系統缺乏必要的業務風險分析。</p>
+<h3 id="示例跟我的理解"><a href="#示例跟我的理解" class="headerlink" title="示例跟我的理解"></a>示例跟我的理解</h3><p>因為這項分類太難以理解，每個字都看得懂，但合起來就不懂了…</p>
+<p>於是我們看一下官方例子：</p>
+<ul>
+<li>一家電影院允許團體預訂折扣，攻擊者可以透過threat modeling看是否可以在幾個請求完成對所有電影院大量座位的訂購，從而造成電影院的損失。</li>
+<li>一間零售電商並未針對高端顯卡有對於自動訂購程序的保護，於是所有顯卡都被黃牛買走，造成不良形象的影響。</li>
+</ul>
+<p>我覺得第二個例子會比較好明白這個分類想描述的狀況: </p>
+<blockquote>
+<p>顯卡被買走的流程是正常的，但他造成的業務損失(品牌形象)反而變得更為嚴重，這就源自於對於商業風險分析的缺乏，以致於無法注意到在開發時應著重於對於這樣流程正常但反倒造成損失的狀況作出預先的回應</p>
+</blockquote>
+<h2 id="A05-2021-–-Security-Misconfiguration"><a href="#A05-2021-–-Security-Misconfiguration" class="headerlink" title="A05:2021 – Security Misconfiguration"></a>A05:2021 – Security Misconfiguration</h2><h3 id="說明-4"><a href="#說明-4" class="headerlink" title="說明"></a>說明</h3><p>在應用程式有關的相關設置，像HTTP、雲端基礎設施…等設置不良</p>
+<p>例如:</p>
+<ul>
+<li>啟用或安裝不必要的服務: 因使用第三方廣告服務需設置CNAME，但後續停用後未處理，導致盜用，整個Domain被撤銷。</li>
+<li>錯誤處理向用戶顯示stack info或是過多的錯誤資訊</li>
+<li>未設置與安全性相關的HTTP Header</li>
+<li>default account仍保持啟用</li>
+</ul>
+<h3 id="預防-3"><a href="#預防-3" class="headerlink" title="預防"></a>預防</h3><p>安全的各環境安裝過程，包括:</p>
+<ul>
+<li>自動化的開發環境建立: 將開發人員的環境打包起來自動化建立，避免人為錯誤</li>
+<li>最小化的平台，避免所有不必要的內容及設置，ex: 工具、文件及服務</li>
+</ul>
+<h2 id="A06-2021-–-Vulnerable-and-Outdated-Components"><a href="#A06-2021-–-Vulnerable-and-Outdated-Components" class="headerlink" title="A06:2021 – Vulnerable and Outdated Components"></a>A06:2021 – Vulnerable and Outdated Components</h2><h3 id="說明-5"><a href="#說明-5" class="headerlink" title="說明"></a>說明</h3><p>這裡指的就是你的應用程式有任何依賴的基礎或組件，包含系統或套件等具有安全風險。</p>
+<h3 id="預防-4"><a href="#預防-4" class="headerlink" title="預防"></a>預防</h3><p>總結來說: 應該有一個對於依賴的管理流程處理關於依賴的安全風險</p>
+<p>包括幾項:</p>
+<ul>
+<li>刪除未使用的依賴</li>
+<li>訂閱與依賴相關的安全警報</li>
+<li>使用工具做依賴的風險檢查，像是OWASP依賴檢查、retire.js</li>
+<li>通過安全管道從官方取得所需依賴</li>
+<li>監控停止維護的套件，並在出現相關風險時</li>
+</ul>
+<h2 id="A07-2021-–-Identification-and-Authentication-Failures"><a href="#A07-2021-–-Identification-and-Authentication-Failures" class="headerlink" title="A07:2021 – Identification and Authentication Failures"></a>A07:2021 – Identification and Authentication Failures</h2><h3 id="說明-6"><a href="#說明-6" class="headerlink" title="說明"></a>說明</h3><p>這邊指的是應用程式在對於用戶身份認證的弱點</p>
+<p>包括：</p>
+<ul>
+<li>在URL中暴露Session token</li>
+<li>允許弱密碼、眾所皆知的密碼</li>
+<li>不能正確的失效Session</li>
+</ul>
+<h3 id="預防-5"><a href="#預防-5" class="headerlink" title="預防"></a>預防</h3><ul>
+<li>實現多因素認證</li>
+<li>弱密碼檢查</li>
+</ul>
+<h2 id="A08-2021-–-Software-and-Data-Integrity-Failures"><a href="#A08-2021-–-Software-and-Data-Integrity-Failures" class="headerlink" title="A08:2021 – Software and Data Integrity Failures"></a>A08:2021 – Software and Data Integrity Failures</h2><h3 id="說明-7"><a href="#說明-7" class="headerlink" title="說明"></a>說明</h3><p>在2021年產生的新共識，在無法或未驗證完整性的狀況下，對應用程式的組件、關鍵數據和CICD的流程有樂觀的假設。</p>
+<p>這項分類來自於不能保持資料完整性的程式碼與基礎設施有關。</p>
+<p>這個弱點讓我想到在2022年初的faker及colors套件<a target="_blank" rel="noopener" href="https://www.ithome.com.tw/news/148822">意外</a>，有依賴於此library的應用程式都受到影響。</p>
+<h3 id="預防-6"><a href="#預防-6" class="headerlink" title="預防"></a>預防</h3><p>軟體供應鏈的安全性近年來逐漸受到重視，其中包含:</p>
+<ul>
+<li>使用signature來驗證組件是否來自官方並且未經修改</li>
+<li>使用軟體供應鏈安全工具來驗證組件沒有包含已知漏洞</li>
+<li>確保CICD的執行過程有得到適當的隔離、設置(configuration)、權限控制</li>
+</ul>
+<h2 id="A09-2021-–-Security-Logging-and-Monitoring-Failures"><a href="#A09-2021-–-Security-Logging-and-Monitoring-Failures" class="headerlink" title="A09:2021 – Security Logging and Monitoring Failures"></a>A09:2021 – Security Logging and Monitoring Failures</h2><h3 id="說明-8"><a href="#說明-8" class="headerlink" title="說明"></a>說明</h3><p>此類弱點是指，是否有足夠且必要的監控及訊息紀錄以確保責任、事件警報、取證能被完善。</p>
+<p>所以這個類別主要在確保其他類別的錯誤能被檢測、警報，常見的問題包含：</p>
+<ul>
+<li>可被查核(Auditable)的資料未被記錄，像是: 登入、交易、錯誤報告</li>
+<li>log僅存在本地</li>
+<li>應用程序對於攻擊無法實時進行通報</li>
+</ul>
+<h3 id="預防-7"><a href="#預防-7" class="headerlink" title="預防"></a>預防</h3><p>根據應用程式的風險分析，可以執行的包括:</p>
+<ul>
+<li>確保有日誌管理機制可以輕鬆的建立log</li>
+<li>對應用程式建立有效的警報系統</li>
+<li>確保有保留足夠充分的登入資料已驗證登入身份，以檢查惡意帳戶及身份</li>
+</ul>
+<h2 id="A10-2021-–-Server-Side-Request-Forgery-SSRF"><a href="#A10-2021-–-Server-Side-Request-Forgery-SSRF" class="headerlink" title="A10:2021 – Server-Side Request Forgery (SSRF)"></a>A10:2021 – Server-Side Request Forgery (SSRF)</h2><h3 id="說明-9"><a href="#說明-9" class="headerlink" title="說明"></a>說明</h3><p>這項攻擊是利用client &#x3D;&gt; middle Server &#x3D;&gt; internal Server 這樣的結構，透過middle Server與internal Server中間防禦較弱的特性。</p>
+<p>將經過特別設計的url透過middle Server傳給internal Server達成攻擊。</p>
+<h3 id="預防-8"><a href="#預防-8" class="headerlink" title="預防"></a>預防</h3><ul>
+<li>驗證所有從用戶端而來的資料</li>
+<li>禁用HTTP redirect</li>
+<li>強制url有他固定的目標</li>
+<li>不向用戶發出 raw response</li>
+</ul>
+<h2 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h2><h3 id="註1-CWE-201：將敏感信息插入發送數據"><a href="#註1-CWE-201：將敏感信息插入發送數據" class="headerlink" title="註1: CWE-201：將敏感信息插入發送數據"></a>註1: <a target="_blank" rel="noopener" href="https://cwe.mitre.org/data/definitions/201.html">CWE-201：將敏感信息插入發送數據</a></h3><p>CWE-201比較模糊一點，更多解釋是: </p>
+<blockquote>
+<p>The code transmits data to another actor, but a portion of the data includes sensitive information that should not be accessible to that actor.</p>
+</blockquote>
+<p>意指你將資料傳給一個授權者，但資料裡面包含機敏訊息，可能包括驗證用資料，或是能更近一步利用系統的資訊。</p>
+<p>官方舉了一個例子是如果在資料錯誤發生時直接回傳，將暴露登入的資料結構給對方。:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Warning: mysql_pconnect(): Access denied <span class="keyword">for</span> <span class="keyword">user</span>: <span class="string">&#x27;root@localhost&#x27;</span> (<span class="keyword">Using</span> password: N1nj4) <span class="keyword">in</span> <span class="operator">/</span>usr<span class="operator">/</span><span class="keyword">local</span><span class="operator">/</span>www<span class="operator">/</span>wi<span class="operator">-</span>data<span class="operator">/</span>includes<span class="operator">/</span>database.inc <span class="keyword">on</span> line <span class="number">4</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>今天是文件翻譯日…XD<br>是蠻值得去官方看看，有相關知識，在開發的時候會比較容易注意到一些資訊安全的壞味道也是好的～</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://owasp.org/www-project-top-ten/">OWASP Top Ten</a><br><a target="_blank" rel="noopener" href="https://medium.com/%E7%A8%8B%E5%BC%8F%E7%8C%BF%E5%90%83%E9%A6%99%E8%95%89/%E7%B6%B2%E7%AB%99%E5%AE%89%E5%85%A8-%E4%BC%BA%E6%9C%8D%E5%99%A8%E8%AB%8B%E6%B1%82%E5%81%BD%E9%80%A0-ssrf-%E6%94%BB%E6%93%8A-%E9%A0%85%E8%8E%8A%E8%88%9E%E5%8A%8D-%E6%84%8F%E5%9C%A8%E6%B2%9B%E5%85%AC-7a5524926362">網站安全🔒 伺服器端請求偽造 SSRF 攻擊 — 「項莊舞劍，意在沛公」</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2022/10/09/Web_OWASP/" title="十個好弱點，不保護嗎?-OWASP security risk">https://tim80411.github.io/code-blog/2022/10/09/Web_OWASP/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/10/08/Web_CSP/" rel="prev" title="我不允許的你不能做-網頁內容安全政策content security policy">
+                  <i class="fa fa-chevron-left"></i> 我不允許的你不能做-網頁內容安全政策content security policy
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">55k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">50 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>

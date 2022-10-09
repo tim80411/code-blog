@@ -96,7 +96,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">46</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">21</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">46</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">22</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
         </a>
@@ -167,7 +167,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/code-blog/archives/">
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">22</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -227,6 +227,115 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/29/DB_Relational/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/code-blog/2022/09/29/DB_Relational/" class="post-title-link" itemprop="url">db大觀園(上)-關聯式資料庫overview</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-09-29 12:39:03" itemprop="dateCreated datePublished" datetime="2022-09-29T12:39:03+08:00">2022-09-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/09/29/DB_Relational/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/29/DB_Relational/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>1 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>開始進入DB的範圍，DB目前分兩類，SQL及No SQL，No SQL並不真的算是一種種類，他比較算是集合，所以兩者的意思說起來應該是:</p>
+<blockquote>
+<p>SQL DB跟那些不是SQL的DB</p>
+</blockquote>
+<p>SQL也就是今天要聊的relational DB到底有什麼了不起的地方，竟然讓除了他以外的DB都被分成一類。<br>這就是好像有天有人跟你說，這世界上的飲料只分成烏弄跟不是烏弄得一樣XD</p>
+<p>另外其實SQL裡面也分了很多不同的DB，那他們有什麼樣相同的特性，讓他們既是不同的DB卻被通稱為SQL DB呢?<br>我們今天也會稍微看看他們彼此的特色~</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/code-blog/2022/09/29/DB_Relational/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/28/OS_POSIX_Basics/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -263,7 +372,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -372,7 +481,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -477,7 +586,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -581,7 +690,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -686,7 +795,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -792,7 +901,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -896,7 +1005,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -1000,7 +1109,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -1107,7 +1216,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
+      <time title="Modified: 2022-10-09 23:02:47" itemprop="dateModified" datetime="2022-10-09T23:02:47+08:00">2022-10-09</time>
     </span>
 
   
@@ -1171,111 +1280,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/19/Network_DNS/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
-      <meta itemprop="name" content="Timothy Liao">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Timothy Coding Ground">
-      <meta itemprop="description" content="Coding Learning Writing">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Timothy Coding Ground">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/code-blog/2022/09/19/Network_DNS/" class="post-title-link" itemprop="url">自己家的地址自己取-網域(domain) v.s. 網域名稱系統(domain name system)</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-09-19 12:15:10" itemprop="dateCreated datePublished" datetime="2022-09-19T12:15:10+08:00">2022-09-19</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-08 16:50:49" itemprop="dateModified" datetime="2022-10-08T16:50:49+08:00">2022-10-08</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/code-blog/2022/09/19/Network_DNS/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/19/Network_DNS/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-    <span class="post-meta-item" title="Reading time">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">Reading time &asymp;</span>
-      <span>1 mins.</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>域名讓網頁的ip地址轉變成能夠被人類理解的內容，根據維基百科的資料，到2022年已經有超過5億的域名登記註冊。</p>
-<p>今天要稍微深入看一下Domain name這個部分的內容，內容應該會包含域名的結構、域名系統(DNS)如何在client要求與建立連線時將正確的ip交付。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/code-blog/2022/09/19/Network_DNS/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <a class="extend prev" rel="prev" href="/code-blog/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/code-blog/">1</a><span class="page-number current">2</span><a class="page-number" href="/code-blog/page/3/">3</a><a class="extend next" rel="next" href="/code-blog/page/3/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
@@ -1300,13 +1304,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="Symbols count total">51k</span>
+    <span title="Symbols count total">55k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">47 mins.</span>
+    <span title="Reading time total">50 mins.</span>
   </span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
