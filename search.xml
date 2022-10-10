@@ -1615,6 +1615,57 @@
       </tags>
   </entry>
   <entry>
+    <title>給工程師吃個定心陲-測試Testing</title>
+    <url>/code-blog/2022/10/10/Test_Overview/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>關於測試，其實是一個很大的主題，所以今天的目標放在建立對測試廣泛的認識，內容包括: 測試的定義、測試的好處等，並也會簡介兩個對於後端工程師常見的測試種類: 單元測試Unit test、整合測試Integration。</p>
+<span id="more"></span>
+<h2 id="什麼是測試"><a href="#什麼是測試" class="headerlink" title="什麼是測試?"></a>什麼是測試?</h2><p>定義是一種檢查應用程式是否符合預期規格並確保產品沒有例外的方法。</p>
+<p>但就我的理解簡單來說，就是透過提前使用，試圖找到單純寫程式時沒發現的錯誤(bug)。</p>
+<h2 id="測試的好處"><a href="#測試的好處" class="headerlink" title="測試的好處"></a>測試的好處</h2><p>總的來說就是減少錯誤造成的長期成本，其中包括:</p>
+<ul>
+<li><p>開發&#x2F;維護成本:<br>越早發現bug，工程師可以用越少的成本修復他，上線後常見的問題像是相容性，IOS及Android仰賴後端提供API完成商業邏輯，如果其中發現錯誤，就算修復，也得要考慮使用舊版本的用戶是否造成crash，所以需要考慮比較複雜的修復方式。</p>
+</li>
+<li><p>因錯誤造成的損失:<br>最常見的錯誤可以從遊戲、電商裡面發現，金流方面的錯誤，可能造成的損失是直接的，比如買到低於成本的商品，或因為錯誤導致服務無法持續，損失營業收入。</p>
+</li>
+<li><p>品牌成本:<br>若系統時常發生錯誤，可能導致長期失去用戶信心，減少滿意度。</p>
+</li>
+</ul>
+<h2 id="軟體測試金字塔"><a href="#軟體測試金字塔" class="headerlink" title="軟體測試金字塔"></a>軟體測試金字塔</h2><p>測試金字塔是一個概念，他列出了應該包含在自動化測試中的測試類型，意指，其實還有更多的測試是這裡沒包含到的，但對於一個後端工程師來說，有這樣的觀念最為基礎我認為是足夠了。</p>
+<p>另外這個金字塔視覺化了這些測試的順序跟頻率，由下往上，頻率從多到少、順序由先到後。</p>
+<p><img src="https://i.imgur.com/AZfUdrR.png" alt="圖 16">  </p>
+<p>接著就稍微簡介一下單元測試及整合測試。</p>
+<h2 id="單元測試"><a href="#單元測試" class="headerlink" title="單元測試"></a>單元測試</h2><p>以程式碼的最小單位來做測試，以JS來說通常就是Function。</p>
+<p>這個測試的目的在於確保程式邏輯正確。</p>
+<p>好處包括:</p>
+<ul>
+<li>執行速度快</li>
+<li>隔離相對小的錯誤範圍</li>
+<li>可靠度高</li>
+</ul>
+<p>不過因為對於一開始撰寫測試的人來說，</p>
+<h2 id="整合測試"><a href="#整合測試" class="headerlink" title="整合測試"></a>整合測試</h2><p>難以找到比這個更好的例子XD<br><img src="https://user-images.githubusercontent.com/88981/52933895-c0d47600-338f-11e9-9034-11e1ad0c42f1.gif" alt="圖 17">  </p>
+<p>匯集多個模組共同測試，目的在於確保模組間的互動正確，相對於單元測試，為了納入更多互動時的變因，都會準備一個更完整的測試環境，確保完成的測試真的能確定互動無誤。</p>
+<p>好處包括:</p>
+<ul>
+<li>確保模組互動正常</li>
+<li>對於程式有更高的可信度</li>
+</ul>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>測試的好處這麼多，是不是每個網站都要寫測試呢?</p>
+<p>will保哥其實有提到一些判斷標準可以作為參考:</p>
+<blockquote>
+<p>所以你在開始撰寫端對端測試之前，應該還是要先想想：<br>你的網站是否有重要的功能需要被保護?<br>你的網站是否有穩定的需求需要被保護?</p>
+</blockquote>
+<p>今天初探測試就到這邊啦~</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://www.browserstack.com/guide/testing-pyramid-for-test-automation">Testing Pyramid : How to jumpstart Test Automation</a><br><a href="https://www.guru99.com/software-testing-introduction-importance.html">What is Software Testing? Definition</a><br><a href="https://ithelp.ithome.com.tw/articles/10230034">鼠年全馬鐵人挑戰 WEEK 03：軟體測試的種類 - 第二集</a><br><a href="https://blog.miniasp.com/post/2019/02/18/Unit-testing-Integration-testing-e2e-testing">一次搞懂單元測試、整合測試、端對端測試之間的差異</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>Testing</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>我不允許的你不能做-網頁內容安全政策content security policy</title>
     <url>/code-blog/2022/10/08/Web_CSP/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天的資訊安全主題是(content security policy, CSP)，也是一種藉由擴充Header的約定，來達成網站安全的目的。</p>
@@ -1989,6 +2040,7 @@
       <tags>
         <tag>鐵人賽</tag>
         <tag>Backend</tag>
+        <tag>OWASP</tag>
       </tags>
   </entry>
 </search>

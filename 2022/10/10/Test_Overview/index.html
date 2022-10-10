@@ -19,31 +19,33 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
-    <meta name="description" content="前言從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。 稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫">
+    <meta name="description" content="前言關於測試，其實是一個很大的主題，所以今天的目標放在建立對測試廣泛的認識，內容包括: 測試的定義、測試的好處等，並也會簡介兩個對於後端工程師常見的測試種類: 單元測試Unit test、整合測試Integration。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="作業系統(Operating System&#x2F;OS) Overview(上)">
-<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/index.html">
+<meta property="og:title" content="給工程師吃個定心陲-測試Testing">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
-<meta property="og:description" content="前言從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。 稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫">
+<meta property="og:description" content="前言關於測試，其實是一個很大的主題，所以今天的目標放在建立對測試廣泛的認識，內容包括: 測試的定義、測試的好處等，並也會簡介兩個對於後端工程師常見的測試種類: 單元測試Unit test、整合測試Integration。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-09-21T04:08:02.000Z">
+<meta property="og:image" content="https://i.imgur.com/AZfUdrR.png">
+<meta property="og:image" content="https://user-images.githubusercontent.com/88981/52933895-c0d47600-338f-11e9-9034-11e1ad0c42f1.gif">
+<meta property="article:published_time" content="2022-10-10T04:25:43.000Z">
 <meta property="article:modified_time" content="2022-10-10T08:11:56.333Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
 <meta property="article:tag" content="Backend">
-<meta property="article:tag" content="OS">
-<meta property="article:tag" content="CPU Scheduling">
+<meta property="article:tag" content="Testing">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/AZfUdrR.png">
 
 
-<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/">
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/","path":"2022/09/21/OS_System-Concept_Overview/","title":"作業系統(Operating System/OS) Overview(上)"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/","path":"2022/10/10/Test_Overview/","title":"給工程師吃個定心陲-測試Testing"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>作業系統(Operating System/OS) Overview(上) | Timothy Coding Ground</title>
+<title>給工程師吃個定心陲-測試Testing | Timothy Coding Ground</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
@@ -158,7 +160,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E7%BE%A9"><span class="nav-number">2.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E9%80%94"><span class="nav-number">3.</span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1%E8%88%87%E7%A1%AC%E9%AB%94%E7%9A%84%E4%BA%92%E5%8B%95"><span class="nav-number">4.</span> <span class="nav-text">作業系統與硬體的互動</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8D%E8%A9%9E%E8%A7%A3%E9%87%8B"><span class="nav-number">5.</span> <span class="nav-text">名詞解釋</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU-Scheduling-Short-term-Scheduling"><span class="nav-number">5.1.</span> <span class="nav-text">CPU Scheduling(Short-term Scheduling)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Context-Switching"><span class="nav-number">5.2.</span> <span class="nav-text">Context Switching</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">6.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E9%BA%BC%E6%98%AF%E6%B8%AC%E8%A9%A6"><span class="nav-number">2.</span> <span class="nav-text">什麼是測試?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%AC%E8%A9%A6%E7%9A%84%E5%A5%BD%E8%99%95"><span class="nav-number">3.</span> <span class="nav-text">測試的好處</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BB%9F%E9%AB%94%E6%B8%AC%E8%A9%A6%E9%87%91%E5%AD%97%E5%A1%94"><span class="nav-number">4.</span> <span class="nav-text">軟體測試金字塔</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%96%AE%E5%85%83%E6%B8%AC%E8%A9%A6"><span class="nav-number">5.</span> <span class="nav-text">單元測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E5%90%88%E6%B8%AC%E8%A9%A6"><span class="nav-number">6.</span> <span class="nav-text">整合測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">7.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">8.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -234,7 +236,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -247,12 +249,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="作業系統(Operating System/OS) Overview(上) | Timothy Coding Ground">
+      <meta itemprop="name" content="給工程師吃個定心陲-測試Testing | Timothy Coding Ground">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          作業系統(Operating System/OS) Overview(上)
+          給工程師吃個定心陲-測試Testing
         </h1>
 
         <div class="post-meta-container">
@@ -262,15 +264,9 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
+      
 
-      <time title="Created: 2022-09-21 12:08:02" itemprop="dateCreated datePublished" datetime="2022-09-21T12:08:02+08:00">2022-09-21</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2022-10-10 16:11:56" itemprop="dateModified" datetime="2022-10-10T16:11:56+08:00">2022-10-10</time>
+      <time title="Created: 2022-10-10 12:25:43 / Modified: 16:11:56" itemprop="dateCreated datePublished" datetime="2022-10-10T12:25:43+08:00">2022-10-10</time>
     </span>
 
   
@@ -282,8 +278,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/code-blog/2022/09/21/OS_System-Concept_Overview/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/21/OS_System-Concept_Overview/" itemprop="commentCount"></span>
+    <a title="disqus" href="/code-blog/2022/10/10/Test_Overview/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/10/Test_Overview/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -304,31 +300,47 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>從今天開始進入OS一般知識的範圍，透過了解我們正運行中的程式(Process)在OS如何運作的過程及相關知識，包含I&#x2F;O, Thread, Memory…等，可以進一步優化程式。</p>
-<p>稍微具體舉個例子來說，以node.js來說，作為單執行緒(thread)的執行環境，若一下出現大量的使用者情求時會是什麼狀況呢，如果已經在工作的人，你可以想像辦公室明明有很多人，但電話只跑到你這裡，你頂多叫他們做點事情幫忙，但最終還是你一個人處理所有的電話…情何以堪XD</p>
-<p>為了解決這個問題，因此有了pm2套件、原生的cluster及worker threads，他們各自有不同的問題解決邏輯，或許通過這段時間的鑽研我們可以稍微探討這些差異。</p>
-<p>我個人是蠻期待這部分的學習，那，就開始今天的OS overview吧。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>關於測試，其實是一個很大的主題，所以今天的目標放在建立對測試廣泛的認識，內容包括: 測試的定義、測試的好處等，並也會簡介兩個對於後端工程師常見的測試種類: 單元測試Unit test、整合測試Integration。</p>
 <span id="more"></span>
-
-<h2 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h2><blockquote>
-<p>一組主管並控制電腦操作、運用和執行硬體、軟體資源和提供公共服務來組織使用者互動的相互關聯的系統軟體程式。 – <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">維基百科</a></p>
+<h2 id="什麼是測試"><a href="#什麼是測試" class="headerlink" title="什麼是測試?"></a>什麼是測試?</h2><p>定義是一種檢查應用程式是否符合預期規格並確保產品沒有例外的方法。</p>
+<p>但就我的理解簡單來說，就是透過提前使用，試圖找到單純寫程式時沒發現的錯誤(bug)。</p>
+<h2 id="測試的好處"><a href="#測試的好處" class="headerlink" title="測試的好處"></a>測試的好處</h2><p>總的來說就是減少錯誤造成的長期成本，其中包括:</p>
+<ul>
+<li><p>開發&#x2F;維護成本:<br>越早發現bug，工程師可以用越少的成本修復他，上線後常見的問題像是相容性，IOS及Android仰賴後端提供API完成商業邏輯，如果其中發現錯誤，就算修復，也得要考慮使用舊版本的用戶是否造成crash，所以需要考慮比較複雜的修復方式。</p>
+</li>
+<li><p>因錯誤造成的損失:<br>最常見的錯誤可以從遊戲、電商裡面發現，金流方面的錯誤，可能造成的損失是直接的，比如買到低於成本的商品，或因為錯誤導致服務無法持續，損失營業收入。</p>
+</li>
+<li><p>品牌成本:<br>若系統時常發生錯誤，可能導致長期失去用戶信心，減少滿意度。</p>
+</li>
+</ul>
+<h2 id="軟體測試金字塔"><a href="#軟體測試金字塔" class="headerlink" title="軟體測試金字塔"></a>軟體測試金字塔</h2><p>測試金字塔是一個概念，他列出了應該包含在自動化測試中的測試類型，意指，其實還有更多的測試是這裡沒包含到的，但對於一個後端工程師來說，有這樣的觀念最為基礎我認為是足夠了。</p>
+<p>另外這個金字塔視覺化了這些測試的順序跟頻率，由下往上，頻率從多到少、順序由先到後。</p>
+<p><img src="https://i.imgur.com/AZfUdrR.png" alt="圖 16">  </p>
+<p>接著就稍微簡介一下單元測試及整合測試。</p>
+<h2 id="單元測試"><a href="#單元測試" class="headerlink" title="單元測試"></a>單元測試</h2><p>以程式碼的最小單位來做測試，以JS來說通常就是Function。</p>
+<p>這個測試的目的在於確保程式邏輯正確。</p>
+<p>好處包括:</p>
+<ul>
+<li>執行速度快</li>
+<li>隔離相對小的錯誤範圍</li>
+<li>可靠度高</li>
+</ul>
+<p>不過因為對於一開始撰寫測試的人來說，</p>
+<h2 id="整合測試"><a href="#整合測試" class="headerlink" title="整合測試"></a>整合測試</h2><p>難以找到比這個更好的例子XD<br><img src="https://user-images.githubusercontent.com/88981/52933895-c0d47600-338f-11e9-9034-11e1ad0c42f1.gif" alt="圖 17">  </p>
+<p>匯集多個模組共同測試，目的在於確保模組間的互動正確，相對於單元測試，為了納入更多互動時的變因，都會準備一個更完整的測試環境，確保完成的測試真的能確定互動無誤。</p>
+<p>好處包括:</p>
+<ul>
+<li>確保模組互動正常</li>
+<li>對於程式有更高的可信度</li>
+</ul>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>測試的好處這麼多，是不是每個網站都要寫測試呢?</p>
+<p>will保哥其實有提到一些判斷標準可以作為參考:</p>
+<blockquote>
+<p>所以你在開始撰寫端對端測試之前，應該還是要先想想：<br>你的網站是否有重要的功能需要被保護?<br>你的網站是否有穩定的需求需要被保護?</p>
 </blockquote>
-<p>這邊我用我的方式來理解作業系統是: 提供易於操作的介面，讓程式開發者&#x2F;使用者可以用更簡單直覺的方式操作硬體。</p>
-<h2 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h2><p>於是，作業系統的用途包含但可能不限於以下:</p>
-<ol>
-<li>控制及管理硬體資源</li>
-<li>提供使用者介面</li>
-<li>程式的錯誤預防</li>
-</ol>
-<p>根據需求情境及使用者對象，其考量而產生的作業系統型態可能會完全不一樣，比如說，家用個人電腦的目標是讓使用者更方便的使用系統，所以可能會更在意GUI(圖形化介面)的方便性；而伺服器的目標是資源的隔離性及使用率最佳化，可能面向的對象多是開發者，其介面可能僅會使用CLI(文字命令介面)。</p>
-<h2 id="作業系統與硬體的互動"><a href="#作業系統與硬體的互動" class="headerlink" title="作業系統與硬體的互動"></a>作業系統與硬體的互動</h2><p>一般來說會分成使用者(User)及應用程式(Program)透過OS與硬體互動，使用者通過OS的命令直譯器(Command Interpreter)與硬體互動，而當使用者在操作應用程式時，應用程式會對OS做系統呼叫(System Call)，進而與硬體層溝通，完成使用者指定的操作。</p>
-<h2 id="名詞解釋"><a href="#名詞解釋" class="headerlink" title="名詞解釋"></a>名詞解釋</h2><p>在進入後面一般系統種類介紹前，也想先對幾個名詞作概要的解釋，會對於後面的內容有比較好的理解。</p>
-<h3 id="CPU-Scheduling-Short-term-Scheduling"><a href="#CPU-Scheduling-Short-term-Scheduling" class="headerlink" title="CPU Scheduling(Short-term Scheduling)"></a>CPU Scheduling(Short-term Scheduling)</h3><p>最早期的系統其實是單純的順序，意思是指，CPU會按照程式的執行順序，依序把工作完成，其中常有造成CPU珍貴的運算資源被閒置的狀況，像是程式設計錯誤，或是因為硬體的速度不一，導致CPU等待其他工作完成…等等。</p>
-<p>因此為了得到最大的CPU使用率，會藉由適當的排班演算法，先CPU處理該process(CPU Burst)，接著做I&#x2F;O資料的傳送(I&#x2F;O Burst)，process會在這兩個狀態一直循環，最後在工作完成後呼叫一個終止Process的System Call作為結束。</p>
-<p>這可以說是後面的系統類別在設計時的核心之一，目標式在確保CPU使用率的狀況下，作出最符合當前系統情境的需求的決策。</p>
-<h3 id="Context-Switching"><a href="#Context-Switching" class="headerlink" title="Context Switching"></a>Context Switching</h3><p>CPU使用權轉移時，需要儲存舊的Process資訊，載入新Process資訊，這個工作就稱之為Context Switching。</p>
-<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>內容遠比我想得來的多了，不得已之好分成兩天完成來完成了XD<br>明天會開始介紹作業系統的種類。</p>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10232695">Node Cluster 讓你的 Thread 不再孤軍奮戰</a><br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/56656498/how-do-cluster-and-worker-threads-work-in-node-js">Different between cluster and worker thread</a><br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=Cl0uql06KK0&ab_channel=%E3%80%90%E6%9D%B0%E5%93%A5%E6%95%B8%E4%BD%8D%E6%95%99%E5%AE%A4%E3%80%91">作業系統簡介</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10203990">CPU Scheduling</a></p>
+<p>今天初探測試就到這邊啦~</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.browserstack.com/guide/testing-pyramid-for-test-automation">Testing Pyramid : How to jumpstart Test Automation</a><br><a target="_blank" rel="noopener" href="https://www.guru99.com/software-testing-introduction-importance.html">What is Software Testing? Definition</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10230034">鼠年全馬鐵人挑戰 WEEK 03：軟體測試的種類 - 第二集</a><br><a target="_blank" rel="noopener" href="https://blog.miniasp.com/post/2019/02/18/Unit-testing-Integration-testing-e2e-testing">一次搞懂單元測試、整合測試、端對端測試之間的差異</a></p>
 
     </div>
 
@@ -346,7 +358,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://tim80411.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/" title="作業系統(Operating System&#x2F;OS) Overview(上)">https://tim80411.github.io/code-blog/2022/09/21/OS_System-Concept_Overview/</a>
+      <a href="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/" title="給工程師吃個定心陲-測試Testing">https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -357,22 +369,18 @@
           <div class="post-tags">
               <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
               <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
-              <a href="/code-blog/tags/OS/" rel="tag"># OS</a>
-              <a href="/code-blog/tags/CPU-Scheduling/" rel="tag"># CPU Scheduling</a>
+              <a href="/code-blog/tags/Testing/" rel="tag"># Testing</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/19/Network_hosting/" rel="prev" title="欸黑，我的主機不在我家-託管(hosting)">
-                  <i class="fa fa-chevron-left"></i> 欸黑，我的主機不在我家-託管(hosting)
+                <a href="/code-blog/2022/10/09/Web_OWASP/" rel="prev" title="十個好弱點，不保護嗎?-OWASP security risk">
+                  <i class="fa fa-chevron-left"></i> 十個好弱點，不保護嗎?-OWASP security risk
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/code-blog/2022/09/22/OS_System_Classification_Overview/" rel="next" title="作業系統(Operating System/OS) Overview(下)">
-                  作業系統(Operating System/OS) Overview(下) <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
