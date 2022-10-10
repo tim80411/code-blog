@@ -1894,6 +1894,162 @@
       </tags>
   </entry>
   <entry>
+    <title>超文本傳輸協定(HTTP)是什麼?</title>
+    <url>/code-blog/2022/09/17/Web_HTTP/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前一天提到HTTP作為應用層的協定，定義了訊息內容如何被解讀。</p>
+<p>今天會較為詳細的了解這個協定，目前Web，也就是我們使用瀏覽器讀取各式各樣WebSite的集合，就是基於此協定發展出來的。</p>
+<p>我們會從簡單的HTTP歷史開始，在逐步說明特性、結構，最後也會談談HTTP&#x2F;3。</p>
+<span id="more"></span>
+
+<h2 id="HTTP版本及歷史"><a href="#HTTP版本及歷史" class="headerlink" title="HTTP版本及歷史"></a>HTTP版本及歷史</h2><p>版本大部分都向下相容，以下簡介:</p>
+<ul>
+<li><p>HTTP&#x2F;0.9:<br>只能使用GET</p>
+</li>
+<li><p>HTTP&#x2F;1.0:<br>此版的特性是提供了HTML擴充性，除了是第一個在通訊中指定版本號的版本，新增response狀態碼、Header的概念。特別是HEADER的概念，讓HTTP可以基於Content-Type這個HEADER的定義傳輸不同類型的文檔。</p>
+</li>
+<li><p>HTTP&#x2F;1.1:<br>特性是將所有概念標準化，也是時至今日最為常見的版本，他從1999年第二版後就持續使用至今。</p>
+</li>
+<li><p>HTTP&#x2F;2:<br>特性是效能，在基於網頁的複雜及交互性提高之下，溝通的成本不斷提高，因此有了HTTP&#x2F;2，其強化效能的特性包括，二進制的協定、並行的情求可在同一個連接中處理、HEADER壓縮。</p>
+</li>
+<li><p>HTTP&#x2F;3:<br>為了應對HTTTP&#x2F;2的問題而生，應用基於UDP的QUIC取代TCP，去解決了TCP出現隊頭阻塞（head-of-line blocking），在容易丟失封包網路環境，HTTP&#x2F;3有更穩定的表現。</p>
+</li>
+</ul>
+<h2 id="HTTP特性"><a href="#HTTP特性" class="headerlink" title="HTTP特性"></a>HTTP特性</h2><h3 id="Client-Server協定"><a href="#Client-Server協定" class="headerlink" title="Client-Server協定:"></a>Client-Server協定:</h3><p>我個人覺得也可以說是request-response協定，意指，兩個的端點在一次連接中，一定有一方是client發出request，而另外一方則作為server，在接收到request後發回response給client。<br>這邊要特別注意到client跟server角色並不是固定的。</p>
+<p>比如A、B兩個端點分別稱為診所(server)及醫院(server):</p>
+<ol>
+<li>會話1: 醫院向診所發出request要求取得診所的X光照片，此時醫院是client，診所則為server。</li>
+<li>會話2: 診所向醫院發出request要求取得醫院的就醫紀錄，此時診所是client，醫院則為server。</li>
+</ol>
+<h3 id="無狀態-stateless"><a href="#無狀態-stateless" class="headerlink" title="無狀態(stateless)"></a>無狀態(stateless)</h3><p>根據資料的定義</p>
+<blockquote>
+<p>there is no link between two requests being successively carried out on the same connection – <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview#http_is_stateless_but_not_sessionless">MDN</a></p>
+</blockquote>
+<p>白話翻譯是: 在一個連線之中，兩個成功的請求(request)之間是毫無關聯的。</p>
+<p>曾經看過一個蠻好的比喻，可以把這件事情想成一間店的老闆(server)永遠認不得你(client)，就算你先後兩次踏入店內，他還是會把你當成不同的客人。</p>
+<h3 id="可擴展的-extensible"><a href="#可擴展的-extensible" class="headerlink" title="可擴展的(extensible)"></a>可擴展的(extensible)</h3><p>基於HEADER讓HTTP具有相當地擴展性。<br>一些常用的HEADER包括: </p>
+<ul>
+<li>Content-Type: 決定傳輸的資料如何被解析，是不同類型檔案傳輸的基礎</li>
+<li>Authorization: 處理網站身分驗證常用的HEADER</li>
+<li>Cookie: Cookie機制會使用此HEADER</li>
+</ul>
+<h2 id="HTTP結構"><a href="#HTTP結構" class="headerlink" title="HTTP結構"></a>HTTP結構</h2><h3 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h3><ul>
+<li>Start line</li>
+</ul>
+<p>包含Method, Target, HTTP version。</p>
+<p>方法Method是用來描述當次請求的行為，每個方法具有不同語意但可能具備相同特性。<br>特性包含安全Safe, 冪等Idempotent, 快取cacheable。<br><strong>安全</strong> - 指的是不會修改server的數據的方法，例如GET、HEAD、OPTIONS，所有安全的方法都是冪等Idempotent的，但反過來卻不一定這樣，比如說PUT跟DELETE，這邊就會提到什麼是冪等。<br><strong>冪等</strong> - 指的是同樣的請求不管執行一次或是多次結果都相同，以前面提到的DELETE來說好了，不管執行幾次，他指定的資源就是會不存在。<br>不過需要注意到實務狀況上，因為這比較像是約定的標準，實際上得看server如何實現這些方法，是有可能會出現例外的。<br><strong>快取</strong> - 可以被快取的Method，除了特定方法外，也要滿足以下特點，可緩存的狀態碼、Response不具有特定阻止緩存的Headers(Cache-Control)</p>
+<p>目標Target用來描述當次請求的目的地，可能是URL、協議或絕對路徑。</p>
+<p>版本HTTP version用來表示對於response回傳資料的版本的指示。</p>
+<p>可能範例: </p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line">// ex1</span><br><span class="line"><span class="keyword">OPTIONS</span> <span class="string">*</span> <span class="meta">HTTP/1.1</span></span><br><span class="line">// ex2</span><br><span class="line">POST /restaurants?id=1 HTTP/1.1</span><br><span class="line">// ex3</span><br><span class="line">GET https://www.google.com.tw HTTP/1.1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Headers</li>
+</ul>
+<p>請求Request或是Response的Headers都遵循相同結構: case insensitive的字串，加上冒號(:)以及header的值。</p>
+<p>大致可分為幾類: General headers、Request headers、Entity headers。</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line">// ex1:</span><br><span class="line"><span class="attribute">content-type</span><span class="punctuation">: </span>application/x-javascript; charset=utf-8</span><br><span class="line">// ex2:</span><br><span class="line"><span class="attribute">cross-origin-resource-policy</span><span class="punctuation">: </span>cross-origin</span><br><span class="line">// ex3:</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>public</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Body</li>
+</ul>
+<p>不是每個請求都會有Body，比較常見具有Body的請求是POST。</p>
+<h3 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h3><ul>
+<li>Status line</li>
+</ul>
+<p>回應的Status通常被HTTP version, status code, status test組成。</p>
+<figure class="highlight http"><table><tr><td class="code"><pre><span class="line">// ex1</span><br><span class="line"><span class="meta">HTTP/1.1</span> <span class="number">200</span> OK</span><br><span class="line">// ex2</span><br><span class="line">HTTP/1.1 404 Not Found</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Headers</li>
+<li>Body</li>
+</ul>
+<h2 id="HTTP-x2F-3"><a href="#HTTP-x2F-3" class="headerlink" title="HTTP&#x2F;3"></a>HTTP&#x2F;3</h2><p>HTTP&#x2F;3早在2019年被Google Chrome（Canary build）支援，而他的規範已經在2022年6月6日，被IETF正式標準化HTTP&#x2F;3為RFC9114。</p>
+<p>那究竟這個規範為什麼會出現呢?</p>
+<p>前言曾提到HTTP想要解決的問題是封包丟失的網路環境造成的阻塞，這個環境其實就是網路流量轉至手機等無線網路環境。</p>
+<p>相對於HTTP&#x2F;2，使用QUIC作為傳輸協定的HTTP&#x2F;3有以下幾項好處:</p>
+<h3 id="Connection-establishment-latency"><a href="#Connection-establishment-latency" class="headerlink" title="Connection establishment latency"></a>Connection establishment latency</h3><p>更快的連接建立: 一次封包往返被稱為1RTT，原TCP+TLS需要1-3次，但QUIC僅在第一次需要1次RTT，但第二次連線開始就可以傳輸資料。</p>
+<h3 id="Improved-congestion-control"><a href="#Improved-congestion-control" class="headerlink" title="Improved congestion control"></a>Improved congestion control</h3><p>可以為阻塞控制提供相對TCP更多的資訊。</p>
+<h3 id="Multiplexing-without-head-of-line-blocking"><a href="#Multiplexing-without-head-of-line-blocking" class="headerlink" title="Multiplexing without head-of-line blocking"></a>Multiplexing without head-of-line blocking</h3><p>TCP也會有Head of Line Blocking (HOL Blocking)問題，此問題簡單的定義是指: </p>
+<blockquote>
+<p>當單個（慢）物件阻止其他&#x2F;後續的物件前進時</p>
+</blockquote>
+<p>可以想像排隊的時候看到前面的人不會操控行動支付，於是後面的人就都沒辦法結帳了XD</p>
+<p>而TCP會發生這個的原因在於他會因為丟失的封包而暫停後續的封包傳輸，需要等到發送端發現並重新傳送，就算我們從應用層知道這個被丟失的封包其實是獨立的，不用等待重新傳送。</p>
+<p>於是QUIC做了一件事情相對TCP的是讓傳輸的封包有了獨立的概念，可以被獨自處理。</p>
+<h3 id="Forward-error-correction"><a href="#Forward-error-correction" class="headerlink" title="Forward error correction"></a>Forward error correction</h3><p>更好的丟失恢復機制，資料被切成多個封包後，會有一段資訊跟著封包一起傳輸，若不幸有封包被丟失，就可以憑藉其餘封包運算出被丟失的包的資料。</p>
+<h3 id="Connection-migration"><a href="#Connection-migration" class="headerlink" title="Connection migration"></a>Connection migration</h3><p>在wifi與4G切換時可以不用重新連線。</p>
+<h3 id="HTTP-x2F-3特性"><a href="#HTTP-x2F-3特性" class="headerlink" title="HTTP&#x2F;3特性"></a>HTTP&#x2F;3特性</h3><p>透過以上說明，其實可以很清楚看到HTTP&#x2F;3關注的部分非常符合現況，傳輸的頻寬不再是瓶頸，而往返時間才是，所以在適當的範圍內增加冗餘資料，去減少重複的傳輸。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>HTTP的特性: 結構簡單、高擴充性得以開發各種應用方式。包括安全、認證、快取、壓縮、重導向等議題，這些在1.1開發初沒特別約定的部分，都透過了Headers做了約定並實現。</p>
+<p>從看見HTTP的歷史你也可以看見網路的產業是怎麼隨著硬體的發展而做出相對應的改變的，就像是限制理論說到的，系統的最短板會不斷改變，並且在解決之後會有新的限制出現在別處。</p>
+<p>接著會介紹永遠的client端，也是讓Web可以深入日常生活的重要因素-Browser。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://www.cloudflare.com/en-gb/learning/ddos/glossary/hypertext-transfer-protocol-http/">What is HTTP?</a><br><a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers">MDN-HTTP Headers</a><br><a href="https://zh.wikipedia.org/zh-tw/%E8%B6%85%E6%96%87%E6%9C%AC%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE">維基好朋友-HTTP</a><br><a href="https://medium.com/@chester.yw.chu/http-3-%E5%82%B3%E8%BC%B8%E5%8D%94%E8%AD%B0-quic-%E7%B0%A1%E4%BB%8B-5f8806d6c8cd">HTTP&#x2F;3 傳輸協議 - QUIC 原理簡介</a>)<br><a href="https://docs.google.com/document/d/1gY9-YNDNAB1eip-RTPbqphgySwSNSDHLq9D5Bty4FSU/mobilebasic">QUIC at 10,000 feet</a><br><a href="https://www.gushiciku.cn/pl/gkVS/zh-tw">HOL blocking</a><br><a href="https://www.it145.com/9/82134.html">快速讀懂 HTTP&#x2F;3 協定</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>HTTP</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>網際網路(Internet)是怎麼運作的?</title>
+    <url>/code-blog/2022/09/16/Web_Internet/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Internet到底要怎麼定義他呢，我覺得根據維基百科的說明作為開頭蠻有意思的:</p>
+<blockquote>
+<p>小寫的網際網路（internet，開頭的「i」是小寫字母）為任何分離的實體網路之集合，這些網路以一組通用的協定相連，形成邏輯上的單一網路。而大寫的網際網路（Internet，開頭的「I」是大寫字母）專指前身為ARPANET，後使用IP協定將各種實體網路連結成此單一邏輯網路。—<a href="https://zh.wikipedia.org/zh-tw/%E4%BA%92%E8%81%94%E7%BD%91">維基百科</a></p>
+</blockquote>
+<p>Internet普及到已經將小寫作為一種抽象概念，按照這個定義，連家中兩台電腦互聯也可以被稱做internet。而Internet作為專有名詞，則用來指稱目前大家日常最常使用的網路網路的範圍，而這也是我今天會試著說明的範圍。</p>
+<p>Internet的組成若講到細節相當複雜，但就我閱讀資料來看，為了幫助理解，我們可以試著一刀刀將Internet切開，最後就會切出一張複雜的樹狀圖。<br>但相信我，今天切不了太多刀就會停下來的XD<del>而且切太多會卡到之後幾天的內容</del></p>
+<span id="more"></span>
+
+<h2 id="第一刀"><a href="#第一刀" class="headerlink" title="第一刀:"></a>第一刀:</h2><p>我們可以將網際網路想像成寄送郵件的過程，郵件要能順利寄發，靠著是:</p>
+<ol>
+<li>郵路開發-如何物理上將資料送過去</li>
+<li>寄郵件的規則-要遵循一定的規則才有辦法把郵件好好送到</li>
+</ol>
+<h3 id="郵路開發-互聯網的基礎設施"><a href="#郵路開發-互聯網的基礎設施" class="headerlink" title="郵路開發-互聯網的基礎設施"></a>郵路開發-互聯網的基礎設施</h3><p>前面曾提到，兩台電腦用網路線互聯也可以算是internet，而讓訊號能從一台電腦到另外一台的一切作為都可以稱做是互聯網的基礎設施。</p>
+<p>於是包括wifi, 光纖網路, 電話線, 電源線…等有線無線的連線方式，都可以稱作是網路基礎建設的一部份。</p>
+<p>根據2015年的文章，當時全世界就已經有20億左右的人在使用著Internet。<br>但我們現在一台電腦並沒有用幾萬幾億條線跟其他電腦作連結的狀況下，能夠在一台電腦上看到各式各樣的網站(主機)的方式是什麼呢?</p>
+<p>這邊可以用一個情境去理解:</p>
+<blockquote>
+<p>如果家裡跟中華電信買了寬頻，他們會到你家放一隻俗稱小烏龜的網路交換器，用一條線牽到小烏龜上，然後從小烏龜上再牽出多條線讓你可以多台電腦上網，甚至連到wifi上，可上網的設備就更多了。</p>
+</blockquote>
+<p>這邊我們不談太多細節，要描述的情境僅是「用一個集中的運算中心作訊息的交換」這個概念，我們生活中充斥著這樣大大小小的交換點，小到小烏龜、社區的光纖交換點，大到遠傳電信、中華電信…等，都是一個個交換點，並把我們的郵件(資料)傳遞出去，並把接收到的資料再轉傳到下個交換點，這樣層層構成了這段「郵路」。</p>
+<p>郵路我們應該大致理解是怎麼被建立的，接著要試著理解的是寄郵規則。</p>
+<h3 id="寄郵規則-協定疊-protocol-stacks"><a href="#寄郵規則-協定疊-protocol-stacks" class="headerlink" title="寄郵規則-協定疊(protocol stacks)"></a>寄郵規則-協定疊(protocol stacks)</h3><p>我們在寄送郵件時，得要遵守很多種不同類型的規則才有辦法讓郵件順利寄到對方的手中並且被讀懂。</p>
+<p>舉些例子:</p>
+<ol>
+<li>(IP)想像跨國郵件，如何讓郵路過程中的郵差(資料交換點)理解下一段路要送到哪裡的規則。</li>
+<li>(TCP)想像IKEA的超大家具，為了運送方便，你的家具會先被拆解，並標上記號，隨信還會附上組裝指南，然後分開運送，直到目的地才會按照組裝指南被重新組裝，怎麼拆解怎麼標記。</li>
+<li>(SSL&#x2F;TLS)寄送重要文件時先鎖上只有對方才明白怎麼開的鎖。</li>
+</ol>
+<p>這些被簡化的範例也只提到少部分協定而已，但透過以上的範例可以說明協定如何讓溝通得以被進行，甚至我們現在習以為常的web(HTTP)，也只是其中一種最常見的應用協定。</p>
+<p>接著我們會在協定這裡切下第二刀。</p>
+<h2 id="第二刀-protocal-layer"><a href="#第二刀-protocal-layer" class="headerlink" title="第二刀: protocal layer"></a>第二刀: protocal layer</h2><p>打個預防針，這邊我談不了OSI 7層模型，但會先聚焦在Internet Protocol Suite，也是跟後端網頁開發我覺得最有相關的部分之一。</p>
+<p>IPS也被通稱為TCP&#x2F;IP協定套組，被這麼稱呼是因為該協定的套組最早被通過的標準就是TCP及IP，但實際上它包含四個層級，每一抽象層建立在低一層之上，並服務更高一層，以下由上往下列出並舉例:</p>
+<p><strong>1. 應用(application): HTTP</strong><br><strong>2. 傳輸(transport): TCP</strong><br><strong>3. 網路互連(internet): IP</strong><br>4. 網路存取(Network Access (link))。</p>
+<p>跟後端工程師較相關的部分落在上三層。<br>要怎麼理解他們的差異呢?</p>
+<p>有一個說法我看到也蠻喜歡的: </p>
+<blockquote>
+<p>我們在傳輸數據時，可以只使用（傳輸層）TCP&#x2F;IP協議，但是那樣的話，如果沒有應用層，便無法識別數據內容，如果想要使傳輸的數據有意義，則必須使用到應用層協議 – <a href="https://kknews.cc/code/vey6jvy.html">原文</a></p>
+</blockquote>
+<p>以我的理解來說，不同的應用協定就像是不同語言的使用者，他們寄了不同語言的郵件，若收件者無法理解這個語言(協定)、或是以錯誤的語言解讀了信件內容，就無法看懂信件內容。</p>
+<p>而傳輸層的協定確保了設備到設備之間的可靠性(信到的了地方)及順序性(郵件完整且沒有被錯誤組裝)。</p>
+<p>網路互連層則負責確保目的的正確性(信到達正確的地方)。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>切到這裡是我的極限了XD</p>
+<p>我在寫這章時，把關注點放在理解HTTP, TCP&#x2F;IP之間的差異讓我收穫良多~<br>若要思考這篇文章帶給我的益處，大概是能夠稍稍分辨不同IPS的層別的概要功能跟意義，讓我可以在遇到一些新的協定時或許能更快分類並應用。</p>
+<p>明天就來深入一點看HTTP吧!</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://www.vox.com/2014/6/16/18076282/the-internet">從歷史的角度作為開頭來說明Internet(英)</a><br><a href="https://zh.wikipedia.org/zh-tw/TCP/IP%E5%8D%8F%E8%AE%AE%E6%97%8F">維基好朋友-TCP&#x2F;IP協定套組</a><br><a href="http://web.stanford.edu/class/msande91si/www-spr04/readings/week1/InternetWhitepaper.htm">How Does the Internet Work?</a><br><a href="http://ep.ltivs.eportfolio.cc/c/document_library/get_file?uuid=cc21548f-b9d9-411d-ab68-2a4e02d65487&groupId=386840">網際網路運作原理</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>Internet</tag>
+        <tag>Protocol</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>十個好弱點，不保護嗎?-OWASP security risk</title>
     <url>/code-blog/2022/10/09/Web_OWASP/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>OWASP是一個線上社群、非營利組織，全名為開放軟體安全計畫Open Web Application Security Project，在全世界有許多分會，這個組織主要目標是研究及討論網路軟體安全的標準、工具、文件。</p>

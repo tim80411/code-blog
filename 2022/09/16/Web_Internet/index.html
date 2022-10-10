@@ -19,33 +19,31 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
 
-    <meta name="description" content="前言關於測試，其實是一個很大的主題，所以今天的目標放在建立對測試廣泛的認識，內容包括: 測試的定義、測試的好處等，並也會簡介兩個對於後端工程師常見的測試種類: 單元測試Unit test、整合測試Integration。">
+    <meta name="description" content="前言Internet到底要怎麼定義他呢，我覺得根據維基百科的說明作為開頭蠻有意思的:  小寫的網際網路（internet，開頭的「i」是小寫字母）為任何分離的實體網路之集合，這些網路以一組通用的協定相連，形成邏輯上的單一網路。而大寫的網際網路（Internet，開頭的「I」是大寫字母）專指前身為ARPANET，後使用IP協定將各種實體網路連結成此單一邏輯網路。—維基百科  Internet普及到已">
 <meta property="og:type" content="article">
-<meta property="og:title" content="給工程師吃個定心陲-測試Testing">
-<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/index.html">
+<meta property="og:title" content="網際網路(Internet)是怎麼運作的?">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/09/16/Web_Internet/index.html">
 <meta property="og:site_name" content="Timothy Coding Ground">
-<meta property="og:description" content="前言關於測試，其實是一個很大的主題，所以今天的目標放在建立對測試廣泛的認識，內容包括: 測試的定義、測試的好處等，並也會簡介兩個對於後端工程師常見的測試種類: 單元測試Unit test、整合測試Integration。">
+<meta property="og:description" content="前言Internet到底要怎麼定義他呢，我覺得根據維基百科的說明作為開頭蠻有意思的:  小寫的網際網路（internet，開頭的「i」是小寫字母）為任何分離的實體網路之集合，這些網路以一組通用的協定相連，形成邏輯上的單一網路。而大寫的網際網路（Internet，開頭的「I」是大寫字母）專指前身為ARPANET，後使用IP協定將各種實體網路連結成此單一邏輯網路。—維基百科  Internet普及到已">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://i.imgur.com/AZfUdrR.png">
-<meta property="og:image" content="https://user-images.githubusercontent.com/88981/52933895-c0d47600-338f-11e9-9034-11e1ad0c42f1.gif">
-<meta property="article:published_time" content="2022-10-10T04:25:43.000Z">
+<meta property="article:published_time" content="2022-09-16T12:41:18.000Z">
 <meta property="article:modified_time" content="2022-10-10T12:43:44.631Z">
 <meta property="article:author" content="Timothy Liao">
 <meta property="article:tag" content="鐵人賽">
 <meta property="article:tag" content="Backend">
-<meta property="article:tag" content="Testing">
+<meta property="article:tag" content="Internet">
+<meta property="article:tag" content="Protocol">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://i.imgur.com/AZfUdrR.png">
 
 
-<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/">
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/09/16/Web_Internet/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/","path":"2022/10/10/Test_Overview/","title":"給工程師吃個定心陲-測試Testing"}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/09/16/Web_Internet/","path":"2022/09/16/Web_Internet/","title":"網際網路(Internet)是怎麼運作的?"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>給工程師吃個定心陲-測試Testing | Timothy Coding Ground</title>
+<title>網際網路(Internet)是怎麼運作的? | Timothy Coding Ground</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
@@ -160,7 +158,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E9%BA%BC%E6%98%AF%E6%B8%AC%E8%A9%A6"><span class="nav-number">2.</span> <span class="nav-text">什麼是測試?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%AC%E8%A9%A6%E7%9A%84%E5%A5%BD%E8%99%95"><span class="nav-number">3.</span> <span class="nav-text">測試的好處</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BB%9F%E9%AB%94%E6%B8%AC%E8%A9%A6%E9%87%91%E5%AD%97%E5%A1%94"><span class="nav-number">4.</span> <span class="nav-text">軟體測試金字塔</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%96%AE%E5%85%83%E6%B8%AC%E8%A9%A6"><span class="nav-number">5.</span> <span class="nav-text">單元測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B4%E5%90%88%E6%B8%AC%E8%A9%A6"><span class="nav-number">6.</span> <span class="nav-text">整合測試</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">7.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">8.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E5%88%80"><span class="nav-number">2.</span> <span class="nav-text">第一刀:</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%83%B5%E8%B7%AF%E9%96%8B%E7%99%BC-%E4%BA%92%E8%81%AF%E7%B6%B2%E7%9A%84%E5%9F%BA%E7%A4%8E%E8%A8%AD%E6%96%BD"><span class="nav-number">2.1.</span> <span class="nav-text">郵路開發-互聯網的基礎設施</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%84%E9%83%B5%E8%A6%8F%E5%89%87-%E5%8D%94%E5%AE%9A%E7%96%8A-protocol-stacks"><span class="nav-number">2.2.</span> <span class="nav-text">寄郵規則-協定疊(protocol stacks)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E5%88%80-protocal-layer"><span class="nav-number">3.</span> <span class="nav-text">第二刀: protocal layer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">4.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -236,7 +234,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/16/Web_Internet/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
@@ -249,12 +247,12 @@
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="給工程師吃個定心陲-測試Testing | Timothy Coding Ground">
+      <meta itemprop="name" content="網際網路(Internet)是怎麼運作的? | Timothy Coding Ground">
       <meta itemprop="description" content="">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          給工程師吃個定心陲-測試Testing
+          網際網路(Internet)是怎麼運作的?
         </h1>
 
         <div class="post-meta-container">
@@ -264,9 +262,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2022-10-10 12:25:43 / Modified: 20:43:44" itemprop="dateCreated datePublished" datetime="2022-10-10T12:25:43+08:00">2022-10-10</time>
+      <time title="Created: 2022-09-16 20:41:18" itemprop="dateCreated datePublished" datetime="2022-09-16T20:41:18+08:00">2022-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-10-10 20:43:44" itemprop="dateModified" datetime="2022-10-10T20:43:44+08:00">2022-10-10</time>
     </span>
 
   
@@ -278,8 +282,8 @@
       </span>
       <span class="post-meta-item-text">Disqus: </span>
     
-    <a title="disqus" href="/code-blog/2022/10/10/Test_Overview/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/10/Test_Overview/" itemprop="commentCount"></span>
+    <a title="disqus" href="/code-blog/2022/09/16/Web_Internet/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/16/Web_Internet/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -289,7 +293,7 @@
         <i class="far fa-clock"></i>
       </span>
       <span class="post-meta-item-text">Reading time &asymp;</span>
-      <span>1 mins.</span>
+      <span>2 mins.</span>
     </span>
 </div>
 
@@ -300,47 +304,53 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>關於測試，其實是一個很大的主題，所以今天的目標放在建立對測試廣泛的認識，內容包括: 測試的定義、測試的好處等，並也會簡介兩個對於後端工程師常見的測試種類: 單元測試Unit test、整合測試Integration。</p>
-<span id="more"></span>
-<h2 id="什麼是測試"><a href="#什麼是測試" class="headerlink" title="什麼是測試?"></a>什麼是測試?</h2><p>定義是一種檢查應用程式是否符合預期規格並確保產品沒有例外的方法。</p>
-<p>但就我的理解簡單來說，就是透過提前使用，試圖找到單純寫程式時沒發現的錯誤(bug)。</p>
-<h2 id="測試的好處"><a href="#測試的好處" class="headerlink" title="測試的好處"></a>測試的好處</h2><p>總的來說就是減少錯誤造成的長期成本，其中包括:</p>
-<ul>
-<li><p>開發&#x2F;維護成本:<br>越早發現bug，工程師可以用越少的成本修復他，上線後常見的問題像是相容性，IOS及Android仰賴後端提供API完成商業邏輯，如果其中發現錯誤，就算修復，也得要考慮使用舊版本的用戶是否造成crash，所以需要考慮比較複雜的修復方式。</p>
-</li>
-<li><p>因錯誤造成的損失:<br>最常見的錯誤可以從遊戲、電商裡面發現，金流方面的錯誤，可能造成的損失是直接的，比如買到低於成本的商品，或因為錯誤導致服務無法持續，損失營業收入。</p>
-</li>
-<li><p>品牌成本:<br>若系統時常發生錯誤，可能導致長期失去用戶信心，減少滿意度。</p>
-</li>
-</ul>
-<h2 id="軟體測試金字塔"><a href="#軟體測試金字塔" class="headerlink" title="軟體測試金字塔"></a>軟體測試金字塔</h2><p>測試金字塔是一個概念，他列出了應該包含在自動化測試中的測試類型，意指，其實還有更多的測試是這裡沒包含到的，但對於一個後端工程師來說，有這樣的觀念最為基礎我認為是足夠了。</p>
-<p>另外這個金字塔視覺化了這些測試的順序跟頻率，由下往上，頻率從多到少、順序由先到後。</p>
-<p><img src="https://i.imgur.com/AZfUdrR.png" alt="圖 16">  </p>
-<p>接著就稍微簡介一下單元測試及整合測試。</p>
-<h2 id="單元測試"><a href="#單元測試" class="headerlink" title="單元測試"></a>單元測試</h2><p>以程式碼的最小單位來做測試，以JS來說通常就是Function。</p>
-<p>這個測試的目的在於確保程式邏輯正確。</p>
-<p>好處包括:</p>
-<ul>
-<li>執行速度快</li>
-<li>隔離相對小的錯誤範圍</li>
-<li>可靠度高</li>
-</ul>
-<p>不過因為對於一開始撰寫測試的人來說，</p>
-<h2 id="整合測試"><a href="#整合測試" class="headerlink" title="整合測試"></a>整合測試</h2><p>難以找到比這個更好的例子XD<br><img src="https://user-images.githubusercontent.com/88981/52933895-c0d47600-338f-11e9-9034-11e1ad0c42f1.gif" alt="圖 17">  </p>
-<p>匯集多個模組共同測試，目的在於確保模組間的互動正確，相對於單元測試，為了納入更多互動時的變因，都會準備一個更完整的測試環境，確保完成的測試真的能確定互動無誤。</p>
-<p>好處包括:</p>
-<ul>
-<li>確保模組互動正常</li>
-<li>對於程式有更高的可信度</li>
-</ul>
-<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>測試的好處這麼多，是不是每個網站都要寫測試呢?</p>
-<p>will保哥其實有提到一些判斷標準可以作為參考:</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Internet到底要怎麼定義他呢，我覺得根據維基百科的說明作為開頭蠻有意思的:</p>
 <blockquote>
-<p>所以你在開始撰寫端對端測試之前，應該還是要先想想：<br>你的網站是否有重要的功能需要被保護?<br>你的網站是否有穩定的需求需要被保護?</p>
+<p>小寫的網際網路（internet，開頭的「i」是小寫字母）為任何分離的實體網路之集合，這些網路以一組通用的協定相連，形成邏輯上的單一網路。而大寫的網際網路（Internet，開頭的「I」是大寫字母）專指前身為ARPANET，後使用IP協定將各種實體網路連結成此單一邏輯網路。—<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E4%BA%92%E8%81%94%E7%BD%91">維基百科</a></p>
 </blockquote>
-<p>今天初探測試就到這邊啦~</p>
+<p>Internet普及到已經將小寫作為一種抽象概念，按照這個定義，連家中兩台電腦互聯也可以被稱做internet。而Internet作為專有名詞，則用來指稱目前大家日常最常使用的網路網路的範圍，而這也是我今天會試著說明的範圍。</p>
+<p>Internet的組成若講到細節相當複雜，但就我閱讀資料來看，為了幫助理解，我們可以試著一刀刀將Internet切開，最後就會切出一張複雜的樹狀圖。<br>但相信我，今天切不了太多刀就會停下來的XD<del>而且切太多會卡到之後幾天的內容</del></p>
+<span id="more"></span>
+
+<h2 id="第一刀"><a href="#第一刀" class="headerlink" title="第一刀:"></a>第一刀:</h2><p>我們可以將網際網路想像成寄送郵件的過程，郵件要能順利寄發，靠著是:</p>
+<ol>
+<li>郵路開發-如何物理上將資料送過去</li>
+<li>寄郵件的規則-要遵循一定的規則才有辦法把郵件好好送到</li>
+</ol>
+<h3 id="郵路開發-互聯網的基礎設施"><a href="#郵路開發-互聯網的基礎設施" class="headerlink" title="郵路開發-互聯網的基礎設施"></a>郵路開發-互聯網的基礎設施</h3><p>前面曾提到，兩台電腦用網路線互聯也可以算是internet，而讓訊號能從一台電腦到另外一台的一切作為都可以稱做是互聯網的基礎設施。</p>
+<p>於是包括wifi, 光纖網路, 電話線, 電源線…等有線無線的連線方式，都可以稱作是網路基礎建設的一部份。</p>
+<p>根據2015年的文章，當時全世界就已經有20億左右的人在使用著Internet。<br>但我們現在一台電腦並沒有用幾萬幾億條線跟其他電腦作連結的狀況下，能夠在一台電腦上看到各式各樣的網站(主機)的方式是什麼呢?</p>
+<p>這邊可以用一個情境去理解:</p>
+<blockquote>
+<p>如果家裡跟中華電信買了寬頻，他們會到你家放一隻俗稱小烏龜的網路交換器，用一條線牽到小烏龜上，然後從小烏龜上再牽出多條線讓你可以多台電腦上網，甚至連到wifi上，可上網的設備就更多了。</p>
+</blockquote>
+<p>這邊我們不談太多細節，要描述的情境僅是「用一個集中的運算中心作訊息的交換」這個概念，我們生活中充斥著這樣大大小小的交換點，小到小烏龜、社區的光纖交換點，大到遠傳電信、中華電信…等，都是一個個交換點，並把我們的郵件(資料)傳遞出去，並把接收到的資料再轉傳到下個交換點，這樣層層構成了這段「郵路」。</p>
+<p>郵路我們應該大致理解是怎麼被建立的，接著要試著理解的是寄郵規則。</p>
+<h3 id="寄郵規則-協定疊-protocol-stacks"><a href="#寄郵規則-協定疊-protocol-stacks" class="headerlink" title="寄郵規則-協定疊(protocol stacks)"></a>寄郵規則-協定疊(protocol stacks)</h3><p>我們在寄送郵件時，得要遵守很多種不同類型的規則才有辦法讓郵件順利寄到對方的手中並且被讀懂。</p>
+<p>舉些例子:</p>
+<ol>
+<li>(IP)想像跨國郵件，如何讓郵路過程中的郵差(資料交換點)理解下一段路要送到哪裡的規則。</li>
+<li>(TCP)想像IKEA的超大家具，為了運送方便，你的家具會先被拆解，並標上記號，隨信還會附上組裝指南，然後分開運送，直到目的地才會按照組裝指南被重新組裝，怎麼拆解怎麼標記。</li>
+<li>(SSL&#x2F;TLS)寄送重要文件時先鎖上只有對方才明白怎麼開的鎖。</li>
+</ol>
+<p>這些被簡化的範例也只提到少部分協定而已，但透過以上的範例可以說明協定如何讓溝通得以被進行，甚至我們現在習以為常的web(HTTP)，也只是其中一種最常見的應用協定。</p>
+<p>接著我們會在協定這裡切下第二刀。</p>
+<h2 id="第二刀-protocal-layer"><a href="#第二刀-protocal-layer" class="headerlink" title="第二刀: protocal layer"></a>第二刀: protocal layer</h2><p>打個預防針，這邊我談不了OSI 7層模型，但會先聚焦在Internet Protocol Suite，也是跟後端網頁開發我覺得最有相關的部分之一。</p>
+<p>IPS也被通稱為TCP&#x2F;IP協定套組，被這麼稱呼是因為該協定的套組最早被通過的標準就是TCP及IP，但實際上它包含四個層級，每一抽象層建立在低一層之上，並服務更高一層，以下由上往下列出並舉例:</p>
+<p><strong>1. 應用(application): HTTP</strong><br><strong>2. 傳輸(transport): TCP</strong><br><strong>3. 網路互連(internet): IP</strong><br>4. 網路存取(Network Access (link))。</p>
+<p>跟後端工程師較相關的部分落在上三層。<br>要怎麼理解他們的差異呢?</p>
+<p>有一個說法我看到也蠻喜歡的: </p>
+<blockquote>
+<p>我們在傳輸數據時，可以只使用（傳輸層）TCP&#x2F;IP協議，但是那樣的話，如果沒有應用層，便無法識別數據內容，如果想要使傳輸的數據有意義，則必須使用到應用層協議 – <a target="_blank" rel="noopener" href="https://kknews.cc/code/vey6jvy.html">原文</a></p>
+</blockquote>
+<p>以我的理解來說，不同的應用協定就像是不同語言的使用者，他們寄了不同語言的郵件，若收件者無法理解這個語言(協定)、或是以錯誤的語言解讀了信件內容，就無法看懂信件內容。</p>
+<p>而傳輸層的協定確保了設備到設備之間的可靠性(信到的了地方)及順序性(郵件完整且沒有被錯誤組裝)。</p>
+<p>網路互連層則負責確保目的的正確性(信到達正確的地方)。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>切到這裡是我的極限了XD</p>
+<p>我在寫這章時，把關注點放在理解HTTP, TCP&#x2F;IP之間的差異讓我收穫良多~<br>若要思考這篇文章帶給我的益處，大概是能夠稍稍分辨不同IPS的層別的概要功能跟意義，讓我可以在遇到一些新的協定時或許能更快分類並應用。</p>
+<p>明天就來深入一點看HTTP吧!</p>
 <p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.browserstack.com/guide/testing-pyramid-for-test-automation">Testing Pyramid : How to jumpstart Test Automation</a><br><a target="_blank" rel="noopener" href="https://www.guru99.com/software-testing-introduction-importance.html">What is Software Testing? Definition</a><br><a target="_blank" rel="noopener" href="https://ithelp.ithome.com.tw/articles/10230034">鼠年全馬鐵人挑戰 WEEK 03：軟體測試的種類 - 第二集</a><br><a target="_blank" rel="noopener" href="https://blog.miniasp.com/post/2019/02/18/Unit-testing-Integration-testing-e2e-testing">一次搞懂單元測試、整合測試、端對端測試之間的差異</a></p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.vox.com/2014/6/16/18076282/the-internet">從歷史的角度作為開頭來說明Internet(英)</a><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/TCP/IP%E5%8D%8F%E8%AE%AE%E6%97%8F">維基好朋友-TCP&#x2F;IP協定套組</a><br><a target="_blank" rel="noopener" href="http://web.stanford.edu/class/msande91si/www-spr04/readings/week1/InternetWhitepaper.htm">How Does the Internet Work?</a><br><a target="_blank" rel="noopener" href="http://ep.ltivs.eportfolio.cc/c/document_library/get_file?uuid=cc21548f-b9d9-411d-ab68-2a4e02d65487&groupId=386840">網際網路運作原理</a></p>
 
     </div>
 
@@ -358,7 +368,7 @@
   </li>
   <li class="post-copyright-link">
       <strong>Post link: </strong>
-      <a href="https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/" title="給工程師吃個定心陲-測試Testing">https://tim80411.github.io/code-blog/2022/10/10/Test_Overview/</a>
+      <a href="https://tim80411.github.io/code-blog/2022/09/16/Web_Internet/" title="網際網路(Internet)是怎麼運作的?">https://tim80411.github.io/code-blog/2022/09/16/Web_Internet/</a>
   </li>
   <li class="post-copyright-license">
     <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
@@ -369,18 +379,19 @@
           <div class="post-tags">
               <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
               <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
-              <a href="/code-blog/tags/Testing/" rel="tag"># Testing</a>
+              <a href="/code-blog/tags/Internet/" rel="tag"># Internet</a>
+              <a href="/code-blog/tags/Protocol/" rel="tag"># Protocol</a>
           </div>
 
         
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/code-blog/2022/10/09/Web_OWASP/" rel="prev" title="十個好弱點，不保護嗎?-OWASP security risk">
-                  <i class="fa fa-chevron-left"></i> 十個好弱點，不保護嗎?-OWASP security risk
-                </a>
             </div>
             <div class="post-nav-item">
+                <a href="/code-blog/2022/09/17/Web_HTTP/" rel="next" title="超文本傳輸協定(HTTP)是什麼?">
+                  超文本傳輸協定(HTTP)是什麼? <i class="fa fa-chevron-right"></i>
+                </a>
             </div>
           </div>
     </footer>

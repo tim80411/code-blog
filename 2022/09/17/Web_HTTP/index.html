@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言前一天提到HTTP作為應用層的協定，定義了訊息內容如何被解讀。 今天會較為詳細的了解這個協定，目前Web，也就是我們使用瀏覽器讀取各式各樣WebSite的集合，就是基於此協定發展出來的。 我們會從簡單的HTTP歷史開始，在逐步說明特性、結構，最後也會談談HTTP&#x2F;3。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="超文本傳輸協定(HTTP)是什麼?">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/09/17/Web_HTTP/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言前一天提到HTTP作為應用層的協定，定義了訊息內容如何被解讀。 今天會較為詳細的了解這個協定，目前Web，也就是我們使用瀏覽器讀取各式各樣WebSite的集合，就是基於此協定發展出來的。 我們會從簡單的HTTP歷史開始，在逐步說明特性、結構，最後也會談談HTTP&#x2F;3。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2022-09-17T12:38:27.000Z">
+<meta property="article:modified_time" content="2022-10-10T12:43:44.631Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="HTTP">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/09/17/Web_HTTP/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/09/17/Web_HTTP/","path":"2022/09/17/Web_HTTP/","title":"超文本傳輸協定(HTTP)是什麼?"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>超文本傳輸協定(HTTP)是什麼? | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">50</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">25</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP%E7%89%88%E6%9C%AC%E5%8F%8A%E6%AD%B7%E5%8F%B2"><span class="nav-number">2.</span> <span class="nav-text">HTTP版本及歷史</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP%E7%89%B9%E6%80%A7"><span class="nav-number">3.</span> <span class="nav-text">HTTP特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Client-Server%E5%8D%94%E5%AE%9A"><span class="nav-number">3.1.</span> <span class="nav-text">Client-Server協定:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%84%A1%E7%8B%80%E6%85%8B-stateless"><span class="nav-number">3.2.</span> <span class="nav-text">無狀態(stateless)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E6%93%B4%E5%B1%95%E7%9A%84-extensible"><span class="nav-number">3.3.</span> <span class="nav-text">可擴展的(extensible)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP%E7%B5%90%E6%A7%8B"><span class="nav-number">4.</span> <span class="nav-text">HTTP結構</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Request"><span class="nav-number">4.1.</span> <span class="nav-text">Request</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Response"><span class="nav-number">4.2.</span> <span class="nav-text">Response</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP-x2F-3"><span class="nav-number">5.</span> <span class="nav-text">HTTP&#x2F;3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Connection-establishment-latency"><span class="nav-number">5.1.</span> <span class="nav-text">Connection establishment latency</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Improved-congestion-control"><span class="nav-number">5.2.</span> <span class="nav-text">Improved congestion control</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Multiplexing-without-head-of-line-blocking"><span class="nav-number">5.3.</span> <span class="nav-text">Multiplexing without head-of-line blocking</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Forward-error-correction"><span class="nav-number">5.4.</span> <span class="nav-text">Forward error correction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Connection-migration"><span class="nav-number">5.5.</span> <span class="nav-text">Connection migration</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-x2F-3%E7%89%B9%E6%80%A7"><span class="nav-number">5.6.</span> <span class="nav-text">HTTP&#x2F;3特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">6.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">7.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">50</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/09/17/Web_HTTP/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="超文本傳輸協定(HTTP)是什麼? | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          超文本傳輸協定(HTTP)是什麼?
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2022-09-17 20:38:27" itemprop="dateCreated datePublished" datetime="2022-09-17T20:38:27+08:00">2022-09-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2022-10-10 20:43:44" itemprop="dateModified" datetime="2022-10-10T20:43:44+08:00">2022-10-10</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/09/17/Web_HTTP/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/09/17/Web_HTTP/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>前一天提到HTTP作為應用層的協定，定義了訊息內容如何被解讀。</p>
+<p>今天會較為詳細的了解這個協定，目前Web，也就是我們使用瀏覽器讀取各式各樣WebSite的集合，就是基於此協定發展出來的。</p>
+<p>我們會從簡單的HTTP歷史開始，在逐步說明特性、結構，最後也會談談HTTP&#x2F;3。</p>
+<span id="more"></span>
+
+<h2 id="HTTP版本及歷史"><a href="#HTTP版本及歷史" class="headerlink" title="HTTP版本及歷史"></a>HTTP版本及歷史</h2><p>版本大部分都向下相容，以下簡介:</p>
+<ul>
+<li><p>HTTP&#x2F;0.9:<br>只能使用GET</p>
+</li>
+<li><p>HTTP&#x2F;1.0:<br>此版的特性是提供了HTML擴充性，除了是第一個在通訊中指定版本號的版本，新增response狀態碼、Header的概念。特別是HEADER的概念，讓HTTP可以基於Content-Type這個HEADER的定義傳輸不同類型的文檔。</p>
+</li>
+<li><p>HTTP&#x2F;1.1:<br>特性是將所有概念標準化，也是時至今日最為常見的版本，他從1999年第二版後就持續使用至今。</p>
+</li>
+<li><p>HTTP&#x2F;2:<br>特性是效能，在基於網頁的複雜及交互性提高之下，溝通的成本不斷提高，因此有了HTTP&#x2F;2，其強化效能的特性包括，二進制的協定、並行的情求可在同一個連接中處理、HEADER壓縮。</p>
+</li>
+<li><p>HTTP&#x2F;3:<br>為了應對HTTTP&#x2F;2的問題而生，應用基於UDP的QUIC取代TCP，去解決了TCP出現隊頭阻塞（head-of-line blocking），在容易丟失封包網路環境，HTTP&#x2F;3有更穩定的表現。</p>
+</li>
+</ul>
+<h2 id="HTTP特性"><a href="#HTTP特性" class="headerlink" title="HTTP特性"></a>HTTP特性</h2><h3 id="Client-Server協定"><a href="#Client-Server協定" class="headerlink" title="Client-Server協定:"></a>Client-Server協定:</h3><p>我個人覺得也可以說是request-response協定，意指，兩個的端點在一次連接中，一定有一方是client發出request，而另外一方則作為server，在接收到request後發回response給client。<br>這邊要特別注意到client跟server角色並不是固定的。</p>
+<p>比如A、B兩個端點分別稱為診所(server)及醫院(server):</p>
+<ol>
+<li>會話1: 醫院向診所發出request要求取得診所的X光照片，此時醫院是client，診所則為server。</li>
+<li>會話2: 診所向醫院發出request要求取得醫院的就醫紀錄，此時診所是client，醫院則為server。</li>
+</ol>
+<h3 id="無狀態-stateless"><a href="#無狀態-stateless" class="headerlink" title="無狀態(stateless)"></a>無狀態(stateless)</h3><p>根據資料的定義</p>
+<blockquote>
+<p>there is no link between two requests being successively carried out on the same connection – <a target="_blank" rel="noopener" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview#http_is_stateless_but_not_sessionless">MDN</a></p>
+</blockquote>
+<p>白話翻譯是: 在一個連線之中，兩個成功的請求(request)之間是毫無關聯的。</p>
+<p>曾經看過一個蠻好的比喻，可以把這件事情想成一間店的老闆(server)永遠認不得你(client)，就算你先後兩次踏入店內，他還是會把你當成不同的客人。</p>
+<h3 id="可擴展的-extensible"><a href="#可擴展的-extensible" class="headerlink" title="可擴展的(extensible)"></a>可擴展的(extensible)</h3><p>基於HEADER讓HTTP具有相當地擴展性。<br>一些常用的HEADER包括: </p>
+<ul>
+<li>Content-Type: 決定傳輸的資料如何被解析，是不同類型檔案傳輸的基礎</li>
+<li>Authorization: 處理網站身分驗證常用的HEADER</li>
+<li>Cookie: Cookie機制會使用此HEADER</li>
+</ul>
+<h2 id="HTTP結構"><a href="#HTTP結構" class="headerlink" title="HTTP結構"></a>HTTP結構</h2><h3 id="Request"><a href="#Request" class="headerlink" title="Request"></a>Request</h3><ul>
+<li>Start line</li>
+</ul>
+<p>包含Method, Target, HTTP version。</p>
+<p>方法Method是用來描述當次請求的行為，每個方法具有不同語意但可能具備相同特性。<br>特性包含安全Safe, 冪等Idempotent, 快取cacheable。<br><strong>安全</strong> - 指的是不會修改server的數據的方法，例如GET、HEAD、OPTIONS，所有安全的方法都是冪等Idempotent的，但反過來卻不一定這樣，比如說PUT跟DELETE，這邊就會提到什麼是冪等。<br><strong>冪等</strong> - 指的是同樣的請求不管執行一次或是多次結果都相同，以前面提到的DELETE來說好了，不管執行幾次，他指定的資源就是會不存在。<br>不過需要注意到實務狀況上，因為這比較像是約定的標準，實際上得看server如何實現這些方法，是有可能會出現例外的。<br><strong>快取</strong> - 可以被快取的Method，除了特定方法外，也要滿足以下特點，可緩存的狀態碼、Response不具有特定阻止緩存的Headers(Cache-Control)</p>
+<p>目標Target用來描述當次請求的目的地，可能是URL、協議或絕對路徑。</p>
+<p>版本HTTP version用來表示對於response回傳資料的版本的指示。</p>
+<p>可能範例: </p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// ex1</span><br><span class="line"><span class="keyword">OPTIONS</span> <span class="string">*</span> <span class="meta">HTTP/1.1</span></span><br><span class="line">// ex2</span><br><span class="line">POST /restaurants?id=1 HTTP/1.1</span><br><span class="line">// ex3</span><br><span class="line">GET https://www.google.com.tw HTTP/1.1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Headers</li>
+</ul>
+<p>請求Request或是Response的Headers都遵循相同結構: case insensitive的字串，加上冒號(:)以及header的值。</p>
+<p>大致可分為幾類: General headers、Request headers、Entity headers。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// ex1:</span><br><span class="line"><span class="attribute">content-type</span><span class="punctuation">: </span>application/x-javascript; charset=utf-8</span><br><span class="line">// ex2:</span><br><span class="line"><span class="attribute">cross-origin-resource-policy</span><span class="punctuation">: </span>cross-origin</span><br><span class="line">// ex3:</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>public</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Body</li>
+</ul>
+<p>不是每個請求都會有Body，比較常見具有Body的請求是POST。</p>
+<h3 id="Response"><a href="#Response" class="headerlink" title="Response"></a>Response</h3><ul>
+<li>Status line</li>
+</ul>
+<p>回應的Status通常被HTTP version, status code, status test組成。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// ex1</span><br><span class="line"><span class="meta">HTTP/1.1</span> <span class="number">200</span> OK</span><br><span class="line">// ex2</span><br><span class="line">HTTP/1.1 404 Not Found</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Headers</li>
+<li>Body</li>
+</ul>
+<h2 id="HTTP-x2F-3"><a href="#HTTP-x2F-3" class="headerlink" title="HTTP&#x2F;3"></a>HTTP&#x2F;3</h2><p>HTTP&#x2F;3早在2019年被Google Chrome（Canary build）支援，而他的規範已經在2022年6月6日，被IETF正式標準化HTTP&#x2F;3為RFC9114。</p>
+<p>那究竟這個規範為什麼會出現呢?</p>
+<p>前言曾提到HTTP想要解決的問題是封包丟失的網路環境造成的阻塞，這個環境其實就是網路流量轉至手機等無線網路環境。</p>
+<p>相對於HTTP&#x2F;2，使用QUIC作為傳輸協定的HTTP&#x2F;3有以下幾項好處:</p>
+<h3 id="Connection-establishment-latency"><a href="#Connection-establishment-latency" class="headerlink" title="Connection establishment latency"></a>Connection establishment latency</h3><p>更快的連接建立: 一次封包往返被稱為1RTT，原TCP+TLS需要1-3次，但QUIC僅在第一次需要1次RTT，但第二次連線開始就可以傳輸資料。</p>
+<h3 id="Improved-congestion-control"><a href="#Improved-congestion-control" class="headerlink" title="Improved congestion control"></a>Improved congestion control</h3><p>可以為阻塞控制提供相對TCP更多的資訊。</p>
+<h3 id="Multiplexing-without-head-of-line-blocking"><a href="#Multiplexing-without-head-of-line-blocking" class="headerlink" title="Multiplexing without head-of-line blocking"></a>Multiplexing without head-of-line blocking</h3><p>TCP也會有Head of Line Blocking (HOL Blocking)問題，此問題簡單的定義是指: </p>
+<blockquote>
+<p>當單個（慢）物件阻止其他&#x2F;後續的物件前進時</p>
+</blockquote>
+<p>可以想像排隊的時候看到前面的人不會操控行動支付，於是後面的人就都沒辦法結帳了XD</p>
+<p>而TCP會發生這個的原因在於他會因為丟失的封包而暫停後續的封包傳輸，需要等到發送端發現並重新傳送，就算我們從應用層知道這個被丟失的封包其實是獨立的，不用等待重新傳送。</p>
+<p>於是QUIC做了一件事情相對TCP的是讓傳輸的封包有了獨立的概念，可以被獨自處理。</p>
+<h3 id="Forward-error-correction"><a href="#Forward-error-correction" class="headerlink" title="Forward error correction"></a>Forward error correction</h3><p>更好的丟失恢復機制，資料被切成多個封包後，會有一段資訊跟著封包一起傳輸，若不幸有封包被丟失，就可以憑藉其餘封包運算出被丟失的包的資料。</p>
+<h3 id="Connection-migration"><a href="#Connection-migration" class="headerlink" title="Connection migration"></a>Connection migration</h3><p>在wifi與4G切換時可以不用重新連線。</p>
+<h3 id="HTTP-x2F-3特性"><a href="#HTTP-x2F-3特性" class="headerlink" title="HTTP&#x2F;3特性"></a>HTTP&#x2F;3特性</h3><p>透過以上說明，其實可以很清楚看到HTTP&#x2F;3關注的部分非常符合現況，傳輸的頻寬不再是瓶頸，而往返時間才是，所以在適當的範圍內增加冗餘資料，去減少重複的傳輸。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>HTTP的特性: 結構簡單、高擴充性得以開發各種應用方式。包括安全、認證、快取、壓縮、重導向等議題，這些在1.1開發初沒特別約定的部分，都透過了Headers做了約定並實現。</p>
+<p>從看見HTTP的歷史你也可以看見網路的產業是怎麼隨著硬體的發展而做出相對應的改變的，就像是限制理論說到的，系統的最短板會不斷改變，並且在解決之後會有新的限制出現在別處。</p>
+<p>接著會介紹永遠的client端，也是讓Web可以深入日常生活的重要因素-Browser。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://www.cloudflare.com/en-gb/learning/ddos/glossary/hypertext-transfer-protocol-http/">What is HTTP?</a><br><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers">MDN-HTTP Headers</a><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/zh-tw/%E8%B6%85%E6%96%87%E6%9C%AC%E4%BC%A0%E8%BE%93%E5%8D%8F%E8%AE%AE">維基好朋友-HTTP</a><br><a target="_blank" rel="noopener" href="https://medium.com/@chester.yw.chu/http-3-%E5%82%B3%E8%BC%B8%E5%8D%94%E8%AD%B0-quic-%E7%B0%A1%E4%BB%8B-5f8806d6c8cd">HTTP&#x2F;3 傳輸協議 - QUIC 原理簡介</a>)<br><a target="_blank" rel="noopener" href="https://docs.google.com/document/d/1gY9-YNDNAB1eip-RTPbqphgySwSNSDHLq9D5Bty4FSU/mobilebasic">QUIC at 10,000 feet</a><br><a target="_blank" rel="noopener" href="https://www.gushiciku.cn/pl/gkVS/zh-tw">HOL blocking</a><br><a target="_blank" rel="noopener" href="https://www.it145.com/9/82134.html">快速讀懂 HTTP&#x2F;3 協定</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2022/09/17/Web_HTTP/" title="超文本傳輸協定(HTTP)是什麼?">https://tim80411.github.io/code-blog/2022/09/17/Web_HTTP/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/HTTP/" rel="tag"># HTTP</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/09/16/Web_Internet/" rel="prev" title="網際網路(Internet)是怎麼運作的?">
+                  <i class="fa fa-chevron-left"></i> 網際網路(Internet)是怎麼運作的?
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/09/18/Network_Browser/" rel="next" title="瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的?">
+                  瀏覽器(Browser)與他們的產地-瀏覽器是怎麼運作的? <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">62k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">56 mins.</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
