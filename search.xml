@@ -223,104 +223,74 @@
       </tags>
   </entry>
   <entry>
-    <title>交易的安全保證-ACID &amp; Transactions</title>
-    <url>/code-blog/2022/10/01/DB_ACID_And_Transaction/</url>
-    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在真實的網路行為上，一個只是點擊的動作常常會牽動對於多個數據的動作，這樣一系列動作的組成被稱為Transaction，中文有人說事務，也有人稱呼他為交易。<br>而ACID則是確保Transaction能正確可靠的四個特性。</p>
-<p>後面會來稍微了解這個部分~</p>
+    <title>ㄟ黑我又開新server囉-容器container tech</title>
+    <url>/code-blog/2022/10/13/Container_Overview/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Container是什麼?</p>
+<p>雖然他依舊是一個很大的主題，但我們可以從技術是為了解決什麼問題開始瞭解起，並且介紹一下他的核心概念。</p>
 <span id="more"></span>
-<h2 id="Transaction錯誤"><a href="#Transaction錯誤" class="headerlink" title="Transaction錯誤"></a>Transaction錯誤</h2><p>剛剛前提已經提到了關於Transaction的定義。<br>原則上，我們會希望當Transaction進行的時候，資料庫要像是時間停止一樣，直到commit之前所有的資料都保持不動；<br>而其他的事務的操作若有取得與前面事務相關的資料時，應該以前面事務的最終結果為結果。<br>ANSI&#x2F;ISO standard SQL 92舉出一些並非如此的錯誤: </p>
+
+<h2 id="為什麼出現container"><a href="#為什麼出現container" class="headerlink" title="為什麼出現container"></a>為什麼出現container</h2><p>有一張圖(引用自<a href="https://dockertips.readthedocs.io/en/latest/docker-install/docker-intro.html">容器技术的介绍</a>)我蠻喜歡的XD<br><img src="https://dockertips.readthedocs.io/en/latest/_images/why_container_1.png"></p>
+<p>透過圖片可以看到像是煉蠱一樣，每個program其實都會有自己需要的依賴，甚至有可能有program需要同時運行不同版本，而他們各自都有對依賴的版本有所要求，那該怎麼辦才好?</p>
+<p>於是我們出現了container!!</p>
+<h2 id="什麼是container"><a href="#什麼是container" class="headerlink" title="什麼是container?"></a>什麼是container?</h2><p>中文稱作容器，你可以說他是一種打包應用程式的技術，也可以說他是一個虛擬的空間，這些都大致描述container技術的輪廓。</p>
+<p>透過一個比喻可能會更容易了解這個部分: container就像是貨輪上的一個個貨櫃。</p>
+<p>從這裡可以描述container的一些特性</p>
 <ul>
-<li>髒讀Dirty Reads</li>
-<li>不可重複讀Non-Repeatable Reads</li>
-<li>幻讀Phantom Reads</li>
+<li>標準化</li>
+<li>輕量</li>
+<li>易複製移植</li>
 </ul>
-<h3 id="Dirty-Reads"><a href="#Dirty-Reads" class="headerlink" title="Dirty Reads"></a>Dirty Reads</h3><blockquote>
-<p>有兩個Transaction分別為A及B，若A的操作將包含更改一個欄位的資料，B這時候在A尚未commit(註1)的時候去讀取，並取得了更新後的結果，這就稱為Dirty Reads</p>
-</blockquote>
-<p>為什麼這樣是一種錯誤呢?原因在於A並未確定已經成功了，若他失敗，將會把資料從已更新的資料退回，這時候B使用到的值就是錯誤的。</p>
-<ul>
-<li>白話案例:<br>假如有一個Transaction A的目的是將user的身分從一般normal轉成VIP，在更新完但還沒commit時，這時候Transaction B出現，他希望使用一個VIP才能使用的優惠，此時讀取的資料若是VIP，就能順利完成Transaction B，並用掉了優惠；沒想到這時候發現Transaction A後面在完成某個確認的流程沒有通過，於是所有動作都退回，導致使用者的身分其實還是normal卻使用了VIP才能用的優惠。</li>
-</ul>
-<p>註1: 一個Transaction的commit代表在這個Transaction的所有操作都被確定完成了。</p>
-<h3 id="Non-Repeatable-Reads"><a href="#Non-Repeatable-Reads" class="headerlink" title="Non-Repeatable Reads"></a>Non-Repeatable Reads</h3><blockquote>
-<p>一個Transaction裡面，讀取兩次相同欄位，卻得到不同結果，稱為Non-Repeatable Reads</p>
-</blockquote>
-<h3 id="Phantom-Reads"><a href="#Phantom-Reads" class="headerlink" title="Phantom Reads"></a>Phantom Reads</h3><blockquote>
-<p>一個Transaction裡面，進行兩次查詢，得到不同數量的結果，就稱為Phantom Reads</p>
-</blockquote>
-<p>看起來跟Non-Repeatable Reads有點相像，差異應該是讀取的層級不太一樣，以SQL的講法，Phantom Reads是發生在table內的等級，而Non-Repeatable Reads則是row內的等級，所以意思是，Non-Repeatable Reads跟Phantom Reads確實是可能在同一次搜尋裡面發生的。</p>
-<h2 id="ACID-原則"><a href="#ACID-原則" class="headerlink" title="ACID 原則"></a>ACID 原則</h2><p>為了避免上述的錯誤，大部分的關聯式資料庫都遵循這個原則，包括</p>
-<ul>
-<li>原子性Atomicity</li>
-<li>一致性Consistency</li>
-<li>隔離Isolation</li>
-<li>持久性Durability</li>
-</ul>
-<h3 id="Atomicity"><a href="#Atomicity" class="headerlink" title="Atomicity"></a>Atomicity</h3><p>全有全無，Transaction的操作要就全部發生，要就全部沒有，視為一個整體。</p>
-<p>有一個說法是我覺得很清楚的</p>
+<p>簡單來說，容器話技術就是透過各項資源的隔離，來達成資源的最大化利用。</p>
+<p>有些人可能會開始覺得有點熟悉…</p>
+<h2 id="container-vs-VM"><a href="#container-vs-VM" class="headerlink" title="container vs VM"></a>container vs VM</h2><p>不是有個技術叫做virtual machine也可以多開嗎?</p>
+<p>再來一張來自微軟描述Docker的圖~<br><img src="https://i.imgur.com/gVc8LeE.png" alt="圖 20">  </p>
+<p>從這裡可以看到差異，Container能在共用OS的狀況下，運作多個Process，並使用OS在做process scheduling。</p>
+<p>也因為是共用OS，所以他足夠輕量、開啟速度又足夠快。</p>
+<p>但這樣我們就能夠說container比vm好嗎?</p>
+<p>也不是的，事實上沒有孰好孰壞的問題，因為兩個技術想解決的問題是不太相同的，引用我自己的話XD</p>
 <blockquote>
-<p>一般來說，原子性 意為某樣東西不可在被切割的更小塊。但在計算機領域中，則是指在多執行緒底下，某個執行緒若執行一個原子操作 (atomic operation)，另一個執行緒無法看到該操作中的半完成狀態，只有操作前跟操作後兩個狀態。<br>– <a href="https://ithelp.ithome.com.tw/articles/10259236">Transactions (1) - ACID</a></p>
+<p>虛擬機希望解決的問題是在機器層面上隔離，共用的部分是主機的硬體；而container則是在在應用程式層面上隔離，共用的部分是作業系統環境。</p>
 </blockquote>
-<h3 id="Consistency"><a href="#Consistency" class="headerlink" title="Consistency"></a>Consistency</h3><blockquote>
-<p>在事務開始之前和事務結束以後，資料庫的完整性沒有被破壞。這表示寫入的資料必須完全符合所有的預設約束、觸發器、級聯回滾等<br>– <a href="https://zh.wikipedia.org/zh-tw/ACID">維基百科</a></p>
+<h2 id="container-三本柱"><a href="#container-三本柱" class="headerlink" title="container 三本柱"></a>container 三本柱</h2><p>基本上container的技術由三個重要的概念支持: container、image、registry</p>
+<p>他們三個的關係環環相扣</p>
+<ul>
+<li>image: 一個運行容器(也就是process)時所需要的環境。</li>
+<li>container: 容器就是一個正在運行的鏡像，更準確地說，每個容器就是一段在運行中的process。</li>
+<li>registry: 可以下載(pull)images的網站</li>
+</ul>
+<h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><p>之前曾經想過一篇跟docker有關的介紹，<a href="https://medium.com/coding-book-club/docker-basic-fb3347b3ec4c">在這裡</a>，就不再多寫了XD</p>
+<p>因為是讀書會的題目，所以也有完整的系列文，歡迎來看~~</p>
+<h2 id="podman"><a href="#podman" class="headerlink" title="podman"></a>podman</h2><p>根據官方文件: </p>
+<blockquote>
+<p>What is Podman? Podman is a daemonless container engine for developing, managing, and running OCI Containers on your Linux System. Containers can either be run as root or in rootless mode. Simply put: alias docker&#x3D;podman. More details here.</p>
 </blockquote>
-<p>這邊在維基百科其實說的有點抽象，但我看到一些其他的說法，包括: </p>
+<p>他甚至還在介紹裡面直接跟你說你可以直接把podman alias成docker XDD</p>
+<p>雖然有點好笑，但大概也可以從中看到他的特色，及與docker的差異，甚至你可以說他認為自己docker的某種改進: </p>
 <ul>
-<li>data is consistent before and after a transaction without any missing steps–<a href="https://retool.com/blog/whats-an-acid-compliant-database/">參考</a></li>
-<li>transaction 完成前後，資料都必須永遠符合 schema 的規範，保持資料與資料庫的一致性–<a href="https://tw.alphacamp.co/blog/mysql-intro-acid-in-databases">參考</a></li>
-<li>不同的數據都會有一些基本的約束，而這些約束在交易前跟交易後都必須要遵守，如果沒辦法遵守交易就必須失敗–<a href="https://lance.coderbridge.io/2021/04/24/short-what-is-acid/">參考</a></li>
+<li><p>無背景的daemonless:<br>docker有個問題在於他是使用daemon來管理全部的process(container)的，如果daemon掛掉了，所有的process也就掰了，不過podman就並非如此</p>
+</li>
+<li><p>非root權限:<br>docker的操作都必須用root或是具有相同權限的帳號操作，這會造成安全問題。(<a href="https://docs.docker.com/engine/security/rootless/">話說現在也支援rootless了</a>)</p>
+</li>
+<li><p>易從docker移植<br>他提供docker相容的指令，用戶可以輕鬆地從docker移植過去</p>
+</li>
 </ul>
-<p>我覺得一致性這邊要提到的約束其實是泛指所有，上面的說法都可能是其中一個部分，比如schema可能會限制unique index、另外不在schema中的約束可能是FK constraint等等的。</p>
-<p>不過這裡的一致性也部分受到原子性保護著，比如說錯誤的操作因為原子性的全有全無機制，不會因此出現例外，而是會回到原本的狀態，這樣也就確保錯誤時的一致性不會被破壞了。</p>
-<h3 id="Isolation"><a href="#Isolation" class="headerlink" title="Isolation"></a>Isolation</h3><p>這裡指的是當多個Transaction併發(concurrent)時，不會互相造成影響。</p>
-<p>最完美的作法當然後依序執行，也就是每次只完成一個Transaction，但這樣效能太差，這不就代表沒有併發嗎XD。<br>所以後面就會出現不同等級的隔離，都相對於依序執行隔離來的弱，有機率發生併發，但是在效能、情境上考量後可接受。<br>而開發者就需要了解不同層級的差異，以盡可能減少併發造成的bug，也就是前面提到的三種錯誤。</p>
-<p>以下分為幾個層級，由低到高分別為: </p>
-<h4 id="Read-Uncommitted"><a href="#Read-Uncommitted" class="headerlink" title="Read Uncommitted"></a>Read Uncommitted</h4><p>保證A事務已更新但未commit的資料，B事務僅可讀取。<br>因為可以讀取其他Transaction尚未commit的結果，其實意思幾乎等同於沒隔離了XD<br>不過他的意義還是在的，想像一下若沒有這層隔離會發生的狀況:</p>
-<ol>
-<li>原始資料X為0</li>
-<li>事務A更新資料X為1</li>
-<li>事務B更新資料X為2</li>
-<li>事務A rollback 回原值0</li>
-</ol>
-<p>原本預期嘗試更新為2就因此消失了，因此此層還是能至少避免更新的遺失。</p>
-<p>此隔離性會發生的問題包括:</p>
-<ul>
-<li>髒讀</li>
-<li>不可重複讀</li>
-<li>幻讀</li>
-</ul>
-<h4 id="Read-Committed"><a href="#Read-Committed" class="headerlink" title="Read Committed"></a>Read Committed</h4><p>保證讀取到的資料都是經過確認(commit)的。<br>因此可以避免髒讀。</p>
-<p>為什麼無法避免其餘錯誤呢?<br>有一個案例如下</p>
-<ol>
-<li>原始資料X為1</li>
-<li>事務A讀取資料X得到1</li>
-<li>事務B更新資料X為2並確認</li>
-<li>事務A讀取資料X得到2</li>
-</ol>
-<p>這樣就發生不可重複讀了。<br>同上，如果這裡的更新變成插入資料一樣無法避免幻讀。</p>
-<p>此隔離性會發生的問題包括:</p>
-<ul>
-<li>不可重複讀</li>
-<li>幻讀</li>
-</ul>
-<h4 id="Repeatable-Read"><a href="#Repeatable-Read" class="headerlink" title="Repeatable Read"></a>Repeatable Read</h4><p>保證同一次事務，取得的資料都相同。</p>
-<p>此隔離性會發生的問題包括:</p>
-<ul>
-<li>幻讀</li>
-</ul>
-<h4 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h4><p>以效能換取隔離。</p>
-<h3 id="Durability"><a href="#Durability" class="headerlink" title="Durability"></a>Durability</h3><p>若Transaction完成，就算出現錯誤，已經完成操作的資料也應該保持原樣、永久的。</p>
-<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>這次大致了解了Transaction，以及保持Transaction正確可靠的ACID。<br>不過其中在隔離性的部分雖然介紹了層級，但各資料庫實現這些層級隔離的方式完全是看他們自己XD<br>通常會應用到關於鎖Lock的觀念，不過這部分就只好留待以後了~~</p>
-<p>明天會了解一下與DB效能有關的話題-N+1 problem。</p>
-<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
-<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://ithelp.ithome.com.tw/articles/10259236">Transactions (1) - ACID</a><br><a href="https://fauna.com/blog/database-transaction">What is a database transaction?</a><br><a href="https://openhome.cc/Gossip/HibernateGossip/IsolationLevel.html">簡介隔離層級</a><br><a href="https://ithelp.ithome.com.tw/articles/10247232">Transaction 併發錯誤與隔離層級 - (1)</a><br><a href="https://blog.amis.com/database-transaction-isolation-a1e448a7736e">資料庫交易的 Isolation</a></p>
+<p>不過也有一些<a href="https://www.v2ex.com/t/801421">吐槽</a>: 包括速度慢、bug多等。</p>
+<p>不過因為我沒實際用過就不多說什麼了，不過看起來大家會使用他的原因多半都是rootless而去的。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>恩…雖然不像，但今天是最後一天的Road Map之旅XD</p>
+<p>但其實還有大概好幾天的內容可以寫，等我好好地給他休息好一陣子再來看看要不要接續寫完XD</p>
+<hr>
+<p>也是最後一次自我推銷部落格了，我覺得文章寫出來還是希望被別人看到的，最好有些幫助，有些批評，這樣可以開心、也可以有所調整!!</p>
+<p>所以~~~</p>
+<p><strong>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</strong></p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://medium.com/coding-book-club/docker-basic-fb3347b3ec4c">Docker系列讀書會I-初步介紹Docker</a><br><a href="https://learn.microsoft.com/zh-tw/dotnet/architecture/microservices/container-docker-introduction/">容器和 Docker 簡介</a><br><a href="https://dockertips.readthedocs.io/en/latest/docker-install/docker-intro.html">容器技术的介绍</a></p>
 ]]></content>
       <tags>
         <tag>鐵人賽</tag>
         <tag>Backend</tag>
-        <tag>ACID</tag>
-        <tag>Transaction</tag>
-        <tag>Isolation</tag>
+        <tag>Container</tag>
+        <tag>VM</tag>
+        <tag>Docker</tag>
+        <tag>Podman</tag>
       </tags>
   </entry>
   <entry>
@@ -456,6 +426,107 @@
       </tags>
   </entry>
   <entry>
+    <title>交易的安全保證-ACID &amp; Transactions</title>
+    <url>/code-blog/2022/10/01/DB_ACID_And_Transaction/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在真實的網路行為上，一個只是點擊的動作常常會牽動對於多個數據的動作，這樣一系列動作的組成被稱為Transaction，中文有人說事務，也有人稱呼他為交易。<br>而ACID則是確保Transaction能正確可靠的四個特性。</p>
+<p>後面會來稍微了解這個部分~</p>
+<span id="more"></span>
+<h2 id="Transaction錯誤"><a href="#Transaction錯誤" class="headerlink" title="Transaction錯誤"></a>Transaction錯誤</h2><p>剛剛前提已經提到了關於Transaction的定義。<br>原則上，我們會希望當Transaction進行的時候，資料庫要像是時間停止一樣，直到commit之前所有的資料都保持不動；<br>而其他的事務的操作若有取得與前面事務相關的資料時，應該以前面事務的最終結果為結果。<br>ANSI&#x2F;ISO standard SQL 92舉出一些並非如此的錯誤: </p>
+<ul>
+<li>髒讀Dirty Reads</li>
+<li>不可重複讀Non-Repeatable Reads</li>
+<li>幻讀Phantom Reads</li>
+</ul>
+<h3 id="Dirty-Reads"><a href="#Dirty-Reads" class="headerlink" title="Dirty Reads"></a>Dirty Reads</h3><blockquote>
+<p>有兩個Transaction分別為A及B，若A的操作將包含更改一個欄位的資料，B這時候在A尚未commit(註1)的時候去讀取，並取得了更新後的結果，這就稱為Dirty Reads</p>
+</blockquote>
+<p>為什麼這樣是一種錯誤呢?原因在於A並未確定已經成功了，若他失敗，將會把資料從已更新的資料退回，這時候B使用到的值就是錯誤的。</p>
+<ul>
+<li>白話案例:<br>假如有一個Transaction A的目的是將user的身分從一般normal轉成VIP，在更新完但還沒commit時，這時候Transaction B出現，他希望使用一個VIP才能使用的優惠，此時讀取的資料若是VIP，就能順利完成Transaction B，並用掉了優惠；沒想到這時候發現Transaction A後面在完成某個確認的流程沒有通過，於是所有動作都退回，導致使用者的身分其實還是normal卻使用了VIP才能用的優惠。</li>
+</ul>
+<p>註1: 一個Transaction的commit代表在這個Transaction的所有操作都被確定完成了。</p>
+<h3 id="Non-Repeatable-Reads"><a href="#Non-Repeatable-Reads" class="headerlink" title="Non-Repeatable Reads"></a>Non-Repeatable Reads</h3><blockquote>
+<p>一個Transaction裡面，讀取兩次相同欄位，卻得到不同結果，稱為Non-Repeatable Reads</p>
+</blockquote>
+<h3 id="Phantom-Reads"><a href="#Phantom-Reads" class="headerlink" title="Phantom Reads"></a>Phantom Reads</h3><blockquote>
+<p>一個Transaction裡面，進行兩次查詢，得到不同數量的結果，就稱為Phantom Reads</p>
+</blockquote>
+<p>看起來跟Non-Repeatable Reads有點相像，差異應該是讀取的層級不太一樣，以SQL的講法，Phantom Reads是發生在table內的等級，而Non-Repeatable Reads則是row內的等級，所以意思是，Non-Repeatable Reads跟Phantom Reads確實是可能在同一次搜尋裡面發生的。</p>
+<h2 id="ACID-原則"><a href="#ACID-原則" class="headerlink" title="ACID 原則"></a>ACID 原則</h2><p>為了避免上述的錯誤，大部分的關聯式資料庫都遵循這個原則，包括</p>
+<ul>
+<li>原子性Atomicity</li>
+<li>一致性Consistency</li>
+<li>隔離Isolation</li>
+<li>持久性Durability</li>
+</ul>
+<h3 id="Atomicity"><a href="#Atomicity" class="headerlink" title="Atomicity"></a>Atomicity</h3><p>全有全無，Transaction的操作要就全部發生，要就全部沒有，視為一個整體。</p>
+<p>有一個說法是我覺得很清楚的</p>
+<blockquote>
+<p>一般來說，原子性 意為某樣東西不可在被切割的更小塊。但在計算機領域中，則是指在多執行緒底下，某個執行緒若執行一個原子操作 (atomic operation)，另一個執行緒無法看到該操作中的半完成狀態，只有操作前跟操作後兩個狀態。<br>– <a href="https://ithelp.ithome.com.tw/articles/10259236">Transactions (1) - ACID</a></p>
+</blockquote>
+<h3 id="Consistency"><a href="#Consistency" class="headerlink" title="Consistency"></a>Consistency</h3><blockquote>
+<p>在事務開始之前和事務結束以後，資料庫的完整性沒有被破壞。這表示寫入的資料必須完全符合所有的預設約束、觸發器、級聯回滾等<br>– <a href="https://zh.wikipedia.org/zh-tw/ACID">維基百科</a></p>
+</blockquote>
+<p>這邊在維基百科其實說的有點抽象，但我看到一些其他的說法，包括: </p>
+<ul>
+<li>data is consistent before and after a transaction without any missing steps–<a href="https://retool.com/blog/whats-an-acid-compliant-database/">參考</a></li>
+<li>transaction 完成前後，資料都必須永遠符合 schema 的規範，保持資料與資料庫的一致性–<a href="https://tw.alphacamp.co/blog/mysql-intro-acid-in-databases">參考</a></li>
+<li>不同的數據都會有一些基本的約束，而這些約束在交易前跟交易後都必須要遵守，如果沒辦法遵守交易就必須失敗–<a href="https://lance.coderbridge.io/2021/04/24/short-what-is-acid/">參考</a></li>
+</ul>
+<p>我覺得一致性這邊要提到的約束其實是泛指所有，上面的說法都可能是其中一個部分，比如schema可能會限制unique index、另外不在schema中的約束可能是FK constraint等等的。</p>
+<p>不過這裡的一致性也部分受到原子性保護著，比如說錯誤的操作因為原子性的全有全無機制，不會因此出現例外，而是會回到原本的狀態，這樣也就確保錯誤時的一致性不會被破壞了。</p>
+<h3 id="Isolation"><a href="#Isolation" class="headerlink" title="Isolation"></a>Isolation</h3><p>這裡指的是當多個Transaction併發(concurrent)時，不會互相造成影響。</p>
+<p>最完美的作法當然後依序執行，也就是每次只完成一個Transaction，但這樣效能太差，這不就代表沒有併發嗎XD。<br>所以後面就會出現不同等級的隔離，都相對於依序執行隔離來的弱，有機率發生併發，但是在效能、情境上考量後可接受。<br>而開發者就需要了解不同層級的差異，以盡可能減少併發造成的bug，也就是前面提到的三種錯誤。</p>
+<p>以下分為幾個層級，由低到高分別為: </p>
+<h4 id="Read-Uncommitted"><a href="#Read-Uncommitted" class="headerlink" title="Read Uncommitted"></a>Read Uncommitted</h4><p>保證A事務已更新但未commit的資料，B事務僅可讀取。<br>因為可以讀取其他Transaction尚未commit的結果，其實意思幾乎等同於沒隔離了XD<br>不過他的意義還是在的，想像一下若沒有這層隔離會發生的狀況:</p>
+<ol>
+<li>原始資料X為0</li>
+<li>事務A更新資料X為1</li>
+<li>事務B更新資料X為2</li>
+<li>事務A rollback 回原值0</li>
+</ol>
+<p>原本預期嘗試更新為2就因此消失了，因此此層還是能至少避免更新的遺失。</p>
+<p>此隔離性會發生的問題包括:</p>
+<ul>
+<li>髒讀</li>
+<li>不可重複讀</li>
+<li>幻讀</li>
+</ul>
+<h4 id="Read-Committed"><a href="#Read-Committed" class="headerlink" title="Read Committed"></a>Read Committed</h4><p>保證讀取到的資料都是經過確認(commit)的。<br>因此可以避免髒讀。</p>
+<p>為什麼無法避免其餘錯誤呢?<br>有一個案例如下</p>
+<ol>
+<li>原始資料X為1</li>
+<li>事務A讀取資料X得到1</li>
+<li>事務B更新資料X為2並確認</li>
+<li>事務A讀取資料X得到2</li>
+</ol>
+<p>這樣就發生不可重複讀了。<br>同上，如果這裡的更新變成插入資料一樣無法避免幻讀。</p>
+<p>此隔離性會發生的問題包括:</p>
+<ul>
+<li>不可重複讀</li>
+<li>幻讀</li>
+</ul>
+<h4 id="Repeatable-Read"><a href="#Repeatable-Read" class="headerlink" title="Repeatable Read"></a>Repeatable Read</h4><p>保證同一次事務，取得的資料都相同。</p>
+<p>此隔離性會發生的問題包括:</p>
+<ul>
+<li>幻讀</li>
+</ul>
+<h4 id="Serializable"><a href="#Serializable" class="headerlink" title="Serializable"></a>Serializable</h4><p>以效能換取隔離。</p>
+<h3 id="Durability"><a href="#Durability" class="headerlink" title="Durability"></a>Durability</h3><p>若Transaction完成，就算出現錯誤，已經完成操作的資料也應該保持原樣、永久的。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>這次大致了解了Transaction，以及保持Transaction正確可靠的ACID。<br>不過其中在隔離性的部分雖然介紹了層級，但各資料庫實現這些層級隔離的方式完全是看他們自己XD<br>通常會應用到關於鎖Lock的觀念，不過這部分就只好留待以後了~~</p>
+<p>明天會了解一下與DB效能有關的話題-N+1 problem。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://ithelp.ithome.com.tw/articles/10259236">Transactions (1) - ACID</a><br><a href="https://fauna.com/blog/database-transaction">What is a database transaction?</a><br><a href="https://openhome.cc/Gossip/HibernateGossip/IsolationLevel.html">簡介隔離層級</a><br><a href="https://ithelp.ithome.com.tw/articles/10247232">Transaction 併發錯誤與隔離層級 - (1)</a><br><a href="https://blog.amis.com/database-transaction-isolation-a1e448a7736e">資料庫交易的 Isolation</a></p>
+]]></content>
+      <tags>
+        <tag>鐵人賽</tag>
+        <tag>Backend</tag>
+        <tag>ACID</tag>
+        <tag>Transaction</tag>
+        <tag>Isolation</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>db大觀園(上)-關聯式資料庫overview</title>
     <url>/code-blog/2022/09/29/DB_Relational/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>開始進入DB的範圍，DB目前分兩類，SQL及No SQL，No SQL並不真的算是一種種類，他比較算是集合，所以兩者的意思說起來應該是:</p>
@@ -493,7 +564,7 @@
       </tags>
   </entry>
   <entry>
-    <title>Dev_Code_Architectural</title>
+    <title>程式架構設計Architectural patterns</title>
     <url>/code-blog/2022/10/12/Dev_Code_Architectural/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>今天要來聊一件與開發相關，但有時候並不常實際感受到他的東西，叫做架構模式Architectural pattern。</p>
 <p>除非你是有親手將產品完成從0到1的部分，不然通常進到公司時，你不太會發現公司是使用什麼架構模式在工作，且也不會參與到使用什麼架構模式開發的決策。</p>

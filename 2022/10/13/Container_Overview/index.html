@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言Container是什麼? 雖然他依舊是一個很大的主題，但我們可以從技術是為了解決什麼問題開始瞭解起，並且介紹一下他的核心概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ㄟ黑我又開新server囉-容器container tech">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2022/10/13/Container_Overview/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言Container是什麼? 雖然他依舊是一個很大的主題，但我們可以從技術是為了解決什麼問題開始瞭解起，並且介紹一下他的核心概念。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://dockertips.readthedocs.io/en/latest/_images/why_container_1.png">
+<meta property="og:image" content="https://i.imgur.com/gVc8LeE.png">
+<meta property="article:published_time" content="2022-10-13T11:33:10.000Z">
+<meta property="article:modified_time" content="2022-10-13T13:28:37.179Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="鐵人賽">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="Container">
+<meta property="article:tag" content="VM">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="Podman">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dockertips.readthedocs.io/en/latest/_images/why_container_1.png">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2022/10/13/Container_Overview/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2022/10/13/Container_Overview/","path":"2022/10/13/Container_Overview/","title":"ㄟ黑我又開新server囉-容器container tech"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>ㄟ黑我又開新server囉-容器container tech | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">60</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">28</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%82%BA%E4%BB%80%E9%BA%BC%E5%87%BA%E7%8F%BEcontainer"><span class="nav-number">2.</span> <span class="nav-text">為什麼出現container</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E9%BA%BC%E6%98%AFcontainer"><span class="nav-number">3.</span> <span class="nav-text">什麼是container?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#container-vs-VM"><span class="nav-number">4.</span> <span class="nav-text">container vs VM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#container-%E4%B8%89%E6%9C%AC%E6%9F%B1"><span class="nav-number">5.</span> <span class="nav-text">container 三本柱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#docker"><span class="nav-number">6.</span> <span class="nav-text">docker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#podman"><span class="nav-number">7.</span> <span class="nav-text">podman</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">8.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">9.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">60</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/13/Container_Overview/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="ㄟ黑我又開新server囉-容器container tech | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ㄟ黑我又開新server囉-容器container tech
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+      
+
+      <time title="Created: 2022-10-13 19:33:10 / Modified: 21:28:37" itemprop="dateCreated datePublished" datetime="2022-10-13T19:33:10+08:00">2022-10-13</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2022/10/13/Container_Overview/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/13/Container_Overview/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>2 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Container是什麼?</p>
+<p>雖然他依舊是一個很大的主題，但我們可以從技術是為了解決什麼問題開始瞭解起，並且介紹一下他的核心概念。</p>
+<span id="more"></span>
+
+<h2 id="為什麼出現container"><a href="#為什麼出現container" class="headerlink" title="為什麼出現container"></a>為什麼出現container</h2><p>有一張圖(引用自<a target="_blank" rel="noopener" href="https://dockertips.readthedocs.io/en/latest/docker-install/docker-intro.html">容器技术的介绍</a>)我蠻喜歡的XD<br><img src="https://dockertips.readthedocs.io/en/latest/_images/why_container_1.png"></p>
+<p>透過圖片可以看到像是煉蠱一樣，每個program其實都會有自己需要的依賴，甚至有可能有program需要同時運行不同版本，而他們各自都有對依賴的版本有所要求，那該怎麼辦才好?</p>
+<p>於是我們出現了container!!</p>
+<h2 id="什麼是container"><a href="#什麼是container" class="headerlink" title="什麼是container?"></a>什麼是container?</h2><p>中文稱作容器，你可以說他是一種打包應用程式的技術，也可以說他是一個虛擬的空間，這些都大致描述container技術的輪廓。</p>
+<p>透過一個比喻可能會更容易了解這個部分: container就像是貨輪上的一個個貨櫃。</p>
+<p>從這裡可以描述container的一些特性</p>
+<ul>
+<li>標準化</li>
+<li>輕量</li>
+<li>易複製移植</li>
+</ul>
+<p>簡單來說，容器話技術就是透過各項資源的隔離，來達成資源的最大化利用。</p>
+<p>有些人可能會開始覺得有點熟悉…</p>
+<h2 id="container-vs-VM"><a href="#container-vs-VM" class="headerlink" title="container vs VM"></a>container vs VM</h2><p>不是有個技術叫做virtual machine也可以多開嗎?</p>
+<p>再來一張來自微軟描述Docker的圖~<br><img src="https://i.imgur.com/gVc8LeE.png" alt="圖 20">  </p>
+<p>從這裡可以看到差異，Container能在共用OS的狀況下，運作多個Process，並使用OS在做process scheduling。</p>
+<p>也因為是共用OS，所以他足夠輕量、開啟速度又足夠快。</p>
+<p>但這樣我們就能夠說container比vm好嗎?</p>
+<p>也不是的，事實上沒有孰好孰壞的問題，因為兩個技術想解決的問題是不太相同的，引用我自己的話XD</p>
+<blockquote>
+<p>虛擬機希望解決的問題是在機器層面上隔離，共用的部分是主機的硬體；而container則是在在應用程式層面上隔離，共用的部分是作業系統環境。</p>
+</blockquote>
+<h2 id="container-三本柱"><a href="#container-三本柱" class="headerlink" title="container 三本柱"></a>container 三本柱</h2><p>基本上container的技術由三個重要的概念支持: container、image、registry</p>
+<p>他們三個的關係環環相扣</p>
+<ul>
+<li>image: 一個運行容器(也就是process)時所需要的環境。</li>
+<li>container: 容器就是一個正在運行的鏡像，更準確地說，每個容器就是一段在運行中的process。</li>
+<li>registry: 可以下載(pull)images的網站</li>
+</ul>
+<h2 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h2><p>之前曾經想過一篇跟docker有關的介紹，<a target="_blank" rel="noopener" href="https://medium.com/coding-book-club/docker-basic-fb3347b3ec4c">在這裡</a>，就不再多寫了XD</p>
+<p>因為是讀書會的題目，所以也有完整的系列文，歡迎來看~~</p>
+<h2 id="podman"><a href="#podman" class="headerlink" title="podman"></a>podman</h2><p>根據官方文件: </p>
+<blockquote>
+<p>What is Podman? Podman is a daemonless container engine for developing, managing, and running OCI Containers on your Linux System. Containers can either be run as root or in rootless mode. Simply put: alias docker&#x3D;podman. More details here.</p>
+</blockquote>
+<p>他甚至還在介紹裡面直接跟你說你可以直接把podman alias成docker XDD</p>
+<p>雖然有點好笑，但大概也可以從中看到他的特色，及與docker的差異，甚至你可以說他認為自己docker的某種改進: </p>
+<ul>
+<li><p>無背景的daemonless:<br>docker有個問題在於他是使用daemon來管理全部的process(container)的，如果daemon掛掉了，所有的process也就掰了，不過podman就並非如此</p>
+</li>
+<li><p>非root權限:<br>docker的操作都必須用root或是具有相同權限的帳號操作，這會造成安全問題。(<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/security/rootless/">話說現在也支援rootless了</a>)</p>
+</li>
+<li><p>易從docker移植<br>他提供docker相容的指令，用戶可以輕鬆地從docker移植過去</p>
+</li>
+</ul>
+<p>不過也有一些<a target="_blank" rel="noopener" href="https://www.v2ex.com/t/801421">吐槽</a>: 包括速度慢、bug多等。</p>
+<p>不過因為我沒實際用過就不多說什麼了，不過看起來大家會使用他的原因多半都是rootless而去的。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>恩…雖然不像，但今天是最後一天的Road Map之旅XD</p>
+<p>但其實還有大概好幾天的內容可以寫，等我好好地給他休息好一陣子再來看看要不要接續寫完XD</p>
+<hr>
+<p>也是最後一次自我推銷部落格了，我覺得文章寫出來還是希望被別人看到的，最好有些幫助，有些批評，這樣可以開心、也可以有所調整!!</p>
+<p>所以~~~</p>
+<p><strong>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</strong></p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://medium.com/coding-book-club/docker-basic-fb3347b3ec4c">Docker系列讀書會I-初步介紹Docker</a><br><a target="_blank" rel="noopener" href="https://learn.microsoft.com/zh-tw/dotnet/architecture/microservices/container-docker-introduction/">容器和 Docker 簡介</a><br><a target="_blank" rel="noopener" href="https://dockertips.readthedocs.io/en/latest/docker-install/docker-intro.html">容器技术的介绍</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2022/10/13/Container_Overview/" title="ㄟ黑我又開新server囉-容器container tech">https://tim80411.github.io/code-blog/2022/10/13/Container_Overview/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/%E9%90%B5%E4%BA%BA%E8%B3%BD/" rel="tag"># 鐵人賽</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/Container/" rel="tag"># Container</a>
+              <a href="/code-blog/tags/VM/" rel="tag"># VM</a>
+              <a href="/code-blog/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/code-blog/tags/Podman/" rel="tag"># Podman</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2022/10/12/Dev_Code_Architectural/" rel="prev" title="程式架構設計Architectural patterns">
+                  <i class="fa fa-chevron-left"></i> 程式架構設計Architectural patterns
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">68k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:02</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
