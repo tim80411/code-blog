@@ -96,7 +96,7 @@ menu:
   #about: /about/ || fa fa-user
   tags: /tags/ || fa fa-tags fa-xl
   categories: /categories/ || fa fa-th fa-xl
-  timeline: /archives/ || fa fa-archive fa-xl
+  archives: /archives/ || fa fa-archive fa-xl
   # schedule: /schedule/ || fa fa-calendar
   # sitemap: /sitemap.xml || fa fa-sitemap
   #commonweal: /404/ || fa fa-heartbeat
