@@ -8,5 +8,10 @@ public/
 _multiconfig.yml
 medium_posts
 .env
-hexo-to-medium
+
+# for medium-poster
 config.json
+
+# for medium
+hexo-to-medium
+uploadDir
