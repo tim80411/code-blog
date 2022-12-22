@@ -1,5 +1,5 @@
 ---
-title: [資料結構與演算法-1]Linked List
+title: 資料結構與演算法-1-Linked List
 tags:
   - Algorithms
   - Linked List
