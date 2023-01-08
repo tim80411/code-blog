@@ -15,7 +15,7 @@
 <p>來自<a href="https://www.geeksforgeeks.org/what-is-array/">What is Array</a></p>
 </blockquote>
 <ul>
-<li>定義: 一塊連續的記憶體區塊。</li>
+<li>定義: 一塊固定且連續的記憶體區塊。</li>
 <li>Pros: 這樣的資料結構有什麼好處呢？因為是連續的記憶體位置，所以取值的時候我可以直接根據順序取值，另外也因為資料連續，所以可以做優化的搜尋演算法，像是二分搜尋等等的。</li>
 <li>Cons: 缺點的話像是因為他是固定的連續記憶體區塊，所以資料能接受的最大值是固定的，另外他對於特定的寫入及刪除行為效率很低，比如有一個程式語言的Array結構如上圖，他可以不斷往右延伸直到到達這個連續記憶體所保留的終點，在往右的路上，新增跟刪除都是很容易的，是O(1)；但是，刪除Array中間的資料、新增刪除最左邊的資料(註1)，會導致需要重新整理資料讓他可以保持順序，此時時間複雜度為O(N)。</li>
 </ul>
@@ -94,6 +94,60 @@
         <tag>Backend</tag>
         <tag>Queue</tag>
         <tag>Stack</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>資料結構與演算法-4-Recursion</title>
+    <url>/code-blog/2023/01/05/ALG_Recursion/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="https://i.imgur.com/BrLP6VO.png" alt="圖 1">  </p>
+<blockquote>
+<p>pic from <a href="https://algodaily.com/categories/recursion">AlogDaily</a><br>遞迴(Recursion)是一個說起來可以很簡單但實際用起來很難的東西。</p>
+</blockquote>
+<p>有多少的機會我們會用到它呢？XD</p>
+<span id="more"></span>
+<h2 id="限制與運用"><a href="#限制與運用" class="headerlink" title="限制與運用"></a>限制與運用</h2><p>非常簡略說起來，我們可以說地回的定義就是: 某個函數呼叫他自己(Something calling itself)。但如果單純如此，那就會變成無限迴圈了是嗎？所以通常Recursion會包括一個目標條件，英文直翻是基底條件(Base case)，當遞迴完成目標條件後即會返回一個結果。</p>
+<p>如果從JS的call stack 來看，當我們執行遞迴的時候，若沒有到達目標條件時會不斷產生新的函式，直到最後一個函式抵達目標條件時return，接著回到倒數第二個，持續執行直到抵達目標條件時return回到倒數第三個，以此類推。</p>
+<p>我個人覺得遞迴最好的應用思路是樹狀圖的流程，像是檔案系統，一個資料夾裡會有幾個次要資料夾，每個次要資料夾又有多少的資料夾呢？當然或許可以用別的方式處理這個流程，比如每進入一層資料夾就先計算數量，並紀錄，直到抵達最底，但這樣會讓程式變得複雜，使用遞迴會讓這樣的過程大大簡化。</p>
+<p>很多的指令都會有–recursive的參數，像是前陣子剛好用到aws s3 cp的指令，讓你可以透過指令下載資料夾下所有的檔案。</p>
+<p>另外遞迴最大的缺點就在於對於記憶體的使用，這也是剛剛前面提到JS call stack的原因，如果你的base case太難達到，最後可能就會造成memory超過最大限制而導致錯誤。</p>
+<h2 id="實作"><a href="#實作" class="headerlink" title="實作"></a>實作</h2><p>課程中提到兩個案例：</p>
+<ol>
+<li>base: foo case</li>
+<li>advance: path resolver</li>
+</ol>
+<h3 id="Part-I-foo-case"><a href="#Part-I-foo-case" class="headerlink" title="Part I - foo case"></a>Part I - foo case</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params">n</span>) &#123;</span><br><span class="line">  <span class="comment">// base case</span></span><br><span class="line">  <span class="keyword">if</span> (n === <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> n + <span class="title function_">foo</span>(n - <span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">foo</span>(<span class="number">3</span>)) <span class="comment">// 6</span></span><br></pre></td></tr></table></figure>
+
+<p>可以理解他如何使用遞迴，但通常都會有一個困惑，有必要嗎？<br>如果我們想計算n + n-1 + n-2 + … + 1會怎麼做？<br>就算我們不知道公式好了，用for迴圈都比用遞迴來的直觀多了？</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">bar</span>(<span class="params">n</span>) &#123;</span><br><span class="line">  <span class="keyword">let</span> sum = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">    sum += i;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>事實上這個例子太簡單理解到實在不需要使用遞迴來處理。</p>
+<p>所以講師提到了，可以用for、while迴圈思考的東西基本上都是不需要遞迴的。</p>
+<h3 id="Part-II-path-solver"><a href="#Part-II-path-solver" class="headerlink" title="Part II - path solver"></a>Part II - path solver</h3><p>這邊要先描述問題，這邊有個以String[]畫成的迷宮，我們需要寫出一個可以告訴我們如何從Start通過迷宮，順利從End離開的「路徑」。</p>
+<p>迷宮範例:</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> maze = </span><br><span class="line">[</span><br><span class="line">  <span class="string">&#x27;######S#&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;#      #&#x27;</span>,</span><br><span class="line">  <span class="string">&#x27;#E######&#x27;</span>,</span><br><span class="line">];</span><br></pre></td></tr></table></figure>
+
+<p>因為我們的目標是「走」，於是我們首先來分析「不再走」(base case)的條件：</p>
+<ol>
+<li>離開地圖</li>
+<li>撞牆(#)</li>
+<li>去過重複的地方</li>
+<li>抵達終點(E)</li>
+</ol>
+<p>接著我們知道在一個點只有4個方向可以移動: 上下左右，這就是遞迴條件(recursive case)。</p>
+<p>來寫看看~~~</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> directs = [</span><br><span class="line">  [-<span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">  [<span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">  [<span class="number">0</span>, -<span class="number">1</span>],</span><br><span class="line">  [<span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 移動</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">String[]</span>&#125; maze 迷宮</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">String</span>&#125; wall 牆壁的符號</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">Point</span>&#125; curr 現在點，一個包含x, y內容的object</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">Point</span>&#125; end 終點，一個包含x, y內容的object</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">Boolean[][]</span>&#125; seen 像是maze的結構，只不過是boolean[][]版本</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &#123;<span class="type">Point[]</span>&#125; path 路徑</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@returns</span> &#123;<span class="type">Boolean</span>&#125; isEnd 離開此層函式本身也等於不再走，所以我們並不會使用return 決定是否要走。</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">walk</span>(<span class="params">maze, wall, curr, end, seen, path</span>) &#123;</span><br><span class="line">  <span class="comment">// base case: 順序不影響</span></span><br><span class="line">  <span class="keyword">if</span> (curr.<span class="property">x</span> &lt; <span class="number">0</span> || curr.<span class="property">x</span> &gt;= maze[<span class="number">0</span>].<span class="property">length</span> || curr.<span class="property">y</span> &lt; <span class="number">0</span> || curr.<span class="property">y</span> &gt;= maze.<span class="property">length</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (maze[curr.<span class="property">y</span>][curr.<span class="property">x</span>] === wall) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (curr.<span class="property">x</span> === end.<span class="property">x</span> &amp;&amp; curr.<span class="property">y</span> === end.<span class="property">y</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (seen[curr.<span class="property">y</span>][curr.<span class="property">x</span>]) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// note: recursive case 通常可解構為三個部分</span></span><br><span class="line">  <span class="comment">// 1. 進入遞迴前(pre recurse)</span></span><br><span class="line">  seen[curr.<span class="property">y</span>][curr.<span class="property">x</span>] = <span class="literal">true</span>;   <span class="comment">// 將走過的路紀錄為已走過</span></span><br><span class="line">  path.<span class="title function_">push</span>(curr)                <span class="comment">// 等於紀錄這次的前進 </span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 遞迴(recurse)</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> direct <span class="keyword">of</span> directs) &#123;</span><br><span class="line">    <span class="keyword">const</span> [x, y] = direct;</span><br><span class="line">    <span class="keyword">const</span> newCurr = &#123; <span class="attr">x</span>: curr.<span class="property">x</span> + x, <span class="attr">y</span>: curr.<span class="property">y</span> + y &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">walk</span>(maze, wall, newCurr, end, seen, path)) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 結束遞迴後(post recurse)</span></span><br><span class="line">  path.<span class="title function_">pop</span>()                     <span class="comment">// 退回一步; ex: [&#123;3, 1&#125;, &#123;3, 2&#125;] =&gt; [&#123;3, 1&#125;]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// actual solver</span></span><br><span class="line"><span class="keyword">const</span> maze =</span><br><span class="line">  [</span><br><span class="line">    <span class="string">&#x27;######S#&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;#      #&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;#E######&#x27;</span>,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getMazePath</span>(<span class="params">maze, wall, start, end</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> path = [];</span><br><span class="line">  <span class="keyword">const</span> seen = <span class="title class_">Array</span>.<span class="title function_">from</span>(&#123; <span class="attr">length</span>: maze.<span class="property">length</span> &#125;, <span class="function">() =&gt;</span> <span class="title class_">Array</span>.<span class="title function_">from</span>(&#123; <span class="attr">length</span>: maze[<span class="number">0</span>].<span class="property">length</span> &#125;).<span class="title function_">fill</span>(<span class="literal">false</span>));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="title function_">walk</span>(maze, wall, start, end, seen, path);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> path</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> path = <span class="title function_">getMazePath</span>(maze, <span class="string">&#x27;#&#x27;</span>, &#123; <span class="attr">x</span>: <span class="number">6</span>, <span class="attr">y</span>: <span class="number">0</span> &#125;, &#123; <span class="attr">x</span>: <span class="number">1</span>, <span class="attr">y</span>: <span class="number">2</span> &#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;===path===&#x27;</span>, path)</span><br></pre></td></tr></table></figure>
+
+<p>內容大致如此了~<br>相關的知識點備註、補充也都寫在comment上了。</p>
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>「Always think about base case」 - ThePrimeagen</p>
+<p>大概是這堂課中最重要的部分，當我們在思考如何使用或是分析一個遞迴的時候，先找base case會是理解他的有效途徑。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://frontendmasters.com/courses/algorithms/">The Last Algorithms Course You’ll Need</a></p>
+]]></content>
+      <tags>
+        <tag>Algorithms</tag>
+        <tag>Backend</tag>
+        <tag>Recursion</tag>
+        <tag>CallStack</tag>
       </tags>
   </entry>
   <entry>

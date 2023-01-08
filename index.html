@@ -96,7 +96,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">66</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">31</span></a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">68</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">32</span></a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
         </a>
@@ -167,13 +167,13 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/code-blog/archives/">
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/code-blog/tags/">
-        <span class="site-state-item-count">66</span>
+        <span class="site-state-item-count">68</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -227,6 +227,114 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2023/01/05/ALG_Recursion/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/code-blog/2023/01/05/ALG_Recursion/" class="post-title-link" itemprop="url">資料結構與演算法-4-Recursion</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-01-05 20:17:11" itemprop="dateCreated datePublished" datetime="2023-01-05T20:17:11+08:00">2023-01-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2023/01/05/ALG_Recursion/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/01/05/ALG_Recursion/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="https://i.imgur.com/BrLP6VO.png" alt="圖 1">  </p>
+<blockquote>
+<p>pic from <a target="_blank" rel="noopener" href="https://algodaily.com/categories/recursion">AlogDaily</a><br>遞迴(Recursion)是一個說起來可以很簡單但實際用起來很難的東西。</p>
+</blockquote>
+<p>有多少的機會我們會用到它呢？XD</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/code-blog/2023/01/05/ALG_Recursion/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2023/01/04/ALG_Array_and_Array_List/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -255,9 +363,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">Posted on</span>
-      
 
-      <time title="Created: 2023-01-04 19:09:13 / Modified: 20:55:43" itemprop="dateCreated datePublished" datetime="2023-01-04T19:09:13+08:00">2023-01-04</time>
+      <time title="Created: 2023-01-04 19:09:13" itemprop="dateCreated datePublished" datetime="2023-01-04T19:09:13+08:00">2023-01-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -365,7 +479,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -469,7 +583,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -573,7 +687,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -678,7 +792,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -785,7 +899,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -890,7 +1004,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -994,7 +1108,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -1100,7 +1214,7 @@
         <i class="far fa-calendar-check"></i>
       </span>
       <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
+      <time title="Modified: 2023-01-08 19:49:49" itemprop="dateModified" datetime="2023-01-08T19:49:49+08:00">2023-01-08</time>
     </span>
 
   
@@ -1163,119 +1277,6 @@
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2022/10/07/Network_Https/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
-      <meta itemprop="name" content="Timothy Liao">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Timothy Coding Ground">
-      <meta itemprop="description" content="Coding Learning Writing">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Timothy Coding Ground">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/code-blog/2022/10/07/Network_Https/" class="post-title-link" itemprop="url">說只有對方聽得懂的話-HTTPS & SSL & TLS</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">Posted on</span>
-
-      <time title="Created: 2022-10-07 19:25:47" itemprop="dateCreated datePublished" datetime="2022-10-07T19:25:47+08:00">2022-10-07</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">Edited on</span>
-      <time title="Modified: 2023-01-04 20:55:43" itemprop="dateModified" datetime="2023-01-04T20:55:43+08:00">2023-01-04</time>
-    </span>
-
-  
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Disqus: </span>
-    
-    <a title="disqus" href="/code-blog/2022/10/07/Network_Https/#disqus_thread" itemprop="discussionUrl">
-      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2022/10/07/Network_Https/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-    <span class="post-meta-item" title="Reading time">
-      <span class="post-meta-item-icon">
-        <i class="far fa-clock"></i>
-      </span>
-      <span class="post-meta-item-text">Reading time &asymp;</span>
-      <span>3 mins.</span>
-    </span>
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前曾經談過關於Internet Protocol Suite(IPS)，提到過Web中的各個網站就是HTTP的應用，又提到過IPS可以以四層來理解:</p>
-<ol>
-<li>應用(application): HTTP</li>
-<li>傳輸(transport): TCP</li>
-<li>網路互連(internet): IP</li>
-<li>網路存取(Network Access (link))。</li>
-</ol>
-<p>但我們都曾經在瀏覽器上的網址欄看到https開頭的網址<br><img src="https://i.imgur.com/yofUKox.png" alt="圖 12">  </p>
-<p>這樣，https又是什麼呢?</p>
-<p>那就來了解一下吧</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/code-blog/2022/10/07/Network_Https/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
   <nav class="pagination">
     <span class="page-number current">1</span><a class="page-number" href="/code-blog/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/code-blog/page/4/">4</a><a class="extend next" rel="next" href="/code-blog/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
@@ -1300,13 +1301,13 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-line"></i>
     </span>
-    <span title="Symbols count total">75k</span>
+    <span title="Symbols count total">79k</span>
   </span>
   <span class="post-meta-item">
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:09</span>
+    <span title="Reading time total">1:11</span>
   </span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
