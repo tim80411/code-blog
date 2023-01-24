@@ -7,6 +7,9 @@ tags:
 date: 2023-01-19 20:25:24
 ---
 ## 前言
+![圖 1](https://i.imgur.com/kB9HwzO.png)
+> From [Quick Sort in C++ ( Code with Example)](https://favtutor.com/blogs/quick-sort-cpp)
+
 Quick Sort跟Merge Sort很常被拿出來一起談，兩者在最佳狀況時都能達到O(nlogn)的時間複雜度，不過這次主要談的Quick Sort在特定情境下最糟也有可能達到如同Bubble Sort一樣的O(n^2)，不過因為他實作相對容易，且佔用的資源沒有Merge Sort來的多，且要遇到最糟的狀況也是非常極端的，所以還是很常被使用的～
 
 另外也是因為用Recursion就可以簡單實作，所以接在Recursion後面真的是太適合了XD
@@ -152,3 +155,4 @@ class QuickSort {
 
 ## 參考資料
 [The Last Algorithms Course You'll Need](https://frontendmasters.com/courses/algorithms/)
+[Quick Sort in C++ ( Code with Example)](https://favtutor.com/blogs/quick-sort-cpp)
