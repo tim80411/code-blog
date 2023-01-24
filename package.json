@@ -10,7 +10,7 @@
     "ithome": "npx hexo new ithome",
     "algo": "npx hexo new algo",
     "md": "node ./script/medium-to-markdown.js >> test.md",
-    "postM": "node -e 'require(\"dotenv\").config(); require(\"medium-poster\").postArticlesByConfig(process.env.MEDIUM_TOKEN);'"
+    "postM": "npx mp batch"
   },
   "hexo": {
     "version": "6.3.0"
@@ -33,7 +33,7 @@
     "hexo-word-counter": "0.0.3",
     "lodash": "^4.17.21",
     "medium-api-npm": "^2.0.0",
-    "medium-poster": "^1.2.0"
+    "medium-poster": "^1.3.1"
   },
   "devDependencies": {
     "medium-to-markdown": "^0.0.3"
