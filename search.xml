@@ -97,6 +97,71 @@
       </tags>
   </entry>
   <entry>
+    <title>資料結構與演算法-5-ALG_QuickSort</title>
+    <url>/code-blog/2023/01/19/ALG_QuickSort/</url>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="https://i.imgur.com/kB9HwzO.png" alt="圖 1"></p>
+<blockquote>
+<p>From <a href="https://favtutor.com/blogs/quick-sort-cpp">Quick Sort in C++ ( Code with Example)</a></p>
+</blockquote>
+<p>Quick Sort跟Merge Sort很常被拿出來一起談，兩者在最佳狀況時都能達到O(nlogn)的時間複雜度，不過這次主要談的Quick Sort在特定情境下最糟也有可能達到如同Bubble Sort一樣的O(n^2)，不過因為他實作相對容易，且佔用的資源沒有Merge Sort來的多，且要遇到最糟的狀況也是非常極端的，所以還是很常被使用的～</p>
+<p>另外也是因為用Recursion就可以簡單實作，所以接在Recursion後面真的是太適合了XD</p>
+<span id="more"></span>
+<h2 id="說明"><a href="#說明" class="headerlink" title="說明"></a>說明</h2><p>Quick Sort用的是一種Divide And Conquer(分治)的方式，意思是指，我們將一個問題拆成多個更小的問題各自處理，而相對更小的問題可以在各自拆成更更小的問題…以此類推，直到遇到問題變成很簡單為止。</p>
+<p>Quick Sort的原理就是 Array &#x3D;&#x3D;排序&#x3D;&#x3D;&gt; 兩個次Array &#x3D;&#x3D;排序&#x3D;&#x3D;&gt; 四個次次Array…直到某次有個小Array的元素只剩下1(很簡單的問題)，我們就認定可以停在這裡等同於排列完成，或是換一種說法表示不再需要排列了。</p>
+<p>所以關鍵在於兩個地方:</p>
+<ul>
+<li>取得拆分pivot(中軸)</li>
+<li>重複排序</li>
+</ul>
+<p>通常有個最簡單的寫法也就是後面實作會這樣做的:</p>
+<ol>
+<li>該次排序時將陣列最右邊的元素視作pivot(中軸)</li>
+<li>兩個cursor會從陣列最左邊出發，其中一個cursor A(以下簡稱A)會開始遍歷整個該段Array，而cursor B會停留在原地。</li>
+<li>A遍歷時會檢查遇到的元素是否<strong>小於等於</strong>pivot，若是的話就將A所在的元素與B所在的元素做更換，接著B向右前進一格</li>
+<li>當遍歷結束時，將pivot(最右邊的元素)插入到B所在位置的右邊</li>
+<li>這時候所有pivot左邊的元素全都會<strong>小於等於</strong>pivot，而pivot右邊的元素則都會<strong>大於</strong>pivot</li>
+<li>然後這時候以pivot為界就可以分成兩個次陣列</li>
+<li>兩個此陣列重複1-6(recursion)</li>
+</ol>
+<h2 id="實際展示"><a href="#實際展示" class="headerlink" title="實際展示"></a>實際展示</h2><p>接下來為了增進了解，會按照上面的步驟實際用Array在排序中的變化來展示。</p>
+<ul>
+<li><p>首先，有一個需要被排序的陣列資料</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>該次排序時將陣列最右邊的元素視作pivot(中軸) </p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 此時5被視為中軸</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>] </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>兩個cursor會從陣列最左邊出發，其中一個cursor A(以下簡稱A)會開始遍歷整個該段Array，而cursor B會停留在原地。</p>
+</li>
+<li><p>A遍歷時會檢查遇到的元素是否<strong>小於等於</strong>pivot，若是的話就將A所在的元素與B所在的元素做更換，接著B向右前進一格 </p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// A跟B先停留在元素[0]也就是8上</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// B停留在[0]，A開始遍歷</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// A先檢查[0]也就是8，大於5，於是繼續往右至[1]</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// 7比5大，於是繼續移動至[2]</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// 1小於等於5，於是將[2]於[0]做swap，且指摽B向右前進至[1]</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// 來確認指標位置，這時候B在[1], A在[2]</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// A繼續完成遍歷，此時來到[3]，9大於5，不做動作，遍歷結束</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>當遍歷結束時，將pivot(最右邊的元素)插入到B所在位置的右邊</p>
+</li>
+<li><p>這時候所有pivot左邊的元素全都會<strong>小於等於</strong>pivot，而pivot右邊的元素則都會<strong>大於</strong>pivot</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 當遍歷結束時，將pivot和B所在的位置做swap</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">7</span>]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然後這時候以pivot為界就可以分成兩個次陣列</p>
+</li>
+<li><p>兩個此陣列重複1-6(recursion)</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 將原pivot(5)的左右分為兩個次陣列</span></span><br><span class="line"><span class="comment">// 重複上面的排序步驟直到完成排序</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">7</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span> ,<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line"><span class="comment">// 大致如上</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>這邊有個別人分享的影片會比用文字這樣的陣列變化來的更為清楚，雖然他用的策略是比較不一樣的，但概念還是相同啦<br><a href="https://www.youtube.com/watch?v=AsQW27DT82I&ab_channel=loyiCodes">影片</a></p>
+<h2 id="實作"><a href="#實作" class="headerlink" title="實作"></a>實作</h2><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">QuickSort</span> &#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> &#123;<span class="type">Number</span>&#125; hi </span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> &#123;<span class="type">Number</span>&#125; low </span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> &#123;<span class="type">Number[]</span>&#125;&#125; arr </span></span><br><span class="line"><span class="comment">   * <span class="doctag">@returns</span> &#123;<span class="type">Number</span>&#125; index of pivot</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">static</span> #<span class="title function_">partition</span>(<span class="params">hi, low, arr</span>) &#123;</span><br><span class="line">    <span class="comment">// 方便起見將最大值設為pivot;</span></span><br><span class="line">    <span class="keyword">const</span> pivot = arr[hi];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> cursorB = low - <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 指標1遍歷此次陣列</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> cursorA = low; cursorA &lt; hi; cursorA++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (arr[cursorA] &gt; pivot) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 如果遍歷時小於等於pivot</span></span><br><span class="line">      <span class="comment">// 指標2向右移動1</span></span><br><span class="line">      cursorB++;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// swap 指標1及指標2</span></span><br><span class="line">      <span class="keyword">const</span> temp = arr[cursorA];</span><br><span class="line">      arr[cursorA] = arr[cursorB];</span><br><span class="line">      arr[cursorB] = temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 繼續向移動一個位子，確保pivot在交換過後，其右邊的element一定大於pivot</span></span><br><span class="line">    cursorB++</span><br><span class="line">    arr[hi] = arr[cursorB];</span><br><span class="line">    arr[cursorB] = pivot;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cursorB;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> #<span class="title function_">qs</span>(<span class="params">hi, low, arr</span>) &#123;</span><br><span class="line">    <span class="comment">// base case</span></span><br><span class="line">    <span class="keyword">if</span> (low &gt;= hi) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// recursion</span></span><br><span class="line">    <span class="keyword">const</span> pivotIndex = <span class="variable language_">this</span>.#<span class="title function_">partition</span>(hi, low, arr);</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">this</span>.#<span class="title function_">qs</span>(pivotIndex - <span class="number">1</span>, low, arr);</span><br><span class="line">    <span class="variable language_">this</span>.#<span class="title function_">qs</span>(hi, pivotIndex + <span class="number">1</span>, arr)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> <span class="title function_">qs</span>(<span class="params">arr</span>) &#123;</span><br><span class="line">    <span class="comment">// 個人習慣不改變輸入，而是產生新輸入，但會因此產生新成本</span></span><br><span class="line">    <span class="keyword">const</span> arrCopy = [...arr];</span><br><span class="line">    <span class="variable language_">this</span>.#<span class="title function_">qs</span>(arrCopy.<span class="property">length</span> - <span class="number">1</span>, <span class="number">0</span>, arrCopy);</span><br><span class="line">    <span class="keyword">return</span> arrCopy</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>覺得quick sort很有意思！！！當初想出來的人頭腦也太好了吧～～～</p>
+<p>我覺得這裡在實作時困難的地方是我要怎麼知道如何設計recursion的參數會讓程式更漂亮，一開始寫怎麼會知道要用對外的qs包著對內qs及partition，甚至recurse的function也不是partition而是qs；另外也包括cursorB從low - 1開始也是讓程式更為簡潔的一些關鍵。</p>
+<p>再次提醒自己沒有這樣的直覺或是邏輯思考就是我與高手之間的差距，不能因為自己跟著課程學到了寫法就當作自己已經完全會了。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a href="https://frontendmasters.com/courses/algorithms/">The Last Algorithms Course You’ll Need</a><br><a href="https://favtutor.com/blogs/quick-sort-cpp">Quick Sort in C++ ( Code with Example)</a></p>
+]]></content>
+      <tags>
+        <tag>Algorithms</tag>
+        <tag>Backend</tag>
+        <tag>QuickSort</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>資料結構與演算法-4-Recursion</title>
     <url>/code-blog/2023/01/05/ALG_Recursion/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="https://i.imgur.com/BrLP6VO.png" alt="圖 1">  </p>

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="apple-touch-icon" sizes="180x180" href="/code-blog/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/code-blog/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/code-blog/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/code-blog/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/code-blog/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css" integrity="sha256-AbA177XfpSnFEvgpYu1jMygiLabzPCJCRIBtR5jGc0k=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tim80411.github.io","root":"/code-blog/","images":"/code-blog/images","scheme":"Gemini","darkmode":false,"version":"8.13.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"bookmark":{"enable":true,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/code-blog/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/code-blog/js/config.js"></script>
+
+    <meta name="description" content="前言  From Quick Sort in C++ ( Code with Example)  Quick Sort跟Merge Sort很常被拿出來一起談，兩者在最佳狀況時都能達到O(nlogn)的時間複雜度，不過這次主要談的Quick Sort在特定情境下最糟也有可能達到如同Bubble Sort一樣的O(n^2)，不過因為他實作相對容易，且佔用的資源沒有Merge Sort來的多，且要遇到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="資料結構與演算法-5-ALG_QuickSort">
+<meta property="og:url" content="https://tim80411.github.io/code-blog/2023/01/19/ALG_QuickSort/index.html">
+<meta property="og:site_name" content="Timothy Coding Ground">
+<meta property="og:description" content="前言  From Quick Sort in C++ ( Code with Example)  Quick Sort跟Merge Sort很常被拿出來一起談，兩者在最佳狀況時都能達到O(nlogn)的時間複雜度，不過這次主要談的Quick Sort在特定情境下最糟也有可能達到如同Bubble Sort一樣的O(n^2)，不過因為他實作相對容易，且佔用的資源沒有Merge Sort來的多，且要遇到">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://i.imgur.com/kB9HwzO.png">
+<meta property="article:published_time" content="2023-01-19T12:25:24.000Z">
+<meta property="article:modified_time" content="2023-01-24T07:05:34.863Z">
+<meta property="article:author" content="Timothy Liao">
+<meta property="article:tag" content="Algorithms">
+<meta property="article:tag" content="Backend">
+<meta property="article:tag" content="QuickSort">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.imgur.com/kB9HwzO.png">
+
+
+<link rel="canonical" href="https://tim80411.github.io/code-blog/2023/01/19/ALG_QuickSort/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://tim80411.github.io/code-blog/2023/01/19/ALG_QuickSort/","path":"2023/01/19/ALG_QuickSort/","title":"資料結構與演算法-5-ALG_QuickSort"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>資料結構與演算法-5-ALG_QuickSort | Timothy Coding Ground</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-4CVY29G88W","only_pageview":false}</script>
+  <script src="/code-blog/js/third-party/analytics/google-analytics.js"></script>
+
+
+
+
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4CVY29G88W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-4CVY29G88W');
+</script>
+  <noscript>
+    <link rel="stylesheet" href="/code-blog/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/code-blog/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Timothy Coding Ground</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">沒貓在手, 寫code會抖<br>有貓可吸, 全家開心</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/code-blog/" rel="section"><i class="fa fa-home fa-xl fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/code-blog/tags/" rel="section"><i class="fa fa-tags fa-xl fa-fw"></i>Tags<span class="badge">69</span></a></li><li class="menu-item menu-item-categories"><a href="/code-blog/categories/" rel="section"><i class="fa fa-th fa-xl fa-fw"></i>Categories<span class="badge">0</span></a></li><li class="menu-item menu-item-archives"><a href="/code-blog/archives/" rel="section"><i class="fa fa-archive fa-xl fa-fw"></i>Archives<span class="badge">33</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AA%AA%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">說明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%A6%E9%9A%9B%E5%B1%95%E7%A4%BA"><span class="nav-number">3.</span> <span class="nav-text">實際展示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%A6%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">實作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%B5%90"><span class="nav-number">5.</span> <span class="nav-text">小結</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%83%E8%80%83%E8%B3%87%E6%96%99"><span class="nav-number">6.</span> <span class="nav-text">參考資料</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Timothy Liao"
+      src="/code-blog/uploads/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Timothy Liao</p>
+  <div class="site-description" itemprop="description">Coding Learning Writing</div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/code-blog/archives/">
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/code-blog/tags/">
+        <span class="site-state-item-count">69</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/tim80411" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-github fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:tim80411@gmail.com" title="E-Mail → mailto:tim80411@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/tim80411" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;tim80411" rel="noopener" target="_blank"><i class="fab fa-facebook fa-xl fa-fw"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.linkedin.com/in/timothy-liao-47a390200/" title="Linkedin → https:&#x2F;&#x2F;www.linkedin.com&#x2F;in&#x2F;timothy-liao-47a390200&#x2F;" rel="noopener" target="_blank"><i class="fab fa-linkedin fa-xl fa-fw"></i></a>
+      </span>
+  </div>
+
+
+
+        </div>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://tim80411.github.io/code-blog/2023/01/19/ALG_QuickSort/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/code-blog/uploads/avatar.jpg">
+      <meta itemprop="name" content="Timothy Liao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timothy Coding Ground">
+      <meta itemprop="description" content="Coding Learning Writing">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="資料結構與演算法-5-ALG_QuickSort | Timothy Coding Ground">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          資料結構與演算法-5-ALG_QuickSort
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-01-19 20:25:24" itemprop="dateCreated datePublished" datetime="2023-01-19T20:25:24+08:00">2023-01-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">Edited on</span>
+      <time title="Modified: 2023-01-24 15:05:34" itemprop="dateModified" datetime="2023-01-24T15:05:34+08:00">2023-01-24</time>
+    </span>
+
+  
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/code-blog/2023/01/19/ALG_QuickSort/#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2023/01/19/ALG_QuickSort/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+    <span class="post-meta-item" title="Reading time">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">Reading time &asymp;</span>
+      <span>3 mins.</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><img src="https://i.imgur.com/kB9HwzO.png" alt="圖 1"></p>
+<blockquote>
+<p>From <a target="_blank" rel="noopener" href="https://favtutor.com/blogs/quick-sort-cpp">Quick Sort in C++ ( Code with Example)</a></p>
+</blockquote>
+<p>Quick Sort跟Merge Sort很常被拿出來一起談，兩者在最佳狀況時都能達到O(nlogn)的時間複雜度，不過這次主要談的Quick Sort在特定情境下最糟也有可能達到如同Bubble Sort一樣的O(n^2)，不過因為他實作相對容易，且佔用的資源沒有Merge Sort來的多，且要遇到最糟的狀況也是非常極端的，所以還是很常被使用的～</p>
+<p>另外也是因為用Recursion就可以簡單實作，所以接在Recursion後面真的是太適合了XD</p>
+<span id="more"></span>
+<h2 id="說明"><a href="#說明" class="headerlink" title="說明"></a>說明</h2><p>Quick Sort用的是一種Divide And Conquer(分治)的方式，意思是指，我們將一個問題拆成多個更小的問題各自處理，而相對更小的問題可以在各自拆成更更小的問題…以此類推，直到遇到問題變成很簡單為止。</p>
+<p>Quick Sort的原理就是 Array &#x3D;&#x3D;排序&#x3D;&#x3D;&gt; 兩個次Array &#x3D;&#x3D;排序&#x3D;&#x3D;&gt; 四個次次Array…直到某次有個小Array的元素只剩下1(很簡單的問題)，我們就認定可以停在這裡等同於排列完成，或是換一種說法表示不再需要排列了。</p>
+<p>所以關鍵在於兩個地方:</p>
+<ul>
+<li>取得拆分pivot(中軸)</li>
+<li>重複排序</li>
+</ul>
+<p>通常有個最簡單的寫法也就是後面實作會這樣做的:</p>
+<ol>
+<li>該次排序時將陣列最右邊的元素視作pivot(中軸)</li>
+<li>兩個cursor會從陣列最左邊出發，其中一個cursor A(以下簡稱A)會開始遍歷整個該段Array，而cursor B會停留在原地。</li>
+<li>A遍歷時會檢查遇到的元素是否<strong>小於等於</strong>pivot，若是的話就將A所在的元素與B所在的元素做更換，接著B向右前進一格</li>
+<li>當遍歷結束時，將pivot(最右邊的元素)插入到B所在位置的右邊</li>
+<li>這時候所有pivot左邊的元素全都會<strong>小於等於</strong>pivot，而pivot右邊的元素則都會<strong>大於</strong>pivot</li>
+<li>然後這時候以pivot為界就可以分成兩個次陣列</li>
+<li>兩個此陣列重複1-6(recursion)</li>
+</ol>
+<h2 id="實際展示"><a href="#實際展示" class="headerlink" title="實際展示"></a>實際展示</h2><p>接下來為了增進了解，會按照上面的步驟實際用Array在排序中的變化來展示。</p>
+<ul>
+<li><p>首先，有一個需要被排序的陣列資料</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>該次排序時將陣列最右邊的元素視作pivot(中軸) </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此時5被視為中軸</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>] </span><br></pre></td></tr></table></figure>
+</li>
+<li><p>兩個cursor會從陣列最左邊出發，其中一個cursor A(以下簡稱A)會開始遍歷整個該段Array，而cursor B會停留在原地。</p>
+</li>
+<li><p>A遍歷時會檢查遇到的元素是否<strong>小於等於</strong>pivot，若是的話就將A所在的元素與B所在的元素做更換，接著B向右前進一格 </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A跟B先停留在元素[0]也就是8上</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// B停留在[0]，A開始遍歷</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// A先檢查[0]也就是8，大於5，於是繼續往右至[1]</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// 7比5大，於是繼續移動至[2]</span></span><br><span class="line">[<span class="number">8</span>, <span class="number">7</span>, <span class="number">1</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// 1小於等於5，於是將[2]於[0]做swap，且指摽B向右前進至[1]</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// 來確認指標位置，這時候B在[1], A在[2]</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"><span class="comment">// A繼續完成遍歷，此時來到[3]，9大於5，不做動作，遍歷結束</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">5</span>]</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>當遍歷結束時，將pivot(最右邊的元素)插入到B所在位置的右邊</p>
+</li>
+<li><p>這時候所有pivot左邊的元素全都會<strong>小於等於</strong>pivot，而pivot右邊的元素則都會<strong>大於</strong>pivot</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 當遍歷結束時，將pivot和B所在的位置做swap</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">7</span>]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然後這時候以pivot為界就可以分成兩個次陣列</p>
+</li>
+<li><p>兩個此陣列重複1-6(recursion)</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 將原pivot(5)的左右分為兩個次陣列</span></span><br><span class="line"><span class="comment">// 重複上面的排序步驟直到完成排序</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span>, <span class="number">8</span>, <span class="number">9</span>, <span class="number">7</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line">[<span class="number">1</span>, <span class="number">5</span> ,<span class="number">7</span>, <span class="number">8</span>, <span class="number">9</span>]</span><br><span class="line"><span class="comment">// 大致如上</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>這邊有個別人分享的影片會比用文字這樣的陣列變化來的更為清楚，雖然他用的策略是比較不一樣的，但概念還是相同啦<br><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=AsQW27DT82I&ab_channel=loyiCodes">影片</a></p>
+<h2 id="實作"><a href="#實作" class="headerlink" title="實作"></a>實作</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">QuickSort</span> &#123;</span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> &#123;<span class="type">Number</span>&#125; hi </span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> &#123;<span class="type">Number</span>&#125; low </span></span><br><span class="line"><span class="comment">   * <span class="doctag">@param</span> &#123;<span class="type">Number[]</span>&#125;&#125; arr </span></span><br><span class="line"><span class="comment">   * <span class="doctag">@returns</span> &#123;<span class="type">Number</span>&#125; index of pivot</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">static</span> #<span class="title function_">partition</span>(<span class="params">hi, low, arr</span>) &#123;</span><br><span class="line">    <span class="comment">// 方便起見將最大值設為pivot;</span></span><br><span class="line">    <span class="keyword">const</span> pivot = arr[hi];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> cursorB = low - <span class="number">1</span>;</span><br><span class="line">    <span class="comment">// 指標1遍歷此次陣列</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> cursorA = low; cursorA &lt; hi; cursorA++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (arr[cursorA] &gt; pivot) <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 如果遍歷時小於等於pivot</span></span><br><span class="line">      <span class="comment">// 指標2向右移動1</span></span><br><span class="line">      cursorB++;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// swap 指標1及指標2</span></span><br><span class="line">      <span class="keyword">const</span> temp = arr[cursorA];</span><br><span class="line">      arr[cursorA] = arr[cursorB];</span><br><span class="line">      arr[cursorB] = temp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 繼續向移動一個位子，確保pivot在交換過後，其右邊的element一定大於pivot</span></span><br><span class="line">    cursorB++</span><br><span class="line">    arr[hi] = arr[cursorB];</span><br><span class="line">    arr[cursorB] = pivot;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cursorB;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> #<span class="title function_">qs</span>(<span class="params">hi, low, arr</span>) &#123;</span><br><span class="line">    <span class="comment">// base case</span></span><br><span class="line">    <span class="keyword">if</span> (low &gt;= hi) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// recursion</span></span><br><span class="line">    <span class="keyword">const</span> pivotIndex = <span class="variable language_">this</span>.#<span class="title function_">partition</span>(hi, low, arr);</span><br><span class="line"></span><br><span class="line">    <span class="variable language_">this</span>.#<span class="title function_">qs</span>(pivotIndex - <span class="number">1</span>, low, arr);</span><br><span class="line">    <span class="variable language_">this</span>.#<span class="title function_">qs</span>(hi, pivotIndex + <span class="number">1</span>, arr)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> <span class="title function_">qs</span>(<span class="params">arr</span>) &#123;</span><br><span class="line">    <span class="comment">// 個人習慣不改變輸入，而是產生新輸入，但會因此產生新成本</span></span><br><span class="line">    <span class="keyword">const</span> arrCopy = [...arr];</span><br><span class="line">    <span class="variable language_">this</span>.#<span class="title function_">qs</span>(arrCopy.<span class="property">length</span> - <span class="number">1</span>, <span class="number">0</span>, arrCopy);</span><br><span class="line">    <span class="keyword">return</span> arrCopy</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="小結"><a href="#小結" class="headerlink" title="小結"></a>小結</h2><p>覺得quick sort很有意思！！！當初想出來的人頭腦也太好了吧～～～</p>
+<p>我覺得這裡在實作時困難的地方是我要怎麼知道如何設計recursion的參數會讓程式更漂亮，一開始寫怎麼會知道要用對外的qs包著對內qs及partition，甚至recurse的function也不是partition而是qs；另外也包括cursorB從low - 1開始也是讓程式更為簡潔的一些關鍵。</p>
+<p>再次提醒自己沒有這樣的直覺或是邏輯思考就是我與高手之間的差距，不能因為自己跟著課程學到了寫法就當作自己已經完全會了。</p>
+<p>此文章同步發表於<a href="https://tim80411.github.io/code-blog/">部落格</a>，歡迎來逛逛～</p>
+<h2 id="參考資料"><a href="#參考資料" class="headerlink" title="參考資料"></a>參考資料</h2><p><a target="_blank" rel="noopener" href="https://frontendmasters.com/courses/algorithms/">The Last Algorithms Course You’ll Need</a><br><a target="_blank" rel="noopener" href="https://favtutor.com/blogs/quick-sort-cpp">Quick Sort in C++ ( Code with Example)</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>Post author:  </strong>Timothy Liao
+  </li>
+  <li class="post-copyright-link">
+      <strong>Post link: </strong>
+      <a href="https://tim80411.github.io/code-blog/2023/01/19/ALG_QuickSort/" title="資料結構與演算法-5-ALG_QuickSort">https://tim80411.github.io/code-blog/2023/01/19/ALG_QuickSort/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/code-blog/tags/Algorithms/" rel="tag"># Algorithms</a>
+              <a href="/code-blog/tags/Backend/" rel="tag"># Backend</a>
+              <a href="/code-blog/tags/QuickSort/" rel="tag"># QuickSort</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/code-blog/2023/01/05/ALG_Recursion/" rel="prev" title="資料結構與演算法-4-Recursion">
+                  <i class="fa fa-chevron-left"></i> 資料結構與演算法-4-Recursion
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    
+  <div class="comments" id="disqus_thread">
+    <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+  </div>
+  
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2022 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timothy Liao</span>
+</div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="Symbols count total">82k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:14</span>
+  </span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/comments.js"></script><script src="/code-blog/js/utils.js"></script><script src="/code-blog/js/next-boot.js"></script><script src="/code-blog/js/bookmark.js"></script>
+
+  
+<script src="https://cdn.jsdelivr.net/npm/hexo-generator-searchdb@1.4.0/dist/search.js" integrity="sha256-vXZMYLEqsROAXkEw93GGIvaB2ab+QW6w3+1ahD9nXXA=" crossorigin="anonymous"></script>
+<script src="/code-blog/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+<script class="next-config" data-name="disqus" type="application/json">{"enable":true,"shortname":"timothy-coding-ground","count":true,"i18n":{"disqus":"disqus"}}</script>
+<script src="/code-blog/js/third-party/comments/disqus.js"></script>
+
+</body>
+</html>
